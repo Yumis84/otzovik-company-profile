@@ -1,26 +1,19 @@
 <!doctype html>
 <html lang="ru">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#101828"><title>Профиль компании — личный кабинет | Отзыв.com</title><link rel="icon" href="https://отзыв.com/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="account-profile.css"></head>
-<body><header><div class="wrap top"><a class="brand" href="https://отзыв.com/">отзыв<span>.com</span></a><b>ЛИЧНЫЙ КАБИНЕТ</b></div></header><main class="wrap">
-<nav aria-label="Навигация кабинета"><a href="account-home.html">Мои компании</a><a class="active" href="#profile">Профиль</a><a href="account-branches.html">Филиалы</a><a href="account-services.html">Услуги</a><a href="account-media.html">Фото</a><a href="account-reviews.html">Отзывы</a><a href="account-billing.html">Тариф и оплата</a><a href="account-ai-assistant.html">AI-ассистент</a><a href="account-notifications.html">Уведомления</a><a href="account-analytics.html">Статистика</a></nav>
-<section class="active-company-context"><div class="active-company-main"><div class="active-company-avatar" id="active-company-avatar">К</div><div class="active-company-copy"><small>Редактируется компания</small><strong id="active-company-name">Определяем компанию…</strong></div></div><a class="active-company-change" href="account-home.html">Сменить компанию</a></section>
-<section class="intro"><div><small>ПРОФИЛЬ КОМПАНИИ</small><h1 id="company-name">Загрузка…</h1><p id="intro-text">Проверяем авторизацию и доступ к профилю компании.</p></div><a id="public-profile-link" href="#" aria-disabled="true">Открыть публичный профиль ↗</a></section>
-<section class="editor-layout" id="profile"><form class="editor" id="profile-form" aria-label="Профиль компании"><fieldset id="profile-fields" disabled><div class="editor-head"><div><small>ДАННЫЕ КОМПАНИИ</small><h2>О компании</h2></div><span id="data-state">Проверка доступа</span></div>
-<label>Название компании<input id="name" required maxlength="200"></label><label>Краткое описание<textarea rows="4" id="description" disabled>Отдельное поле описания пока не подключено к модели данных.</textarea></label>
-<div class="form-grid"><label>Город<input id="city" maxlength="120"></label><label>Официальный сайт<input id="website" type="text" inputmode="url" maxlength="500" placeholder="https://student-agency.ru" autocomplete="url"><small class="field-help">Введите student-agency.ru или https://student-agency.ru — протокол добавится автоматически.</small><span id="website-error" class="field-error" role="alert"></span></label></div><div class="form-grid"><label>Общий телефон<input id="phone" maxlength="100" placeholder="Не указан"></label><label>Электронная почта<input id="email" type="email" maxlength="320" placeholder="Не указана"></label></div>
-<button id="save" type="submit" disabled>Сохранить изменения</button><p id="save-state" role="status"></p></fieldset></form>
-<aside class="progress"><small>СОСТОЯНИЕ ПРОФИЛЯ</small><strong id="completeness">—</strong><div><i id="progress-bar"></i></div><p id="progress-text">Получаем защищённые сведения компании.</p><b>Контроль изменений:</b><ul><li>запись проходит через защищённую RPC;</li><li>изменять профиль может только подтверждённый owner/admin;</li><li>каждое изменение фиксируется в audit_log.</li></ul></aside></section>
-<section class="manage-grid"><article><span id="locations-count">—</span><b>Филиалы</b><p>Адреса, телефоны и расписание каждого филиала.</p><a class="manage-link" href="account-branches.html">Управлять филиалами</a></article><article><span id="services-count">—</span><b>Услуги</b><p>Категории и направления, доступные клиентам.</p><a class="manage-link" href="account-services.html">Управлять услугами</a></article><article><span>0</span><b>Фото</b><p>Обложка, интерьер, фасад, товары и команда.</p><a class="manage-link" href="account-media.html">Управлять фотографиями</a></article></section>
-<p class="demo" id="demo-text">Защищённый кабинет. Изменения доступны только подтверждённому владельцу или администратору.</p></main>
-<script type="module" src="account-company-context.js?v=first-entry-fix"></script>
-<script type="module">
-const requestedCompanyId=new URLSearchParams(location.search).get('company_id');if(requestedCompanyId)sessionStorage.setItem('otzovik_active_company_id',requestedCompanyId);const pickCompanyRow=rows=>(rows||[]).find(row=>row?.company?.id===requestedCompanyId||row?.company_id===requestedCompanyId)||rows?.[0];const keepCompanyContext=()=>{if(!requestedCompanyId)return;document.querySelectorAll('a[href^="account-"]').forEach(a=>{const u=new URL(a.getAttribute('href'),location.href);u.searchParams.set('company_id',requestedCompanyId);a.href=u.pathname.split('/').pop()+u.search})};keepCompanyContext();
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
-const client=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
-const el=id=>document.getElementById(id);
-const text=(id,v)=>{if(el(id))el(id).textContent=v??''};
-const value=(id,v)=>{if(el(id))el(id).value=v??''};
-const normalize=v=>{v=(v||'').trim();return v&&!v.toLowerCase().startsWith('http')?'https://'+v:v};
-function render(c){value('name',c.name);value('city',c.city);value('website',c.website);value('phone',c.phone);value('email',c.email);text('company-name',c.name||'Компания');const publicLink=document.getElementById('public-profile-link');if(publicLink&&c.slug){publicLink.href='https://'+c.slug+'.xn--b1ajuq0c.com/';publicLink.removeAttribute('aria-disabled')}text('data-state','Защищено');}
-async function load(){try{const s=await client.auth.getSession();if(!s.data.session){location.replace('account-login.html');return}const r=await client.rpc('get_my_companies');if(r.error)throw r.error;const x=pickCompanyRow(r.data);if(!x){location.replace('account-home.html');return}render(x.company);if(x.membership&&(x.membership.role==='owner'||x.membership.role==='admin')){el('profile-fields').disabled=false;el('save').disabled=false;text('intro-text','Данные компании загружены. Вы можете редактировать профиль.');text('progress-text','Изменения будут записаны в журнал аудита.')}}catch(e){text('data-state','Ошибка доступа');text('intro-text','Не удалось загрузить данные компании.');text('progress-text',e.message||'Проверьте авторизацию.')}}load();
-</script></body></html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Профиль компании — личный кабинет | Отзыв.com</title>
+<script>
+(function(){
+  var target='account-profile.html'+location.search+location.hash;
+  location.replace(target);
+})();
+</script>
+<noscript><meta http-equiv="refresh" content="0;url=account-profile.html"></noscript>
+</head>
+<body>
+<p>Эта страница перенесена в <a href="account-profile.html">профиль компании</a>.</p>
+</body>
+</html>
