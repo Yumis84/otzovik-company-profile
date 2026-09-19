@@ -23,9 +23,7 @@
   </main>
 <script type="module">
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
-const requestedCompanyId=new URLSearchParams(location.search).get('company_id');
-const pickCompanyRow=rows=>(rows||[]).find(row=>row?.company?.id===requestedCompanyId||row?.company_id===requestedCompanyId)||rows?.[0];
-if(requestedCompanyId){document.querySelectorAll('a[href^="account-"]').forEach(a=>{const u=new URL(a.getAttribute('href'),location.href);u.searchParams.set('company_id',requestedCompanyId);a.href=u.pathname.split('/').pop()+u.search})}
+const urlCompanyId=new URLSearchParams(location.search).get('company_id');const savedCompanyId=sessionStorage.getItem('otzovik_active_company_id');const requestedCompanyId=urlCompanyId||savedCompanyId;const pickCompanyRow=rows=>requestedCompanyId?(rows||[]).find(row=>row?.company?.id===requestedCompanyId||row?.company_id===requestedCompanyId):((rows||[]).length===1?rows[0]:null);if(urlCompanyId)sessionStorage.setItem('otzovik_active_company_id',urlCompanyId);if(requestedCompanyId){document.querySelectorAll('a[href^="account-"]').forEach(a=>{const raw=a.getAttribute('href');if(!raw||raw.startsWith('account-home.html'))return;const u=new URL(raw,location.href);u.searchParams.set('company_id',requestedCompanyId);a.href=u.pathname.split('/').pop()+u.search})}
 const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
 const form=document.getElementById('branch-form'),state=document.getElementById('branch-save-state'),list=document.getElementById('branches');
 const el=id=>document.getElementById(id),text=(id,value)=>{if(el(id))el(id).textContent=value},esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])),field=id=>el(id).value.trim();
