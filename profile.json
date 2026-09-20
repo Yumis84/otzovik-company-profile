@@ -3,7 +3,7 @@
   "name": "Ортомедия",
   "aliases": ["Ортомедия", "ООО «Фармед»"],
   "location": {"city": "Калининград", "country": "RU"},
-  "verification_status": "unverified",
+  "verification_status": "verified",
   "profile_status": "ready",
   "official_website": "https://ortomediya.ru/",
   "locations": {"published_count": 6},
