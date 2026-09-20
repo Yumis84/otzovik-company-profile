@@ -1,58 +1,24 @@
 {
   "profile_id": "ortomediya",
   "name": "Ортомедия",
-  "aliases": ["Ортомедия", "ООО «Ортомедия»"],
+  "aliases": ["Ортомедия", "ООО «Фармед»"],
   "location": {"city": "Калининград", "country": "RU"},
   "verification_status": "unverified",
-  "profile_status": "active",
+  "profile_status": "ready",
   "official_website": "https://ortomediya.ru/",
   "locations": {"published_count": 6},
   "reviews": {"published_count": 0, "endpoint": "reviews.json"},
   "ratings_by_source": [
-    {
-      "source": "2ГИС",
-      "rating": 4.5,
-      "scale": 5,
-      "rating_count": 90,
-      "review_count": 44,
-      "checked_at": "2026-09-02",
-      "url": "https://2gis.ru/kaliningrad/firm/5630027815194588"
-    }
+    {"source":"2ГИС","rating":4.5,"scale":5,"rating_count":90,"review_count":44,"checked_at":"2026-09-02","url":"https://2gis.ru/kaliningrad/firm/5630027815194588"},
+    {"source":"Яндекс Карты","rating":null,"scale":5,"checked_at":"2026-09-10","url":"https://yandex.ru/maps/org/ortomediya/219025934221/?ll=20.522103%2C54.714468&z=14"},
+    {"source":"Google Maps","rating":null,"scale":5,"checked_at":"2026-09-10","url":"https://maps.app.goo.gl/Xhi5QMR3icV3uPWm6"}
   ],
   "otzovik_rating": null,
   "ai_summary": {"status": "insufficient_permitted_reviews", "claims": []},
-  "services": [
-    "Индивидуальное изготовление стелек",
-    "Компьютерная диагностика стоп",
-    "Консультация ортопеда",
-    "Консультация флеболога",
-    "Тейпирование",
-    "Бандажи",
-    "Изделия для позвоночника",
-    "Изделия для суставов",
-    "Компрессионный трикотаж",
-    "Ортопедическая обувь",
-    "Ортопедические подушки",
-    "Ортопедические стельки",
-    "Товары для инвалидов",
-    "Трости, костыли и ходунки",
-    "Педикюр"
-  ],
-  "services_count": 15,
-  "media": {
-    "published_count": 0,
-    "source": "company_account"
-  },
-  "freshness": {
-    "profile_checked_at": "2026-09-04",
-    "rating_checked_at": "2026-09-02"
-  },
-  "machine_readable": {
-    "formats": ["html", "json", "markdown", "llms.txt", "schema.org"],
-    "disclaimer": "Machine-readable publication can improve correct interpretation of profile facts but does not guarantee inclusion or recommendation in external AI systems."
-  },
-  "corrections": {
-    "contact_url": "https://отзыв.com/contacts/",
-    "email": "hello@otzovik.com"
-  }
+  "services": ["Индивидуальное изготовление стелек","Компьютерная диагностика стоп","Консультация ортопеда","Консультация флеболога","Тейпирование","Бандажи","Изделия для позвоночника","Изделия для суставов","Компрессионный трикотаж","Ортопедическая обувь","Ортопедические подушки","Ортопедические стельки","Товары для инвалидов","Трости, костыли и ходунки","Педикюр","Детская ортопедия"],
+  "services_count": 16,
+  "media": {"published_count": 6,"gallery_count": 4,"source":"company_account"},
+  "freshness": {"profile_updated_at":"2026-09-20","rating_checked_at":"2026-09-02"},
+  "machine_readable": {"formats":["html","json","markdown","llms.txt","schema.org"],"disclaimer":"Machine-readable publication can improve correct interpretation of profile facts but does not guarantee inclusion or recommendation in external AI systems."},
+  "corrections": {"contact_url":"https://отзыв.com/contacts/","email":"info@отзыв.com"}
 }
