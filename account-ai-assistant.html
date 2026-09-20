@@ -8,14 +8,14 @@
 <section class="intro"><div><small>ДОПОЛНИТЕЛЬНАЯ УСЛУГА</small><h1>AI-ассистент компании</h1><p>Настройте, как ассистент отвечает посетителям профиля, какие знания использует и когда передаёт обращение человеку.</p><p class="company-context" id="company-context">Определяем текущую компанию…</p></div><a href="account-billing.html">Тариф и подключение</a></section>
 <section class="status-card" id="assistant"><div><small>СТАТУС</small><h2>Услуга не подключена</h2><p>Настройки показаны как будущий интерфейс. Сохранение и публикация ассистента будут доступны после подключения услуги.</p></div><span>ОПЛАТА НЕ ПОДКЛЮЧЕНА</span></section>
 <section class="assistant-layout">
-<form class="settings" aria-labelledby="settings-title">
+<section class="settings" aria-labelledby="settings-title">
 <small>НАСТРОЙКИ ДИАЛОГА</small><h2 id="settings-title">Инструкция для ассистента</h2>
 <label>Название ассистента<input type="text" value="" placeholder="Например, консультант компании" disabled></label>
 <label>Первое сообщение<textarea rows="3" placeholder="Коротко поприветствуйте посетителя и предложите помощь" disabled></textarea></label>
 <label>Инструкция для AI (промпт)<textarea rows="9" placeholder="Опишите роль ассистента, стиль общения, порядок вопросов, допустимые ответы и ситуации, когда нужно передать диалог человеку" disabled></textarea></label>
 <label>Стиль общения<select disabled><option>Доброжелательный и деловой</option><option>Краткий</option><option>Подробный</option></select></label>
 <button type="button" disabled>Сохранить настройки</button>
-</form>
+</section>
 <aside class="sources"><small>ИСТОЧНИКИ И ДЕЙСТВИЯ</small><h2>Что можно подключить</h2>
 <div class="source-item"><b>Данные профиля</b><p>Описание, услуги, филиалы, контакты и расписание компании.</p><span>Обязательный источник</span></div>
 <div class="source-item"><b>База знаний компании</b><p>Проверенные документы, ответы на вопросы, правила и условия работы.</p><span>Будет настраиваться</span></div>
@@ -24,7 +24,7 @@
 </section>
 <section class="packages"><div class="packages-head"><small>ПАКЕТЫ ЗАПРОСОВ</small><h2>Стоимость AI-ассистента</h2><p>Пакет относится к одной компании. Неиспользованные запросы действуют до окончания указанного срока.</p></div><div class="package-grid"><article><span>ТЕСТ</span><h3>Бесплатный старт</h3><b>50 запросов</b><strong>0 ₽</strong><p>14 дней</p><button type="button" disabled>Выдаётся при подключении</button></article><article><span>СТАРТ</span><h3>Для небольшого объёма</h3><b>100 запросов</b><strong>350 ₽</strong><p>30 дней · 3,5 ₽ за запрос</p><button type="button" disabled>Оплата пока отключена</button></article><article class="featured"><span>ПРОФИ</span><h3>Для регулярной работы</h3><b>300 запросов</b><strong>900 ₽</strong><p>30 дней · 3 ₽ за запрос</p><button type="button" disabled>Оплата пока отключена</button></article><article><span>МАКСИМУМ</span><h3>Для активного бизнеса</h3><b>1000 запросов</b><strong>2 000 ₽</strong><p>30 дней · 2 ₽ за запрос</p><button type="button" disabled>Оплата пока отключена</button></article></div></section>
 <section class="guardrails"><div><h3>Компания настраивает</h3><p>Инструкцию, тон общения, вопросы, знания и сценарий передачи обращения.</p></div><div><h3>Платформа защищает</h3><p>Системные ограничения, персональные данные, разделение компаний и секретные ключи.</p></div><div><h3>Ассистент не изменяет</h3><p>Отзывы, оценки, решения модерации и независимые сведения о репутации.</p></div></section>
-<p class="demo">Пока это интерфейс будущей дополнительной услуги. Пакеты запросов определены, но оплата и сохранение настроек ещё не подключены.</p>
+<p class="demo">AI-ассистент пока недоступен для подключения. Настройки и оплата станут доступны после запуска услуги.</p>
 </main>
 <script type="module">
 const params=new URLSearchParams(location.search),urlCompanyId=params.get('company_id'),savedCompanyId=localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id'),requestedCompanyId=urlCompanyId||savedCompanyId;const saveCompanyId=id=>{if(!id)return;localStorage.setItem('otzovik_active_company_id',id);sessionStorage.setItem('otzovik_active_company_id',id)};if(urlCompanyId)saveCompanyId(urlCompanyId);const pickCompanyRow=rows=>{const list=rows||[];if(requestedCompanyId){const found=list.find(row=>row?.company?.id===requestedCompanyId||row?.company_id===requestedCompanyId);if(found)return found}return list[0]||null};const keepCompanyContext=()=>{if(!requestedCompanyId)return;document.querySelectorAll('a[href^="account-"]').forEach(a=>{const raw=a.getAttribute('href');if(!raw||raw.startsWith('account-home.html'))return;const u=new URL(raw,location.href);u.searchParams.set('company_id',requestedCompanyId);a.href=u.pathname.split('/').pop()+u.search})};keepCompanyContext();
