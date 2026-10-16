@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Профиль специалиста: предварительный просмотр | Отзыв.com</title>
+<meta name="robots" content="noindex,nofollow"><title>Профиль специалиста | Отзыв.com</title>
 <style>
 :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101828;background:#f6f8fb}*{box-sizing:border-box}
 body{margin:0}.wrap{width:min(660px,calc(100% - 28px));margin:30px auto 70px}
@@ -13,37 +13,64 @@ button{background:#101828;color:white;border:0;border-radius:10px;padding:13px 1
 button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 </style></head>
 <body><main class="wrap"><a href="account-create-profile.html">← Выбор типа профиля</a>
-<section class="card"><h1>Индивидуальный специалист</h1>
+<section class="card"><a href="account-home.html">Мои профили</a><h1>Индивидуальный специалист</h1>
 <p class="notice" role="status"><strong>Черновик специалиста.</strong> Профиль не публикуется автоматически.</p>
-<form id="preview">
+<form id="preview"><fieldset id="fields" disabled style="border:0;padding:0;margin:0;min-width:0">
 <label class="field">Публичное имя *<input name="display_name" required minlength="2" maxlength="150" autocomplete="name" placeholder="Как вас будут видеть клиенты"></label>
-<label class="field">Адрес профиля *<input name="slug" required minlength="3" maxlength="63" pattern="[a-z0-9][a-z0-9-]*[a-z0-9]" placeholder="master-ivan"></label>
+<label class="field">Адрес профиля *<input name="slug" required minlength="3" maxlength="63" pattern="[a-z0-9][a-z0-9\-]*[a-z0-9]" placeholder="master-ivan"></label>
 <label class="field">Профессия *<input name="profession" required maxlength="120" placeholder="Например, фотограф"></label>
 <label class="field">Специализация<input name="specialization" maxlength="160" placeholder="Например, предметная съёмка"></label>
 <label class="field">Город<input name="city" maxlength="120" placeholder="Или укажите «Работаю онлайн»"></label>
 <label class="field">Описание<textarea name="description" maxlength="2000" placeholder="Опишите опыт, услуги и подход к работе"></textarea></label>
-<p class="hint">Публикация потребует отдельного согласия. Подтверждение квалификации не происходит автоматически. Адрес профиля, услуги и отзывы будут добавлены после проверки серверной модели.</p>
-<button type="submit" id="save">Сохранить черновик</button>
-<p id="save-note" class="hint">Для сохранения требуется серверная функция create_my_specialist_draft. Если она ещё не установлена, данные не будут сохранены.</p>
+<p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Публикация, услуги и отзывы будут доступны на следующем этапе.</p>
+<button type="submit" id="save" disabled>Сохранить черновик</button>
+</fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
 </form></section></main>
 <script type="module">
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
 const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
-const {data:{session},error}=await s.auth.getSession();
-if(error||!session)location.replace('account-login.html?next='+encodeURIComponent('account-create-specialist.html'));
-const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note');
-const editId=new URLSearchParams(location.search).get('id');
-if(editId){const result=await s.rpc('get_my_specialists');const item=Array.isArray(result.data)?result.data.find(x=>x.id===editId):null;if(item){for(const key of ['display_name','slug','profession','specialization','city','description']){const input=form.elements.namedItem(key);if(input)input.value=item[key]||'';}form.elements.namedItem('slug').readOnly=true;save.textContent='Сохранить изменения';}else{note.textContent='Черновик не найден или недоступен.';save.disabled=true;}}
+const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note'),fields=document.getElementById('fields');
+const params=new URLSearchParams(location.search);
+const editing=params.has('id');
+const editId=params.get('id');
+let ready=false,busy=false;
+const failLoad=message=>{note.textContent=message;fields.disabled=true;save.disabled=true;};
+async function initialize(){
+ try{
+  const {data,error}=await s.auth.getSession();
+  if(error||!data?.session){
+   const next='account-create-specialist.html'+(editing?'?id='+encodeURIComponent(editId||''):'');
+   location.replace('account-login.html?next='+encodeURIComponent(next));return;
+  }
+  if(editing){
+   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editId||'')){failLoad('Некорректная ссылка на черновик.');return;}
+   const result=await s.rpc('get_my_specialists');
+   if(result.error){failLoad('Не удалось загрузить черновик. Обновите страницу и попробуйте снова.');return;}
+   const item=Array.isArray(result.data)?result.data.find(x=>x.id===editId):null;
+   if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
+   for(const key of ['display_name','slug','profession','specialization','city','description'])form.elements.namedItem(key).value=item[key]||'';
+   form.elements.namedItem('slug').readOnly=true;
+   save.textContent='Сохранить изменения';
+  }
+  ready=true;fields.disabled=false;save.disabled=false;note.textContent='Изменения сохранятся только после нажатия кнопки.';
+ }catch{failLoad('Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');}
+}
 form.addEventListener('submit',async event=>{
- event.preventDefault();if(!form.reportValidity())return;
- const fd=new FormData(form);const name=String(fd.get('display_name')||'').trim();
- const slug=String(fd.get('slug')||'').trim().toLowerCase();
- const profession=String(fd.get('profession')||'').trim();
- if(!name||!profession||!/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(slug)){note.textContent='Проверьте имя, профессию и адрес профиля.';return}
- save.disabled=true;note.textContent='Сохраняем черновик…';
- const {data,error}=await s.rpc(editId?'update_my_specialist_draft':'create_my_specialist_draft',{...(editId?{p_id:editId}:{p_slug:slug}),p_display_name:name,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
- if(error){note.textContent=error.code==='42883'?'Сохранение ещё не подключено на сервере. Обратитесь к администратору.':error.code==='23505'?'Адрес уже занят. Выберите другой.':'Не удалось сохранить: '+error.message;save.disabled=false;return}
- note.textContent='Черновик сохранён. Переходим к списку профилей.';
- location.assign('account-home.html');
+ event.preventDefault();if(!ready||busy||!form.reportValidity())return;
+ const fd=new FormData(form),name=String(fd.get('display_name')||'').trim(),slug=String(fd.get('slug')||'').trim().toLowerCase(),profession=String(fd.get('profession')||'').trim();
+ if(name.length<2||name.length>150||!profession||profession.length>120||!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug)||slug.startsWith('xn--')||['www','api','admin','test','test2','account','login','profiles','specialists'].includes(slug)){
+  note.textContent='Проверьте имя, профессию и адрес: 3–63 латинских символа, цифры или дефис. Служебные адреса недоступны.';return;
+ }
+ busy=true;save.disabled=true;note.textContent='Сохраняем черновик…';
+ try{
+  const {data,error}=await s.rpc(editing?'update_my_specialist_draft':'create_my_specialist_draft',{...(editing?{p_id:editId}:{p_slug:slug}),p_display_name:name,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
+  if(error){
+   note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
+  }
+  if(!data?.id||data.profile_status!=='draft')throw new Error('Unexpected response');
+  note.textContent='Черновик сохранён. Переходим к списку профилей.';location.assign('account-home.html');
+ }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
+ finally{busy=false;save.disabled=false;}
 });
+await initialize();
 </script></body></html>

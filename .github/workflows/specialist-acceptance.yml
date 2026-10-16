@@ -1,0 +1,38 @@
+name: Specialist draft acceptance
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/profile-kind-chooser-v1]
+permissions:
+  contents: read
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: acceptance-only
+          POSTGRES_DB: otzovik_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Real PostgreSQL roles, RPCs and overlapping transactions
+        run: npm test
+        env:
+          TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
+      - run: npx playwright install --with-deps chromium
+      - name: Browser create-list-edit and failure paths against isolated SQL
+        run: npm run test:browser

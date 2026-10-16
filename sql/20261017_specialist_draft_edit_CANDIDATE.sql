@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION public.update_my_specialist_draft(p_id uuid,p_display
 DECLARE v_uid uuid := auth.uid(); v_id uuid;
 BEGIN
  IF v_uid IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
- IF char_length(btrim(coalesce(p_display_name,''))) NOT BETWEEN 2 AND 150 OR char_length(coalesce(p_profession,'')) > 120 OR char_length(coalesce(p_specialization,'')) > 160 OR char_length(coalesce(p_city,'')) > 120 OR char_length(coalesce(p_description,'')) > 2000 THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid fields'; END IF;
+ IF char_length(btrim(coalesce(p_display_name,''))) NOT BETWEEN 2 AND 150 OR char_length(btrim(coalesce(p_profession,''))) NOT BETWEEN 1 AND 120 OR char_length(coalesce(p_specialization,'')) > 160 OR char_length(coalesce(p_city,'')) > 120 OR char_length(coalesce(p_description,'')) > 2000 THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid fields'; END IF;
  UPDATE public.specialist_profiles SET display_name=btrim(p_display_name),profession=nullif(btrim(coalesce(p_profession,'')),''),specialization=nullif(btrim(coalesce(p_specialization,'')),''),city=nullif(btrim(coalesce(p_city,'')),''),description=nullif(btrim(coalesce(p_description,'')),''),updated_at=now() WHERE id=p_id AND owner_user_id=v_uid AND profile_status='draft' RETURNING id INTO v_id;
  IF v_id IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Draft not found or access denied'; END IF;
  RETURN jsonb_build_object('id',v_id,'profile_status','draft');

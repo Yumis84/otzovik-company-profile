@@ -1,0 +1,14 @@
+{
+  "name": "otzovik-cabinet-acceptance",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/specialist-acceptance.mjs",
+    "test:browser": "node tests/specialist-browser.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "pg": "8.23.1",
+    "playwright": "1.62.1"
+  }
+}
