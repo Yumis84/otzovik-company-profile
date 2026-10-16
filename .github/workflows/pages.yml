@@ -24,13 +24,17 @@ jobs:
       - name: Prepare public Pages artifact
         run: |
           mkdir -p public-site
-          find . -maxdepth 1 -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' -o -name '*.json' -o -name '*.md' -o -name '*.txt' -o -name '.nojekyll' \) ! -name 'package.json' ! -name 'package-lock.json' ! -name 'test-*' -exec cp {} public-site/ \;
+          find . -maxdepth 1 -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' -o -name 'profile.json' -o -name 'reviews.json' -o -name 'profile.md' -o -name 'llms.txt' -o -name '.nojekyll' \) ! -name 'package.json' ! -name 'package-lock.json' ! -name 'test-*' -exec cp {} public-site/ \;
           cp -R reviews public-site/reviews
           test -f public-site/reviews/index.html
           test -f public-site/index.html
           test -f public-site/account-create-specialist.html
           test ! -e public-site/sql
           test ! -e public-site/tests
+          test ! -e public-site/README.md
+          test ! -e public-site/package.json
+          test ! -e public-site/agent-logs
+          test ! -e public-site/scripts
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
