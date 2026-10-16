@@ -39,7 +39,7 @@ form.addEventListener('submit',async event=>{
  const profession=String(fd.get('profession')||'').trim();
  if(!name||!profession||!/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(slug)){note.textContent='Проверьте имя, профессию и адрес профиля.';return}
  save.disabled=true;note.textContent='Сохраняем черновик…';
- const {data,error}=await s.rpc('create_my_specialist_draft',{p_display_name:name,p_slug:slug,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null});
+ const {data,error}=await s.rpc('create_my_specialist_draft',{p_display_name:name,p_slug:slug,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
  if(error){note.textContent=error.code==='42883'?'Сохранение ещё не подключено на сервере. Обратитесь к администратору.':error.code==='23505'?'Адрес уже занят. Выберите другой.':'Не удалось сохранить: '+error.message;save.disabled=false;return}
  note.textContent='Черновик сохранён. Переходим к списку профилей.';
  location.assign('account-home.html');
