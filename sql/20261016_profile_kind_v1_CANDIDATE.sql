@@ -52,4 +52,35 @@ end;
 $$;
 revoke all on function public.create_my_profile(text,text,text,text,text,text,text) from public,anon;
 grant execute on function public.create_my_profile(text,text,text,text,text,text,text) to authenticated;
+
+-- Preserve existing get_my_companies contract while adding profile_kind and
+-- preventing revoked/suspended memberships from reading private profile data.
+create or replace function public.get_my_companies() returns jsonb
+language plpgsql security definer set search_path = ''
+as $
+declare v_user_id uuid := auth.uid();
+begin
+ if v_user_id is null then
+   raise exception using errcode='42501',message='Authentication required';
+ end if;
+ return coalesce((
+  select jsonb_agg(jsonb_build_object(
+    'company',jsonb_build_object(
+      'id',c.id,'slug',c.slug,
+      'public_url','https://' || c.slug || '.xn--b1ajuq0c.com/',
+      'name',c.name,'description',c.description,'city',c.city,
+      'website',c.website,'phone',c.phone,'email',c.email,
+      'status',c.status,'profile_status',c.profile_status,
+      'profile_kind',c.profile_kind
+    ),
+    'membership',jsonb_build_object(
+      'id',m.id,'role',m.role,'verification_status',m.verification_status
+    )
+  ) order by c.created_at desc)
+  from public.company_memberships m
+  join public.companies c on c.id=m.company_id
+  where m.user_id=v_user_id and m.verification_status='verified'
+ ),'[]'::jsonb);
+end;
+$;
 commit;
