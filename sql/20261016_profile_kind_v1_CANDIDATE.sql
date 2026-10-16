@@ -57,7 +57,7 @@ grant execute on function public.create_my_profile(text,text,text,text,text,text
 -- preventing revoked/suspended memberships from reading private profile data.
 create or replace function public.get_my_companies() returns jsonb
 language plpgsql security definer set search_path = ''
-as $
+as $$
 declare v_user_id uuid := auth.uid();
 begin
  if v_user_id is null then
@@ -82,5 +82,5 @@ begin
   where m.user_id=v_user_id and m.verification_status='verified'
  ),'[]'::jsonb);
 end;
-$;
+$$;
 commit;
