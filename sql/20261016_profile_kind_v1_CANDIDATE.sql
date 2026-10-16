@@ -7,6 +7,10 @@ alter table public.companies
 alter table public.companies
   add constraint companies_profile_kind_check
   check (profile_kind in ('company','specialist'));
+-- Existing check excludes draft: extend it explicitly for specialist drafts.
+alter table public.companies drop constraint companies_profile_status_check;
+alter table public.companies add constraint companies_profile_status_check
+ check (profile_status in ('processing','ready','needs_review','suspended','draft'));
 comment on column public.companies.profile_kind is
   'V1: company or specialist; specialist reuses editor, not verified professional credentials';
 
@@ -34,11 +38,16 @@ begin
      raise exception using errcode='42501',message='Not profile owner';
    end if;
    update public.companies
-     set profile_kind='specialist', profile_status='draft'
+     set profile_kind='specialist', profile_status='draft', status='inactive'
      where id=v_id;
 
  end if;
- return jsonb_set(v_result,'{company,profile_kind}',to_jsonb(p_kind),true);
+ v_result := jsonb_set(v_result,'{company,profile_kind}',to_jsonb(p_kind),true);
+ if p_kind='specialist' then
+   v_result := jsonb_set(v_result,'{company,profile_status}','"draft"'::jsonb,true);
+   v_result := jsonb_set(v_result,'{company,status}','"inactive"'::jsonb,true);
+ end if;
+ return v_result;
 end;
 $$;
 revoke all on function public.create_my_profile(text,text,text,text,text,text,text) from public,anon;
