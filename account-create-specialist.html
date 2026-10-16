@@ -14,20 +14,34 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 </style></head>
 <body><main class="wrap"><a href="account-create-profile.html">← Выбор типа профиля</a>
 <section class="card"><h1>Индивидуальный специалист</h1>
-<p class="notice" role="status"><strong>Предварительный просмотр формы.</strong> Создание и сохранение профиля пока недоступны. Введённые данные никуда не отправляются.</p>
+<p class="notice" role="status"><strong>Черновик специалиста.</strong> Профиль не публикуется автоматически.</p>
 <form id="preview">
-<label class="field">Публичное имя *<input name="display_name" maxlength="150" autocomplete="name" placeholder="Как вас будут видеть клиенты"></label>
-<label class="field">Профессия *<input name="profession" maxlength="120" placeholder="Например, фотограф"></label>
+<label class="field">Публичное имя *<input name="display_name" required minlength="2" maxlength="150" autocomplete="name" placeholder="Как вас будут видеть клиенты"></label>
+<label class="field">Адрес профиля *<input name="slug" required minlength="3" maxlength="63" pattern="[a-z0-9][a-z0-9-]*[a-z0-9]" placeholder="master-ivan"></label>
+<label class="field">Профессия *<input name="profession" required maxlength="120" placeholder="Например, фотограф"></label>
 <label class="field">Специализация<input name="specialization" maxlength="160" placeholder="Например, предметная съёмка"></label>
 <label class="field">Город<input name="city" maxlength="120" placeholder="Или укажите «Работаю онлайн»"></label>
 <label class="field">Описание<textarea name="description" maxlength="2000" placeholder="Опишите опыт, услуги и подход к работе"></textarea></label>
 <p class="hint">Публикация потребует отдельного согласия. Подтверждение квалификации не происходит автоматически. Адрес профиля, услуги и отзывы будут добавлены после проверки серверной модели.</p>
-<button type="button" disabled aria-describedby="save-note">Сохранить черновик</button>
-<p id="save-note" class="hint">Кнопка станет доступна после внедрения защищённого API. Эта форма ничего не сохраняет.</p>
+<button type="submit" id="save">Сохранить черновик</button>
+<p id="save-note" class="hint">Для сохранения требуется серверная функция create_my_specialist_draft. Если она ещё не установлена, данные не будут сохранены.</p>
 </form></section></main>
 <script type="module">
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
 const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
 const {data:{session},error}=await s.auth.getSession();
 if(error||!session)location.replace('account-login.html?next='+encodeURIComponent('account-create-specialist.html'));
+const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note');
+form.addEventListener('submit',async event=>{
+ event.preventDefault();if(!form.reportValidity())return;
+ const fd=new FormData(form);const name=String(fd.get('display_name')||'').trim();
+ const slug=String(fd.get('slug')||'').trim().toLowerCase();
+ const profession=String(fd.get('profession')||'').trim();
+ if(!name||!profession||!/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(slug)){note.textContent='Проверьте имя, профессию и адрес профиля.';return}
+ save.disabled=true;note.textContent='Сохраняем черновик…';
+ const {data,error}=await s.rpc('create_my_specialist_draft',{p_display_name:name,p_slug:slug,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null});
+ if(error){note.textContent=error.code==='42883'?'Сохранение ещё не подключено на сервере. Обратитесь к администратору.':error.code==='23505'?'Адрес уже занят. Выберите другой.':'Не удалось сохранить: '+error.message;save.disabled=false;return}
+ note.textContent='Черновик сохранён. Переходим к списку профилей.';
+ location.assign('account-home.html');
+});
 </script></body></html>
