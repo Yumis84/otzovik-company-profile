@@ -12,4 +12,5 @@ END
 $fn$;
 REVOKE ALL ON FUNCTION public.update_my_specialist_draft(uuid,text,text,text,text,text) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.update_my_specialist_draft(uuid,text,text,text,text,text) TO authenticated;
+NOTIFY pgrst, 'reload schema';
 COMMIT;

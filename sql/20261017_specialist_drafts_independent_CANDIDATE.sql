@@ -2,6 +2,15 @@
 -- Independent private drafts + shared address uniqueness. Apply atomically with edit candidate.
 -- Existing company creation contract retained; targeted validation/read fixes below.
 BEGIN;
+SET LOCAL lock_timeout = '5s';
+SET LOCAL statement_timeout = '60s';
+DO $owner$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN
+    RAISE EXCEPTION 'Migration requires a trusted BYPASSRLS owner for the narrow SECURITY DEFINER RPCs';
+  END IF;
+END
+$owner$;
 
 CREATE TABLE public.specialist_profiles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

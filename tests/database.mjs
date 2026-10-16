@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
 import pg from 'pg';
+import {migrationSQL} from '../scripts/specialist-migration.mjs';
 export const A='11111111-1111-4111-8111-111111111111';
 export const B='22222222-2222-4222-8222-222222222222';
 export async function database(){
@@ -20,7 +21,7 @@ export async function database(){
  await query("INSERT INTO auth.users VALUES ($1),($2)",[A,B]);
  await query("INSERT INTO public.companies(id,slug,name) VALUES ('33333333-3333-4333-8333-333333333333','existing-company','Existing')");
  const before=(await query('SELECT row_to_json(c) data FROM companies c')).rows;
- for(const name of ['20261017_specialist_drafts_independent_CANDIDATE.sql','20261017_specialist_draft_edit_CANDIDATE.sql'])await exec(await fs.readFile(new URL('../sql/'+name,import.meta.url),'utf8'));
+ await exec(await migrationSQL());
  assert.deepEqual((await query('SELECT row_to_json(c) data FROM companies c')).rows,before);
  async function session(uid,fn,role='authenticated'){
   const c=pool?await pool.connect():embedded;

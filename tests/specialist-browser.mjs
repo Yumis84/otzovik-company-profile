@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {database,A,B} from './database.mjs';
 const db=await database();
-const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--disable-dev-shm-usage']});
 let user=A,failRPC=null,throwRPC=null,calls=[],slowRPC=null;
 const context=await browser.newContext();
 await context.route('**/*',async route=>{

@@ -83,6 +83,18 @@ await test('registry covers direct writes, rename, delete, rollback and ON CONFL
  await db.query("INSERT INTO companies(id,slug,name) VALUES($1,'ignored-slug','Ignored') ON CONFLICT(id) DO NOTHING",[company.company.id]);await create(B,'ignored-slug');
  const check=await db.query("SELECT count(*)::int n FROM (SELECT slug FROM companies UNION ALL SELECT slug FROM specialist_profiles) x");assert.equal(check.rows[0].n,(await db.query('SELECT count(*)::int n FROM profile_slug_registry')).rows[0].n);
 });
+await test('non-destructive rollback disables specialist API, retains data/addresses and company creation',async()=>{
+ const signatures=['create_my_specialist_draft(text,text,text,text,text,text)','get_my_specialists()','update_my_specialist_draft(uuid,text,text,text,text,text)'];
+ const before=(await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n;
+ for(const signature of signatures)await db.exec(`REVOKE EXECUTE ON FUNCTION public.${signature} FROM authenticated;`);
+ await denied(()=>create(A,'rollback-disabled'));
+ await denied(()=>db.call(A,'get_my_specialists'));
+ await denied(()=>db.call(A,'update_my_specialist_draft',[draft.id,'Changed','Test']));
+ const result=await db.call(A,'create_my_company',['During rollback','master-one']);
+ assert.notEqual(result.company.slug,'master-one');
+ assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
+ for(const signature of signatures)await db.exec(`GRANT EXECUTE ON FUNCTION public.${signature} TO authenticated;`);
+});
 if(db.concurrent){
  await test('real concurrent company/specialist transactions: both insertion orders',async()=>{
   for(const first of ['company','specialist']){
