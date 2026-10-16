@@ -15,7 +15,7 @@ create or replace function public.create_my_profile(
  p_website text default null, p_phone text default null,
  p_city text default null, p_email text default null
 ) returns jsonb
-language plpgsql security invoker set search_path = ''
+language plpgsql security definer set search_path = ''
 as $$
 declare
  v_result jsonb;
@@ -24,17 +24,19 @@ begin
  if p_kind not in ('company','specialist') or p_kind is null then
    raise exception using errcode='22023',message='Invalid profile kind';
  end if;
+ if auth.uid() is null then raise exception using errcode='42501',message='Authentication required'; end if;
  -- Reuse existing validation, slug reservation, authenticated ownership and audit.
  v_result := public.create_my_company(p_name,p_slug,p_website,p_phone,p_city,p_email);
  v_id := (v_result #>> '{company,id}')::uuid;
  if p_kind='specialist' then
    -- No automatic public publication or claims of verified qualifications.
+   if not exists(select 1 from public.company_memberships where company_id=v_id and user_id=auth.uid() and role='owner' and verification_status <> 'revoked') then
+     raise exception using errcode='42501',message='Not profile owner';
+   end if;
    update public.companies
      set profile_kind='specialist', profile_status='draft'
      where id=v_id;
-   update public.audit_log
-     set metadata=coalesce(metadata,'{}'::jsonb) || '{"profile_kind":"specialist"}'::jsonb
-     where company_id=v_id and action='company_created' and target_id=v_id::text;
+
  end if;
  return jsonb_set(v_result,'{company,profile_kind}',to_jsonb(p_kind),true);
 end;
