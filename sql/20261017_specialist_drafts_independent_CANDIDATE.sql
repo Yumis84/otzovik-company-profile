@@ -33,7 +33,8 @@ CREATE OR REPLACE FUNCTION public.create_my_specialist_draft(
   p_slug text,
   p_profession text DEFAULT NULL,
   p_specialization text DEFAULT NULL,
-  p_city text DEFAULT NULL
+  p_city text DEFAULT NULL,
+  p_description text DEFAULT NULL
 ) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = ''
@@ -60,11 +61,11 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.companies WHERE slug = v_slug) THEN
     RAISE EXCEPTION USING ERRCODE='23505', MESSAGE='Profile address already taken';
   END IF;
-  INSERT INTO public.specialist_profiles(owner_user_id,slug,display_name,profession,specialization,city)
+  INSERT INTO public.specialist_profiles(owner_user_id,slug,display_name,profession,specialization,city,description)
   VALUES (v_user_id,v_slug,v_name,
           nullif(btrim(coalesce(p_profession,'')),''),
           nullif(btrim(coalesce(p_specialization,'')),''),
-          nullif(btrim(coalesce(p_city,'')),''))
+          nullif(btrim(coalesce(p_city,'')),''),nullif(btrim(coalesce(p_description,'')),''))
   RETURNING id INTO v_id;
   RETURN jsonb_build_object('id',v_id,'slug',v_slug,'profile_status','draft');
 END
@@ -84,15 +85,15 @@ BEGIN
     SELECT jsonb_agg(jsonb_build_object(
       'id',s.id,'slug',s.slug,'display_name',s.display_name,
       'profession',s.profession,'specialization',s.specialization,
-      'city',s.city,'profile_status',s.profile_status
+      'city',s.city,'description',s.description,'profile_status',s.profile_status
     ) ORDER BY s.created_at DESC)
     FROM public.specialist_profiles s WHERE s.owner_user_id = v_user_id
   ),'[]'::jsonb);
 END
 $function$;
 
-REVOKE ALL ON FUNCTION public.create_my_specialist_draft(text,text,text,text,text) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.create_my_specialist_draft(text,text,text,text,text) TO authenticated;
+REVOKE ALL ON FUNCTION public.create_my_specialist_draft(text,text,text,text,text,text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.create_my_specialist_draft(text,text,text,text,text,text) TO authenticated;
 REVOKE ALL ON FUNCTION public.get_my_specialists() FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated;
 
