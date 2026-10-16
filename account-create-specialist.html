@@ -32,6 +32,8 @@ const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_
 const {data:{session},error}=await s.auth.getSession();
 if(error||!session)location.replace('account-login.html?next='+encodeURIComponent('account-create-specialist.html'));
 const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note');
+const editId=new URLSearchParams(location.search).get('id');
+if(editId){const result=await s.rpc('get_my_specialists');const item=Array.isArray(result.data)?result.data.find(x=>x.id===editId):null;if(item){for(const key of ['display_name','slug','profession','specialization','city','description']){const input=form.elements.namedItem(key);if(input)input.value=item[key]||'';}form.elements.namedItem('slug').readOnly=true;save.textContent='Сохранить изменения';}else{note.textContent='Черновик не найден или недоступен.';save.disabled=true;}}
 form.addEventListener('submit',async event=>{
  event.preventDefault();if(!form.reportValidity())return;
  const fd=new FormData(form);const name=String(fd.get('display_name')||'').trim();
@@ -39,7 +41,7 @@ form.addEventListener('submit',async event=>{
  const profession=String(fd.get('profession')||'').trim();
  if(!name||!profession||!/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(slug)){note.textContent='Проверьте имя, профессию и адрес профиля.';return}
  save.disabled=true;note.textContent='Сохраняем черновик…';
- const {data,error}=await s.rpc('create_my_specialist_draft',{p_display_name:name,p_slug:slug,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
+ const {data,error}=await s.rpc(editId?'update_my_specialist_draft':'create_my_specialist_draft',{...(editId?{p_id:editId}:{p_slug:slug}),p_display_name:name,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
  if(error){note.textContent=error.code==='42883'?'Сохранение ещё не подключено на сервере. Обратитесь к администратору.':error.code==='23505'?'Адрес уже занят. Выберите другой.':'Не удалось сохранить: '+error.message;save.disabled=false;return}
  note.textContent='Черновик сохранён. Переходим к списку профилей.';
  location.assign('account-home.html');
