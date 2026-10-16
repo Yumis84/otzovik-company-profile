@@ -51,6 +51,9 @@ BEGIN
   IF char_length(v_name) NOT BETWEEN 2 AND 200 THEN
     RAISE EXCEPTION USING ERRCODE='22023', MESSAGE='Invalid specialist name';
   END IF;
+  IF char_length(coalesce(p_profession,'')) > 120 OR char_length(coalesce(p_specialization,'')) > 160 OR char_length(coalesce(p_city,'')) > 120 OR char_length(coalesce(p_description,'')) > 2000 THEN
+    RAISE EXCEPTION USING ERRCODE='22023', MESSAGE='Specialist field too long';
+  END IF;
   IF v_slug !~ '^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$'
      OR v_slug ~ '^xn--'
      OR v_slug IN ('www','api','admin','test','test2','account','login','profiles','specialists')
