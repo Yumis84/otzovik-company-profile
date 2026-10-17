@@ -24,6 +24,21 @@ export async function editorChecks({a,b,anonymous,ok,company,test}){
    else assert(!removed.error,'Neither competing operation completed');
   }
  });
+ await test('competing real Storage uploads at 19 objects cannot exceed quota',async()=>{
+  const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Quota Race',p_slug:'quota-race-editor',p_profession:'Master'}));
+  const storage=a.storage.from('specialist-media'),blob=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
+  const paths=Array.from({length:21},()=>profile.id+'/portfolio/'+crypto.randomUUID()+'.png');
+  for(const path of paths.slice(0,19))ok(await storage.upload(path,blob,{contentType:'image/png'}));
+  const results=await Promise.all(paths.slice(19).map(path=>storage.upload(path,blob,{contentType:'image/png'})));
+  assert.equal(results.filter(r=>!r.error).length,1,'Exactly one upload may claim the final slot');
+  const objects=ok(await storage.list(profile.id+'/portfolio',{limit:100}));assert.equal(objects.length,20);
+  for(const rpc of ['can_manage_specialist_object','can_upload_specialist_object']){
+   assert.equal(ok(await b.rpc(rpc,{p_name:paths[0]})),false);
+   assert.equal(ok(await a.rpc(rpc,{p_name:'invalid/avatar/x.png'})),false);
+  }
+  ok(await storage.remove(objects.map(x=>profile.id+'/portfolio/'+x.name)));
+  ok(await a.rpc('delete_my_specialist_draft',{p_specialist_id:profile.id}));
+ });
  await test('separate real specialist Storage MIME/size/owner/cross-kind policies',async()=>{
   const blob=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64'),name=id+'/avatar/'+crypto.randomUUID()+'.png';
   ok(await a.storage.from('specialist-media').upload(name,blob,{contentType:'image/png'}));

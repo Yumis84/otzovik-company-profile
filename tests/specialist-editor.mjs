@@ -42,6 +42,14 @@ try{
   await denied(()=>db.call(B,'register_my_specialist_media',[b.id,path,'avatar']),'22023');
   await denied(()=>db.call(B,'delete_my_specialist_media',[a.id,media.id]));
  });
+ await test('helper RPCs reject malformed, foreign and company paths without UUID errors',async()=>{
+  for(const user of [A,B])for(const path of ['bad/avatar/x.png','',null,'33333333-3333-4333-8333-333333333333/avatar/'+crypto.randomUUID()+'.png'])for(const rpc of ['can_manage_specialist_object','can_upload_specialist_object'])assert.equal(await db.call(user,rpc,[path]),false);
+  const own=a.id+'/portfolio/'+crypto.randomUUID()+'.png';
+  for(const rpc of ['can_manage_specialist_object','can_upload_specialist_object']){
+   assert.equal(await db.call(A,rpc,[own]),true);
+   assert.equal(await db.call(B,rpc,[own]),false);
+  }
+ });
  await test('server rejects oversized/unsafe MIME; one avatar and file quota',async()=>{
   for(const meta of [{size:5242881,mimetype:'image/png'},{size:100,mimetype:'image/svg+xml'}]){const path=a.id+'/portfolio/'+crypto.randomUUID()+'.png';await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,meta]);await denied(()=>db.call(A,'register_my_specialist_media',[a.id,path,'portfolio']),'22023');}
   const path=a.id+'/avatar/'+crypto.randomUUID()+'.png';await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,{size:100,mimetype:'image/png'}]);await denied(()=>db.call(A,'register_my_specialist_media',[a.id,path,'avatar']),'23505');

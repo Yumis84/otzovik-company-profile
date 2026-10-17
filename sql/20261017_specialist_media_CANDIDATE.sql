@@ -3,6 +3,16 @@ BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='60s';
 DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RAISE EXCEPTION 'Trusted BYPASSRLS owner required'; END IF; IF EXISTS(SELECT FROM storage.buckets WHERE id='specialist-media') THEN RAISE EXCEPTION 'Review existing specialist bucket before migration'; END IF; END $$;
+-- BYPASSRLS does not grant table ownership or permission to CREATE POLICY.
+DO $storage_owner$ BEGIN
+ IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname=current_user AND rolsuper)
+ AND NOT EXISTS(SELECT FROM pg_class c WHERE c.oid='storage.objects'::regclass AND pg_has_role(current_user,c.relowner,'USAGE')) THEN
+  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Storage policy deployment requires storage.objects ownership; do not grant roles or change managed table ownership to bypass this gate';
+ END IF;
+ IF NOT has_table_privilege(current_user,'storage.buckets','INSERT') THEN
+  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Storage bucket INSERT privilege required';
+ END IF;
+END $storage_owner$;
 INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types) VALUES('specialist-media','specialist-media',false,5242880,ARRAY['image/jpeg','image/png','image/webp']);
 CREATE TABLE public.specialist_media (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(), specialist_id uuid NOT NULL REFERENCES public.specialist_profiles(id) ON DELETE CASCADE,
@@ -17,14 +27,14 @@ ALTER TABLE public.specialist_media FORCE ROW LEVEL SECURITY;
 REVOKE ALL ON public.specialist_media FROM PUBLIC,anon,authenticated;
 CREATE FUNCTION public.can_manage_specialist_object(p_name text) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path='' AS $$
  SELECT auth.uid() IS NOT NULL AND p_name ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/(avatar|portfolio)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[.](webp|png|jpg|jpeg)$'
- AND EXISTS(SELECT FROM public.specialist_profiles WHERE id::text=split_part(p_name,'/',1) AND owner_user_id=auth.uid() AND profile_status='draft');
+ AND EXISTS(SELECT FROM public.specialist_profiles WHERE id=CASE WHEN split_part(p_name,'/',1) ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN split_part(p_name,'/',1)::uuid END AND owner_user_id=auth.uid() AND profile_status='draft');
 $$;
 CREATE FUNCTION public.can_upload_specialist_object(p_name text) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 BEGIN
  IF NOT public.can_manage_specialist_object(p_name) THEN RETURN false; END IF;
  PERFORM pg_advisory_xact_lock(hashtextextended('specialist-media:'||split_part(p_name,'/',1),0));
  -- Recheck ownership after waiting; coordinate with draft deletion and pin its row.
- PERFORM 1 FROM public.specialist_profiles WHERE id::text=split_part(p_name,'/',1) AND owner_user_id=auth.uid() AND profile_status='draft' FOR KEY SHARE;
+ PERFORM 1 FROM public.specialist_profiles WHERE id=CASE WHEN split_part(p_name,'/',1) ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN split_part(p_name,'/',1)::uuid END AND owner_user_id=auth.uid() AND profile_status='draft' FOR KEY SHARE;
  IF NOT FOUND THEN RETURN false; END IF;
  RETURN (SELECT count(*) FROM storage.objects WHERE bucket_id='specialist-media' AND split_part(name,'/',1)=split_part(p_name,'/',1))<20;
 END $$;
@@ -35,7 +45,7 @@ CREATE POLICY specialist_object_insert ON storage.objects FOR INSERT TO authenti
 CREATE POLICY specialist_object_delete ON storage.objects FOR DELETE TO authenticated USING(bucket_id='specialist-media' AND public.can_manage_specialist_object(name));
 -- No UPDATE/upsert or anonymous policy; new UUID for each upload.
 CREATE FUNCTION public.get_my_specialist_media(p_specialist_id uuid) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
-BEGIN IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF; PERFORM 1 FROM public.specialist_profiles WHERE id=p_specialist_id AND owner_user_id=auth.uid() AND profile_status='draft' FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Draft unavailable'; END IF; RETURN coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at,x.id) FROM public.specialist_media x WHERE specialist_id=p_specialist_id),'[]'::jsonb); END;
+BEGIN IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF; PERFORM 1 FROM public.specialist_profiles WHERE id=p_specialist_id AND owner_user_id=auth.uid() AND profile_status='draft'; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Draft unavailable'; END IF; RETURN coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at,x.id) FROM public.specialist_media x WHERE specialist_id=p_specialist_id),'[]'::jsonb); END;
 $fn$;
 CREATE FUNCTION public.register_my_specialist_media(p_specialist_id uuid,p_object_name text,p_kind text,p_caption text DEFAULT NULL) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
 DECLARE v public.specialist_media; meta jsonb; BEGIN IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF; PERFORM 1 FROM public.specialist_profiles WHERE id=p_specialist_id AND owner_user_id=auth.uid() AND profile_status='draft' FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Draft unavailable'; END IF;
