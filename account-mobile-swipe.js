@@ -1,26 +1,28 @@
-/* Shared mobile-only swipe navigation for company cabinet pages. */
+/* Shared swipe navigation for mobile company cabinet. */
 (()=>{'use strict';
-if(!window.matchMedia('(max-width: 760px)').matches || !('ontouchstart' in window || navigator.maxTouchPoints>0))return;
+if(!matchMedia('(max-width: 760px)').matches)return;
 const nav=document.querySelector('nav[aria-label="Навигация кабинета"]');
 if(!nav)return;
 const links=[...nav.querySelectorAll('a[href]')].filter(a=>!a.getAttribute('href').includes('account-home.html'));
 const current=links.findIndex(a=>a.classList.contains('active'));
 if(current<0)return;
-let start=null,dirty=false;
-const interactive='input,textarea,select,button,[contenteditable],a,[role="slider"],[role="dialog"],[data-no-swipe]';
-document.addEventListener('input',e=>{if(e.target.matches('input,textarea,[contenteditable]'))dirty=true},true);
-document.addEventListener('change',e=>{if(e.target.matches('select,input,textarea'))dirty=true},true);
+let touch=null,dirty=false;
+const skip='input,textarea,select,[contenteditable="true"],[role="slider"],[role="dialog"],[data-no-swipe]';
+document.addEventListener('input',e=>{if(e.target.closest('input,textarea,select,[contenteditable="true"]'))dirty=true},true);
+document.addEventListener('change',e=>{if(e.target.closest('input,textarea,select'))dirty=true},true);
 document.addEventListener('submit',()=>{dirty=false},true);
 document.addEventListener('touchstart',e=>{
-if(e.touches.length!==1||e.target.closest(interactive)||e.target.closest('[style*="overflow-x"],.horizontal-scroll,.carousel')){start=null;return}
-const t=e.touches[0];if(t.clientX<24||t.clientX>innerWidth-24){start=null;return}
-start={x:t.clientX,y:t.clientY,time:Date.now()};
+if(e.touches.length!==1||e.target.closest(skip)){touch=null;return}
+const t=e.touches[0];
+if(t.clientX<20||t.clientX>innerWidth-20){touch=null;return}
+touch={x:t.clientX,y:t.clientY,at:Date.now()};
 },{passive:true});
+document.addEventListener('touchcancel',()=>touch=null,{passive:true});
 document.addEventListener('touchend',e=>{
-if(!start||e.changedTouches.length!==1)return;
-const t=e.changedTouches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;
-const elapsed=Date.now()-start.time;start=null;
-if(elapsed>1300||Math.abs(dx)<65||Math.abs(dx)<Math.abs(dy)*1.35)return;
+if(!touch||e.changedTouches.length!==1)return;
+const t=e.changedTouches[0],dx=t.clientX-touch.x,dy=t.clientY-touch.y,elapsed=Date.now()-touch.at;
+touch=null;
+if(elapsed>1400||Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.3)return;
 const next=current+(dx<0?1:-1);
 if(next<0||next>=links.length)return;
 if(dirty&&!confirm('Есть несохранённые изменения. Перейти без сохранения?'))return;
