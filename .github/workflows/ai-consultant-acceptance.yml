@@ -30,3 +30,22 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node tests/ai/browser.mjs
       - run: npm run test:pages
+  ai-local-rpc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/prepare-local-stack.mjs
+      - name: Start disposable Supabase without hosted links
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,edge-runtime,logflare,vector,supavisor > /tmp/ai-stack-start.log 2>&1
+      - name: Read only disposable local keys privately
+        run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+      - run: node tests/ai/local-rpc.mjs
+      - name: Stop disposable stack
+        if: always()
+        run: npx supabase stop --workdir /tmp/otzovik-supabase --no-backup
