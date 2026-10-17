@@ -1,0 +1,505 @@
+{
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "company_locations",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "table": "company_locations",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "table": "company_locations",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "relationship_type",
+      "type": "text",
+      "table": "company_locations",
+      "default": "'owned'::text",
+      "notnull": true
+    },
+    {
+      "name": "canonical_address",
+      "type": "text",
+      "table": "company_locations",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "city",
+      "type": "text",
+      "table": "company_locations",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "phone",
+      "type": "text",
+      "table": "company_locations",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "hours",
+      "type": "jsonb",
+      "table": "company_locations",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "official_url",
+      "type": "text",
+      "table": "company_locations",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "source_url",
+      "type": "text",
+      "table": "company_locations",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "latitude",
+      "type": "numeric(9,6)",
+      "table": "company_locations",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "longitude",
+      "type": "numeric(9,6)",
+      "table": "company_locations",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "company_locations",
+      "default": "'published'::text",
+      "notnull": true
+    },
+    {
+      "name": "verified_at",
+      "type": "timestamp with time zone",
+      "table": "company_locations",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "company_locations",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "company_locations",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "company_media",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "table": "company_media",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "storage_object_name",
+      "type": "text",
+      "table": "company_media",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "media_type",
+      "type": "text",
+      "table": "company_media",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "company_media",
+      "default": "'draft'::text",
+      "notnull": true
+    },
+    {
+      "name": "sort_order",
+      "type": "integer",
+      "table": "company_media",
+      "default": "0",
+      "notnull": true
+    },
+    {
+      "name": "alt_text",
+      "type": "text",
+      "table": "company_media",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "caption",
+      "type": "text",
+      "table": "company_media",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "company_media",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "company_media",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "company_services",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "table": "company_services",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "table": "company_services",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "category",
+      "type": "text",
+      "table": "company_services",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "description",
+      "type": "text",
+      "table": "company_services",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "official_url",
+      "type": "text",
+      "table": "company_services",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "source_url",
+      "type": "text",
+      "table": "company_services",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "company_services",
+      "default": "'published'::text",
+      "notnull": true
+    },
+    {
+      "name": "verified_at",
+      "type": "timestamp with time zone",
+      "table": "company_services",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "company_services",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "company_services",
+      "default": "now()",
+      "notnull": true
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "DELETE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM company_memberships m\n  WHERE ((m.company_id = company_media.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.verification_status = 'verified'::text) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text])))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "company_media",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_delete",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "company_media",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_insert",
+      "schemaname": "public",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM company_memberships m\n  WHERE ((m.company_id = company_media.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.verification_status = 'verified'::text) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text])))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM company_memberships m\n  WHERE ((m.company_id = company_media.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.verification_status = 'verified'::text) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text])))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "company_media",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_select",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM company_memberships m\n  WHERE ((m.company_id = company_media.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.verification_status = 'verified'::text) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text])))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "company_media",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_update",
+      "schemaname": "public",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM company_memberships m\n  WHERE ((m.company_id = company_media.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.verification_status = 'verified'::text) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text])))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'company-media'::text) AND storage.allow_any_operation(ARRAY['object.get_authenticated_info'::text, 'object.get_authenticated'::text]) AND media_internal.is_published_company_media_object(name))",
+      "roles": [
+        "anon"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "anon_read_published_company_media",
+      "schemaname": "storage",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = ( SELECT auth.uid() AS uid)) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_delete",
+      "schemaname": "storage",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_insert",
+      "schemaname": "storage",
+      "with_check": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "company_media_owner_read",
+      "schemaname": "storage",
+      "with_check": null
+    }
+  ],
+  "functions": [
+    {
+      "name": "create_my_company_location",
+      "definition": "CREATE OR REPLACE FUNCTION public.create_my_company_location(p_company_id uuid, p_name text, p_address text, p_city text, p_phone text DEFAULT NULL::text, p_hours jsonb DEFAULT '{}'::jsonb, p_official_url text DEFAULT NULL::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare\n  v_user uuid := auth.uid();\n  v_id uuid;\n  v_role text;\nbegin\n  if v_user is null then\n    raise exception 'authentication_required' using errcode='42501';\n  end if;\n\n  select role into v_role\n  from public.company_memberships\n  where company_id = p_company_id\n    and user_id = v_user\n    and verification_status = 'verified'\n    and role in ('owner','admin')\n  limit 1;\n\n  if v_role is null then\n    raise exception 'verified_owner_or_admin_required' using errcode='42501';\n  end if;\n\n  if nullif(trim(coalesce(p_name,'')),'') is null\n     or nullif(trim(coalesce(p_address,'')),'') is null\n     or nullif(trim(coalesce(p_city,'')),'') is null then\n    raise exception 'name_address_city_required' using errcode='22023';\n  end if;\n\n  insert into public.company_locations(\n    company_id, name, relationship_type, canonical_address, city,\n    phone, hours, official_url, source_url, status, verified_at\n  )\n  values(\n    p_company_id, trim(p_name), 'owned', trim(p_address), trim(p_city),\n    nullif(trim(coalesce(p_phone,'')),''),\n    coalesce(p_hours,'{}'::jsonb),\n    nullif(trim(coalesce(p_official_url,'')),''),\n    'owner-submitted', 'published', now()\n  )\n  returning id into v_id;\n\n  insert into public.audit_log(company_id,user_id,action,target_type,target_id,metadata)\n  values(\n    p_company_id, v_user, 'company_location.created', 'location', v_id,\n    jsonb_build_object('role',v_role)\n  );\n\n  return jsonb_build_object('id',v_id,'company_id',p_company_id);\nend;\n$function$\n"
+    },
+    {
+      "name": "create_my_company_service",
+      "definition": "CREATE OR REPLACE FUNCTION public.create_my_company_service(p_company_id uuid, p_name text, p_category text DEFAULT NULL::text, p_description text DEFAULT NULL::text, p_official_url text DEFAULT NULL::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare v_user uuid:=auth.uid(); v_id uuid; v_role text;\nbegin\n if v_user is null then raise exception 'authentication_required' using errcode='42501'; end if;\n select role into v_role from public.company_memberships where company_id=p_company_id and user_id=v_user and verification_status='verified' and role in ('owner','admin') limit 1;\n if v_role is null then raise exception 'verified_owner_or_admin_required' using errcode='42501'; end if;\n if nullif(trim(coalesce(p_name,'')),'') is null then raise exception 'service_name_required' using errcode='22023'; end if;\n insert into public.company_services(company_id,name,category,description,official_url,source_url,status,verified_at)\n values(p_company_id,trim(p_name),nullif(trim(coalesce(p_category,'')),''),nullif(trim(coalesce(p_description,'')),''),nullif(trim(coalesce(p_official_url,'')),''),'owner-submitted','published',now()) returning id into v_id;\n insert into public.audit_log(company_id,user_id,action,target_type,target_id,metadata) values(p_company_id,v_user,'company_service.created','service',v_id,jsonb_build_object('role',v_role));\n return jsonb_build_object('id',v_id,'company_id',p_company_id);\nend;\n$function$\n"
+    },
+    {
+      "name": "get_my_company_locations",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_my_company_locations(p_company_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare\n  v_user uuid := auth.uid();\n  v_role text;\n  v_result jsonb;\nbegin\n  if v_user is null then\n    raise exception 'authentication_required' using errcode='42501';\n  end if;\n\n  select role into v_role\n  from public.company_memberships\n  where company_id=p_company_id\n    and user_id=v_user\n    and verification_status='verified'\n    and role in ('owner','admin')\n  limit 1;\n\n  if v_role is null then\n    raise exception 'verified_owner_or_admin_required' using errcode='42501';\n  end if;\n\n  select coalesce(jsonb_agg(jsonb_build_object(\n    'id', l.id,\n    'name', l.name,\n    'address', l.canonical_address,\n    'city', l.city,\n    'phone', l.phone,\n    'hours', l.hours,\n    'status', l.status,\n    'created_at', l.created_at,\n    'updated_at', l.updated_at\n  ) order by l.created_at desc), '[]'::jsonb)\n  into v_result\n  from public.company_locations l\n  where l.company_id=p_company_id;\n\n  return v_result;\nend;\n$function$\n"
+    },
+    {
+      "name": "get_my_company_services",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_my_company_services(p_company_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare\n  v_user uuid := auth.uid();\n  v_role text;\n  v_result jsonb;\nbegin\n  if v_user is null then raise exception 'authentication_required' using errcode='42501'; end if;\n  select role into v_role from public.company_memberships\n   where company_id=p_company_id and user_id=v_user\n     and verification_status='verified' and role in ('owner','admin') limit 1;\n  if v_role is null then raise exception 'verified_owner_or_admin_required' using errcode='42501'; end if;\n\n  select coalesce(jsonb_agg(jsonb_build_object(\n    'id',s.id,'name',s.name,'category',s.category,'description',s.description,\n    'status',s.status,'created_at',s.created_at,'updated_at',s.updated_at\n  ) order by s.created_at desc),'[]'::jsonb)\n  into v_result\n  from public.company_services s where s.company_id=p_company_id;\n  return v_result;\nend;\n$function$\n"
+    },
+    {
+      "name": "manage_my_company_location",
+      "definition": "CREATE OR REPLACE FUNCTION public.manage_my_company_location(p_company_id uuid, p_location_id uuid, p_action text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare\n  v_user uuid := auth.uid();\n  v_role text;\n  v_location public.company_locations%rowtype;\n  v_next_status text;\nbegin\n  if v_user is null then\n    raise exception 'authentication_required' using errcode='42501';\n  end if;\n\n  select role into v_role\n  from public.company_memberships\n  where company_id=p_company_id\n    and user_id=v_user\n    and verification_status='verified'\n    and role in ('owner','admin')\n  limit 1;\n\n  if v_role is null then\n    raise exception 'verified_owner_or_admin_required' using errcode='42501';\n  end if;\n\n  select * into v_location\n  from public.company_locations\n  where id=p_location_id and company_id=p_company_id\n  for update;\n\n  if not found then\n    raise exception 'company_location_not_found' using errcode='P0002';\n  end if;\n\n  if p_action='archive' then\n    v_next_status := 'archived';\n    update public.company_locations\n      set status=v_next_status, updated_at=now()\n      where id=p_location_id and company_id=p_company_id;\n  elsif p_action='publish' then\n    v_next_status := 'published';\n    update public.company_locations\n      set status=v_next_status, verified_at=now(), updated_at=now()\n      where id=p_location_id and company_id=p_company_id;\n  elsif p_action='delete' then\n    v_next_status := 'deleted';\n    delete from public.company_locations\n      where id=p_location_id and company_id=p_company_id;\n  else\n    raise exception 'invalid_company_location_action' using errcode='22023';\n  end if;\n\n  insert into public.audit_log(company_id,user_id,action,target_type,target_id,metadata)\n  values(\n    p_company_id,\n    v_user,\n    'company_location.' || p_action,\n    'location',\n    p_location_id,\n    jsonb_build_object(\n      'role',v_role,\n      'previous_status',v_location.status,\n      'new_status',v_next_status,\n      'name',v_location.name,\n      'address',v_location.canonical_address\n    )\n  );\n\n  return jsonb_build_object('id',p_location_id,'company_id',p_company_id,'status',v_next_status);\nend;\n$function$\n"
+    },
+    {
+      "name": "manage_my_company_service",
+      "definition": "CREATE OR REPLACE FUNCTION public.manage_my_company_service(p_company_id uuid, p_service_id uuid, p_action text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare\n  v_user uuid := auth.uid();\n  v_role text;\n  v_service public.company_services%rowtype;\n  v_next_status text;\nbegin\n  if v_user is null then raise exception 'authentication_required' using errcode='42501'; end if;\n  select role into v_role from public.company_memberships\n   where company_id=p_company_id and user_id=v_user\n     and verification_status='verified' and role in ('owner','admin') limit 1;\n  if v_role is null then raise exception 'verified_owner_or_admin_required' using errcode='42501'; end if;\n\n  select * into v_service from public.company_services\n   where id=p_service_id and company_id=p_company_id for update;\n  if not found then raise exception 'company_service_not_found' using errcode='P0002'; end if;\n\n  if p_action='archive' then\n    v_next_status:='archived';\n    update public.company_services set status=v_next_status,updated_at=now()\n     where id=p_service_id and company_id=p_company_id;\n  elsif p_action='publish' then\n    v_next_status:='published';\n    update public.company_services set status=v_next_status,verified_at=now(),updated_at=now()\n     where id=p_service_id and company_id=p_company_id;\n  elsif p_action='delete' then\n    v_next_status:='deleted';\n    delete from public.company_services where id=p_service_id and company_id=p_company_id;\n  else\n    raise exception 'invalid_company_service_action' using errcode='22023';\n  end if;\n\n  insert into public.audit_log(company_id,user_id,action,target_type,target_id,metadata)\n  values(p_company_id,v_user,'company_service.'||p_action,'service',p_service_id,\n    jsonb_build_object('role',v_role,'previous_status',v_service.status,\n      'new_status',v_next_status,'name',v_service.name,'category',v_service.category));\n  return jsonb_build_object('id',p_service_id,'company_id',p_company_id,'status',v_next_status);\nend;\n$function$\n"
+    },
+    {
+      "name": "register_my_company_media",
+      "definition": "CREATE OR REPLACE FUNCTION public.register_my_company_media(p_company_id uuid, p_storage_object_name text, p_media_type text, p_alt_text text DEFAULT NULL::text, p_caption text DEFAULT NULL::text, p_sort_order integer DEFAULT 0)\n RETURNS jsonb\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\ndeclare\n  v_uid uuid := auth.uid();\n  v_media public.company_media%rowtype;\n  v_expected_prefix text;\nbegin\n  if v_uid is null then raise exception 'unauthorized' using errcode='42501'; end if;\n  if p_media_type not in ('logo','cover','interior','exterior','products','team') then\n    raise exception 'invalid_media_type' using errcode='22023';\n  end if;\n  if p_sort_order < 0 then raise exception 'invalid_sort_order' using errcode='22023'; end if;\n  if not exists (\n    select 1 from public.company_memberships cm\n    where cm.company_id=p_company_id and cm.user_id=v_uid\n      and cm.verification_status='verified' and cm.role in ('owner','admin')\n  ) then raise exception 'forbidden' using errcode='42501'; end if;\n\n  v_expected_prefix := p_company_id::text || '/' || p_media_type || '/';\n  if p_storage_object_name is null or length(p_storage_object_name)>1024\n     or p_storage_object_name not like v_expected_prefix || '%'\n     or p_storage_object_name like '%..%' or p_storage_object_name like '%\\\\%'\n  then raise exception 'invalid_storage_object_name' using errcode='22023'; end if;\n\n  if not exists (\n    select 1 from storage.objects so\n    where so.bucket_id='company-media' and so.name=p_storage_object_name\n  ) then raise exception 'storage_object_not_found' using errcode='P0002'; end if;\n\n  update public.company_media\n     set status='archived', updated_at=now()\n   where company_id=p_company_id and media_type=p_media_type\n     and status='published' and storage_object_name<>p_storage_object_name;\n\n  insert into public.company_media(\n    company_id,storage_object_name,media_type,status,sort_order,alt_text,caption,updated_at\n  ) values (\n    p_company_id,p_storage_object_name,p_media_type,'published',p_sort_order,\n    nullif(btrim(p_alt_text),''),nullif(btrim(p_caption),''),now()\n  )\n  on conflict (company_id,storage_object_name)\n  do update set media_type=excluded.media_type,status='published',\n    sort_order=excluded.sort_order,alt_text=excluded.alt_text,\n    caption=excluded.caption,updated_at=now()\n  returning * into v_media;\n\n  return jsonb_build_object(\n    'id',v_media.id,'company_id',v_media.company_id,\n    'object_name',v_media.storage_object_name,'type',v_media.media_type,\n    'status',v_media.status,'sort_order',v_media.sort_order,\n    'alt',v_media.alt_text,'caption',v_media.caption,'updated_at',v_media.updated_at\n  );\nend;\n$function$\n"
+    }
+  ],
+  "extra": {
+    "helpers": [
+      "CREATE OR REPLACE FUNCTION media_internal.is_published_company_media_object(p_storage_object_name text)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select exists (\n    select 1\n    from public.company_media cm\n    where cm.storage_object_name = p_storage_object_name\n      and cm.status = 'published'\n  );\n$function$\n"
+    ],
+    "policies": [
+      {
+        "cmd": "SELECT",
+        "qual": "(status = 'active'::text)",
+        "roles": [
+          "anon",
+          "authenticated"
+        ],
+        "tablename": "companies",
+        "permissive": "PERMISSIVE",
+        "policyname": "companies_public_read",
+        "schemaname": "public",
+        "with_check": null
+      },
+      {
+        "cmd": "SELECT",
+        "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+        "roles": [
+          "authenticated"
+        ],
+        "tablename": "company_memberships",
+        "permissive": "PERMISSIVE",
+        "policyname": "membership_self_read",
+        "schemaname": "public",
+        "with_check": null
+      }
+    ],
+    "constraints": [
+      {
+        "name": "company_locations_company_id_canonical_address_key",
+        "table": "company_locations",
+        "definition": "UNIQUE (company_id, canonical_address)"
+      },
+      {
+        "name": "company_locations_company_id_fkey",
+        "table": "company_locations",
+        "definition": "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"
+      },
+      {
+        "name": "company_locations_pkey",
+        "table": "company_locations",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "name": "company_locations_relationship_type_check",
+        "table": "company_locations",
+        "definition": "CHECK ((relationship_type = ANY (ARRAY['owned'::text, 'partner'::text, 'related'::text])))"
+      },
+      {
+        "name": "company_locations_status_check",
+        "table": "company_locations",
+        "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])))"
+      },
+      {
+        "name": "company_services_company_id_fkey",
+        "table": "company_services",
+        "definition": "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"
+      },
+      {
+        "name": "company_services_company_id_name_key",
+        "table": "company_services",
+        "definition": "UNIQUE (company_id, name)"
+      },
+      {
+        "name": "company_services_pkey",
+        "table": "company_services",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "name": "company_services_status_check",
+        "table": "company_services",
+        "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])))"
+      },
+      {
+        "name": "company_media_check",
+        "table": "company_media",
+        "definition": "CHECK ((storage_object_name ~~ ((company_id)::text || '/%'::text)))"
+      },
+      {
+        "name": "company_media_company_id_fkey",
+        "table": "company_media",
+        "definition": "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"
+      },
+      {
+        "name": "company_media_company_id_storage_object_name_key",
+        "table": "company_media",
+        "definition": "UNIQUE (company_id, storage_object_name)"
+      },
+      {
+        "name": "company_media_media_type_check",
+        "table": "company_media",
+        "definition": "CHECK ((media_type = ANY (ARRAY['logo'::text, 'cover'::text, 'interior'::text, 'exterior'::text, 'products'::text, 'team'::text])))"
+      },
+      {
+        "name": "company_media_pkey",
+        "table": "company_media",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "name": "company_media_sort_order_check",
+        "table": "company_media",
+        "definition": "CHECK ((sort_order >= 0))"
+      },
+      {
+        "name": "company_media_status_check",
+        "table": "company_media",
+        "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])))"
+      }
+    ]
+  }
+}
