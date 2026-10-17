@@ -59,3 +59,23 @@ Before deployment preserve the previous frontend artifact and SQL/grant snapshot
 ## Remaining gates
 
 Final-SHA CI, staging hosted Auth/PostgREST/Storage smoke, deployment artifact review, and explicit production migration/merge/release authorization. No production SQL, main merge, DNS/Worker changes, data removal or draft publication is authorized by this report.
+
+
+## Follow-up preflight and artifact audit (2026-10-17 02:50 UTC)
+
+CI run [38996239398](https://github.com/Yumis84/otzovik-company-profile/actions/runs/38996239398) on implementation commit `2e17fcfbb553bd9fea84ba3d5ffc82fc544a6468`: **PASS, 15 PostgreSQL groups and 12 Playwright groups**, logs inspected. Both actual concurrent-transaction groups passed.
+
+The repeatable `sql/20261017_specialist_preflight_READ_ONLY.sql` was executed read-only against the named production project. **All seven checks PASS**: exact company create/read/edit baselines, definer owner and EXECUTE checks, absent new tables, unique normalized company addresses, nonnull addresses, no membership loss under verified-only filtering. Aggregate counts: 7 companies, 9 memberships. It returns no profile rows or secrets. It is a diagnostic SELECT, not a migration; exclude it from the atomic migration bundle.
+
+Staging discovery: the connected organization exposes the production otzovik project and an unrelated inactive museum project, with **zero development branches** for otzovik. No disposable staging target is available in this account. Do not repurpose the museum database or create a billable project/branch without owner approval. Provisioning or providing an isolated staging target is the next prerequisite for hosted acceptance.
+
+Pages audit: `.github/workflows/pages.yml` uploads `path: .` from a clean checkout. Therefore tracked SQL candidates, test fixtures/adapters, scripts, docs and agent logs accompany the public HTML. There is no npm installation in this workflow, so the local untracked node_modules is not part of that checkout. The repository itself is public; this is an artifact hygiene issue, not evidence of a newly discovered secret leak. Recommended release change, **not applied**: build a dedicated directory containing reviewed site HTML/CSS/JS/JSON/assets and `.nojekyll`, validate local resource references, and upload that directory. Keep the publisher contracts and public profile JSON intact. Changing the deployment workflow requires owner consent; no workflow was changed here.
+
+### Hosted staging acceptance procedure
+
+1. Owner provides or approves creation of a disposable Supabase target. Record its ref and assert it differs from `rzhlcszqtuhkhfibygnk`; do not copy production user records or credentials. Install a reviewed company schema/RPC baseline and Auth/Storage policies before the specialist candidate.
+2. Run preflight against that baseline; compare definitions to the approved production snapshot. Apply the generated atomic specialist transaction only to staging. Use PostgreSQL 17 to match the current hosted production engine; current CI uses PostgreSQL 16.
+3. Serve an isolated frontend copy whose Supabase URL/publishable key point only to staging. All current cabinet pages use embedded project configuration, so verify every page/module for the production ref before starting. Never put a service-role key into frontend code. Configure staging Auth redirect URLs for its own origin.
+4. Create two dedicated confirmed Auth users A/B with no real data. Exercise email confirmation and session restoration; A creates company + specialist, edits each and reloads; B cannot read or change A's draft by RPC or direct table request. Repeat with specialist-only and empty accounts.
+5. Exercise real company branch/service CRUD, Storage upload/read, owner/admin access and revoked membership; do not send real invitations to third parties. Check no specialist row enters company membership, publisher/exporter, public read RPC or public profile output.
+6. Record final code SHA, staging ref, browser/device, response status and SQL assertions without credentials, JWTs or personal data. PASS is required before production approval. Keep staging test data until the evidence is reviewed; cleanup is separately scoped to those disposable records.
