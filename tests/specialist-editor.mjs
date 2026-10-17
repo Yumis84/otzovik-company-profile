@@ -62,6 +62,17 @@ try{
   for(let i=0;i<10;i++)await db.call(B,'create_my_specialist_draft',['Quota','quota-'+i,'Master']);
   await denied(()=>db.call(B,'create_my_specialist_draft',['Quota','quota-extra','Master']),'54000');
  });
+ await test('disable then enable preserves data and restores only owner access',async()=>{
+  const before=await db.call(A,'get_my_specialist_services',[a.id]);
+  await db.exec(await fs.readFile(new URL('../sql/20261017_specialist_editor_DISABLE_CANDIDATE.sql',import.meta.url),'utf8'));
+  await denied(()=>db.call(A,'get_my_specialist_services',[a.id]));
+  await db.exec(await fs.readFile(new URL('../sql/20261017_specialist_editor_ENABLE_CANDIDATE.sql',import.meta.url),'utf8'));
+  assert.deepEqual(await db.call(A,'get_my_specialist_services',[a.id]),before);
+  await denied(()=>db.call(B,'get_my_specialist_services',[a.id]));
+  await denied(()=>db.call(null,'get_my_specialist_services',[a.id]));
+  await denied(()=>db.session(A,c=>c.query('SELECT * FROM specialist_services')));
+  assert.equal((await db.session(B,c=>c.query('SELECT * FROM storage.objects'))).rows.length,0);
+ });
  await test('security metadata and static UI isolation',async()=>{
   for(const table of ['specialist_services','specialist_settings','specialist_media']){const r=(await db.query('SELECT relforcerowsecurity FROM pg_class WHERE oid=$1::regclass',[table])).rows[0];assert(r.relforcerowsecurity);}
   for(const f of ['account-specialist-services.js','account-specialist-media.js','account-specialist-contacts.js','account-specialist-api.js']){const src=await fs.readFile(new URL('../'+f,import.meta.url),'utf8');assert(!/get_my_compan|p_company_id|active_company_id|company-media/.test(src));assert(!src.includes('innerHTML'));}

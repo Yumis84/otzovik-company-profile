@@ -187,5 +187,22 @@ try{
   const photo=ok(await a.from('company_media').select('*')).find(x=>x.status==='published');assert(photo);ok(await a.storage.from('company-media').download(photo.storage_object_name));
   assert(ok(await a.rpc('get_my_companies')).some(x=>x.company.id===company.id));
  });
+ await test('editor re-enable restores owner API and Storage without company regression',async()=>{
+  const draft=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='local-specialist');
+  const before=(await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n;
+  await db.query(await fs.readFile(new URL('../sql/20261017_specialist_editor_ENABLE_CANDIDATE.sql',import.meta.url),'utf8'));
+  assert(ok(await a.rpc('get_my_specialist_services',{p_specialist_id:draft.id})).length>0);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n,before);
+  for(const c of [b,anonymous])assert.equal((await c.rpc('get_my_specialist_services',{p_specialist_id:draft.id})).error?.code,'42501');
+  const path=draft.id+'/portfolio/'+crypto.randomUUID()+'.png',bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
+  ok(await a.storage.from('specialist-media').upload(path,bytes,{contentType:'image/png'}));
+  ok(await a.storage.from('specialist-media').download(path));
+  assert((await b.storage.from('specialist-media').download(path)).error);
+  ok(await a.storage.from('specialist-media').remove([path]));
+  const companyPath=company.id+'/logo/recovery-'+crypto.randomUUID()+'.png';
+  ok(await a.storage.from('company-media').upload(companyPath,bytes,{contentType:'image/png'}));
+  ok(await a.storage.from('company-media').download(companyPath));
+  ok(await a.storage.from('company-media').remove([companyPath]));
+ });
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
 }finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}
