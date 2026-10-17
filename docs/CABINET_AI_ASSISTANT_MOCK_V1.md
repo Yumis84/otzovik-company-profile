@@ -29,5 +29,5 @@ Before production: independent Claude review; real Auth/RLS/RPC tests; SQL-candi
 
 ## Tests
 
-node tests/cabinet-ai/acceptance.mjs:6 groups covering ownership, mixed kind/id, history isolation, no model writes, explicit confirmation, idempotency, stale proposal, unknown prices, URL rejection, TTL/clear/kill, real HTTP fixture-token authorization and Origin/rules rejection.
+node tests/cabinet-ai/acceptance.mjs:7 groups covering ownership, mixed kind/id, history isolation, no model writes, explicit confirmation, idempotency, stale proposal, unknown prices, URL rejection, TTL/clear/kill, real HTTP fixture-token authorization and Origin/rules rejection.
 node tests/cabinet-ai/browser.mjs: desktop1280/mobile390, proposal review/approve, separate history resume, overflow and text output. Synthetic Auth only. Existing CI remains regression evidence, not acceptance of unimplemented real AI/retrieval/Auth.
