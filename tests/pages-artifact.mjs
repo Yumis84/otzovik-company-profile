@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {buildPages} from '../scripts/build-pages.mjs';
-const root=new URL('../',import.meta.url).pathname;
+const root=fileURLToPath(new URL('../',import.meta.url));
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'otzovik-pages-'));
 try{
  const output=path.join(temp,'public');const files=await buildPages(root,output);
