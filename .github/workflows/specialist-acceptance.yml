@@ -29,6 +29,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
+      - name: Public artifact allowlist and local references
+        run: npm run test:pages
       - name: Real PostgreSQL roles, RPCs and overlapping transactions
         run: npm test
         env:

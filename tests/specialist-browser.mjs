@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {database,A,B} from './database.mjs';
+import {buildPages} from '../scripts/build-pages.mjs';
+await buildPages();
 const db=await database();
 const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--disable-dev-shm-usage']});
 let user=A,failRPC=null,throwRPC=null,calls=[],slowRPC=null,authMode='confirm',authFail=false,authCalls=[];
@@ -13,7 +15,7 @@ await context.route('**/*',async route=>{
  if(url.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:await fs.readFile(new URL('./browser-client-stub.js',import.meta.url),'utf8')});
  if(url.origin==='http://cabinet.test'){
   if(!/^\/account-[a-z-]+\.(html|js|css)$/.test(url.pathname))return route.fulfill({status:404,body:''});
-  return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html',body:await fs.readFile(new URL('..'+url.pathname,import.meta.url),'utf8')});
+  return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html',body:await fs.readFile(new URL('../_site'+url.pathname,import.meta.url),'utf8')});
  }
  return route.abort(); // No production traffic possible.
 });

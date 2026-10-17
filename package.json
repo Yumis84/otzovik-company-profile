@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "test": "node tests/specialist-acceptance.mjs",
-    "test:browser": "node tests/specialist-browser.mjs"
+    "test:browser": "node tests/specialist-browser.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
+    "test:pages": "node tests/pages-artifact.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

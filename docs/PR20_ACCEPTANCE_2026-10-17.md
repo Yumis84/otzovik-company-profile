@@ -79,3 +79,12 @@ Pages audit: `.github/workflows/pages.yml` uploads `path: .` from a clean checko
 4. Create two dedicated confirmed Auth users A/B with no real data. Exercise email confirmation and session restoration; A creates company + specialist, edits each and reloads; B cannot read or change A's draft by RPC or direct table request. Repeat with specialist-only and empty accounts.
 5. Exercise real company branch/service CRUD, Storage upload/read, owner/admin access and revoked membership; do not send real invitations to third parties. Check no specialist row enters company membership, publisher/exporter, public read RPC or public profile output.
 6. Record final code SHA, staging ref, browser/device, response status and SQL assertions without credentials, JWTs or personal data. PASS is required before production approval. Keep staging test data until the evidence is reviewed; cleanup is separately scoped to those disposable records.
+
+
+## Pages implementation follow-up
+
+After the owner's instruction to continue, the feature branch now builds Pages using `scripts/pages-files.json`, an explicit manifest of 49 public files. `scripts/build-pages.mjs` checks regular files, path boundaries, and static HTML/CSS references before replacing `_site`. Pages uploads `_site` instead of the repository root. SQL, test fixtures, dependencies, docs and agent logs are excluded. Existing HTML/CSS/JS and public profile/review payloads remain byte-identical.
+
+`npm run test:pages` checks content preservation, exclusions, missing dependencies, traversal and symlink rejection. The existing 12 browser groups now serve the actual `_site` output. PR CI runs the artifact checks; the Pages production deployment has not been triggered, and merge remains forbidden without separate approval. This supersedes the earlier pending workflow-change recommendation above.
+
+Supabase branch provisioning attempt returned `PaymentRequiredException: Branching is supported only on the Pro plan or above`. No branch was created and no subscription upgraded. Hosted staging remains blocked on a supported disposable target; do not upgrade billing automatically. Claude/Grok review requests remain outstanding unless a newer Hub HANDOFF supplies results.
