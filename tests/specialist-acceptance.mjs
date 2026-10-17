@@ -66,6 +66,16 @@ await test('company creation preserves contract, dedup, owner, audit and fallbac
  const long=await db.call(B,'create_my_company',['Long','a'.repeat(63)]);assert.equal(long.company.slug.length,63);assert(long.company.slug.endsWith('-2'));
  await denied(()=>db.call(A,'create_my_company',['Bad','b'.repeat(64)]),'22023');
 });
+await test('unchanged production company edit RPC: owner save/reload, foreign user and revoked denied',async()=>{
+ const args=[company.company.id,'Edited Company','Updated description','https://edited.example.org/','123','City','edit@example.invalid'];
+ await db.call(B,'update_my_company_profile',args);
+ const row=(await db.call(B,'get_my_companies')).find(x=>x.company.id===company.company.id);
+ assert.equal(row.company.description,'Updated description');assert.equal(row.company.name,'Edited Company');
+ await denied(()=>db.call(A,'update_my_company_profile',args));
+ await db.query("UPDATE company_memberships SET verification_status='revoked' WHERE company_id=$1",[company.company.id]);
+ await denied(()=>db.call(B,'update_my_company_profile',args));
+ await db.query("UPDATE company_memberships SET verification_status='verified' WHERE company_id=$1",[company.company.id]);
+});
 await test('company memberships verified-only, revoked/suspended/pending hidden',async()=>{
  assert((await db.call(B,'get_my_companies')).some(x=>x.company.id===company.company.id));
  for(const state of ['revoked','suspended','pending']){

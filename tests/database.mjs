@@ -17,13 +17,14 @@ export async function database(){
  const exec=sql=>pool?pool.query(sql):embedded.exec(sql);
  await exec(await fs.readFile(new URL('./fixtures/schema.sql',import.meta.url),'utf8'));
  await exec(await fs.readFile(new URL('./fixtures/company-rpcs-before.sql',import.meta.url),'utf8'));
+ await exec(await fs.readFile(new URL('./fixtures/company-edit-before.sql',import.meta.url),'utf8'));
  // Existing company must survive registry backfill unchanged.
  await query("INSERT INTO auth.users VALUES ($1),($2)",[A,B]);
  await query("INSERT INTO public.companies(id,slug,name) VALUES ('33333333-3333-4333-8333-333333333333','existing-company','Existing')");
  const before=(await query('SELECT row_to_json(c) data FROM companies c')).rows;
  await exec(await migrationSQL());
  assert.deepEqual((await query('SELECT row_to_json(c) data FROM companies c')).rows,before);
- async function session(uid,fn,role='authenticated'){
+ async function runSession(uid,fn,role='authenticated'){
   const c=pool?await pool.connect():embedded;
   try{
    await c.query('BEGIN');
@@ -34,6 +35,8 @@ export async function database(){
   }catch(e){await c.query('ROLLBACK');throw e;}
   finally{if(pool)c.release();}
  }
+ let queue=Promise.resolve();
+ function session(...args){if(pool)return runSession(...args);const next=queue.then(()=>runSession(...args));queue=next.catch(()=>{});return next;}
  const call=(uid,name,args=[])=>session(uid,async c=>(await c.query(`SELECT public.${name}(${args.map((_,i)=>'$'+(i+1)).join(',')}) data`,args)).rows[0].data);
  return {query,exec,session,call,concurrent:!!pool,close:()=>pool?pool.end():embedded.close()};
 }
