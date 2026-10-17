@@ -24,6 +24,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.editor-nav{display:flex;flex-wrap
 <label class="field">Описание<textarea name="description" maxlength="2000" placeholder="Опишите опыт, услуги и подход к работе"></textarea></label>
 <p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Остальные разделы кабинета подключаются поэтапно. Они не используют данные и права компаний.</p>
 <button type="submit" id="save" disabled>Сохранить черновик</button>
+<button type="button" id="delete-draft" hidden style="margin-top:12px;background:#fef3f2;color:#b42318">Удалить черновик</button>
 </fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
 </form></section></main>
 <script type="module">
@@ -58,6 +59,7 @@ async function initialize(){
    navigation(document.querySelector('.editor-nav'),editId);
    sessionStorage.setItem('active_profile',JSON.stringify({kind:'specialist',id:editId}));
    save.textContent='Сохранить изменения';
+   document.getElementById('delete-draft').hidden=false;
   }
   ready=true;fields.disabled=false;save.disabled=false;note.textContent='Изменения сохранятся только после нажатия кнопки.';
  }catch{failLoad('Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');}
@@ -78,6 +80,17 @@ form.addEventListener('submit',async event=>{
   note.textContent='Черновик сохранён. Переходим к списку профилей.';location.assign('account-home.html');
  }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
  finally{busy=false;save.disabled=false;}
+});
+document.getElementById('delete-draft').addEventListener('click',async()=>{
+ if(!editing||!ready||busy||!confirm('Удалить этот черновик, его услуги и контакты? Адрес освободится. Сначала удалите все фотографии и незавершённые загрузки.'))return;
+ busy=true;fields.disabled=true;note.textContent='Удаляем черновик…';
+ try{
+  const {data,error}=await s.rpc('delete_my_specialist_draft',{p_specialist_id:editId});
+  if(error){note.textContent=error.code==='55000'?'Сначала удалите фотографии и незавершённые загрузки в разделе «Фото и портфолио».':error.code==='42501'?'Черновик недоступен. Обновите список профилей.':'Не удалось удалить черновик. Обновите список профилей перед повторной попыткой.';return;}
+  if(!data?.deleted||data.id!==editId)throw Error('Unexpected deletion response');
+  sessionStorage.removeItem('active_profile');location.assign('account-home.html');
+ }catch{note.textContent='Не удалось подтвердить удаление. Проверьте «Мои профили» перед повторной попыткой.';}
+ finally{busy=false;fields.disabled=false;}
 });
 await initialize();
 </script></body></html>

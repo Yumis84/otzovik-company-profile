@@ -43,5 +43,8 @@ export async function editorBrowser({page,open,a,ok,test}){
   await page.reload();await page.locator('#items').getByText('Private portfolio',{exact:true}).waitFor();assert.equal(await page.locator('#items img').count(),1);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   assert.deepEqual(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('active_profile'))),{kind:'specialist',id:draft.id});
   for(const href of await page.locator('.editor-nav a').evaluateAll(els=>els.map(e=>e.getAttribute('href'))))assert(href.endsWith('?id='+draft.id));
+  page.once('dialog',d=>d.accept());await page.locator('#items').getByRole('button',{name:'Удалить',exact:true}).click();await page.locator('#status').filter({hasText:'Фотография удалена'}).waitFor();
+  await page.getByRole('link',{name:'Профиль',exact:true}).click();await page.locator('#save:not([disabled])').waitFor();page.once('dialog',d=>d.accept());await page.locator('#delete-draft').click();await page.waitForURL('**/account-home.html');assert(!ok(await a.rpc('get_my_specialists')).some(x=>x.id===draft.id));
+
  });
 }
