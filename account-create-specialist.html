@@ -30,9 +30,11 @@ button:disabled{opacity:.5;cursor:not-allowed}.editor-nav{display:flex;flex-wrap
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
 const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
 const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note'),fields=document.getElementById('fields');
+import {navigation} from './account-specialist-ui.js';
 const params=new URLSearchParams(location.search);
 const editing=params.has('id');
 const editId=params.get('id');
+navigation(document.querySelector('.editor-nav'),null);
 let ready=false,busy=false;
 const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementById('specialist-url');
 function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';}
@@ -53,6 +55,8 @@ async function initialize(){
    if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
    for(const key of ['display_name','slug','profession','specialization','city','description'])form.elements.namedItem(key).value=item[key]||'';
    form.elements.namedItem('slug').readOnly=true;updateUrlPreview();
+   navigation(document.querySelector('.editor-nav'),editId);
+   sessionStorage.setItem('active_profile',JSON.stringify({kind:'specialist',id:editId}));
    save.textContent='Сохранить изменения';
   }
   ready=true;fields.disabled=false;save.disabled=false;note.textContent='Изменения сохранятся только после нажатия кнопки.';

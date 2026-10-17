@@ -7,6 +7,8 @@ import {createClient} from '@supabase/supabase-js';
 import {build} from 'esbuild';
 import {chromium} from 'playwright';
 import {migrationSQL} from '../scripts/specialist-migration.mjs';
+import {editorMigrationSQL} from '../scripts/specialist-editor-migration.mjs';
+import {editorChecks,editorBrowser} from './local-editor-checks.mjs';
 import {buildPages} from '../scripts/build-pages.mjs';
 const cfg=JSON.parse(await fs.readFile('/tmp/otzovik-local-status.json','utf8'));
 const api=cfg.API_URL,anon=cfg.ANON_KEY,service=cfg.SERVICE_ROLE_KEY;
@@ -39,6 +41,7 @@ try{
  // Limit subsidiary RPCs to authenticated just as the cabinet's API contract requires.
  for(const f of snapshot.functions){const r=await db.query("SELECT oid::regprocedure::text signature FROM pg_proc WHERE proname=$1 AND pronamespace='public'::regnamespace",[f.name]);for(const row of r.rows)await db.query(`REVOKE ALL ON FUNCTION ${row.signature} FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION ${row.signature} TO authenticated;`);}
  await db.query(await migrationSQL());
+ await db.query(await editorMigrationSQL());
  ok(await admin.storage.createBucket('company-media',{public:false}));
  await db.query("NOTIFY pgrst,'reload schema'");
  await new Promise(r=>setTimeout(r,1500));
@@ -165,6 +168,8 @@ try{
   await page.locator('#media-file').setInputFiles({name:'browser.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#media-state').filter({hasText:/Фотография (загружена|заменена) и опубликована/}).waitFor({timeout:30000}).catch(async e=>{throw Error('Browser media upload failed: '+await page.locator('#media-state').innerText()+'; page errors: '+errors.join('; '),{cause:e});});
   assert(ok(await a.from('company_media').select('*')).some(x=>x.storage_object_name.endsWith('.webp')));
  });
+ await editorChecks({a,b,anonymous,ok,company,test});
+ await editorBrowser({page,open,a,ok,test});
  assert.deepEqual(errors,[]);
  await test('private drafts remain absent from publisher and rollback preserves data',async()=>{
   const before=(await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n;
