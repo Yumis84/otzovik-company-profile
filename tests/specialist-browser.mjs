@@ -73,7 +73,7 @@ await test('registration confirmation → login → chooser; empty account; logi
 });
 await test('mobile chooser → actual create RPC → dashboard → load → update → reload',async()=>{
  await page.setViewportSize({width:390,height:844});
- await open('account-create-profile.html');await page.getByRole('link',{name:/Индивидуальный специалист/}).click();await waitReady();
+ await open('account-create-profile.html');assert.equal(await page.locator('.type-icon svg').count(),2);assert.equal(await page.getByRole('link',{name:/Создать компанию/}).count(),1);await page.getByRole('link',{name:/Индивидуальный специалист/}).click();await waitReady();
  await page.locator('[name=display_name]').fill('Иван Мастер');await page.locator('[name=slug]').fill('ivan-master');await page.locator('[name=profession]').fill('Фотограф');await page.locator('[name=specialization]').fill('Портреты');await page.locator('[name=city]').fill('Калининград');await page.locator('[name=description]').fill('Описание <img src=x onerror=alert(1)>');
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.locator('#save').click();await page.waitForURL('**/account-home.html');await page.getByText('Иван Мастер',{exact:true}).waitFor(); assert.equal(await page.locator('.specialist-card .specialist-avatar svg').count(),1); assert.equal(await page.locator('.specialist-card .company-avatar').count(),0);
@@ -110,7 +110,7 @@ await test('failed edit load disables all fields and cannot overwrite draft',asy
  failRPC='get_my_specialists';await open('account-create-specialist.html?id='+id);await note().filter({hasText:'Не удалось загрузить'}).waitFor();assert(await page.locator('#save').isDisabled());assert(await page.locator('[name=display_name]').isDisabled());failRPC=null;
 });
 await test('existing company form creates company through exact RPC, then displays in cabinet',async()=>{
- await page.setViewportSize({width:1280,height:900});await open('account-create-company.html');await page.locator('#name').fill('New Company');await page.locator('#slug').fill('new-company');await page.locator('#submit').click();await page.waitForURL('**/account-home.html');await page.getByText('New Company',{exact:true}).waitFor();
+ await page.setViewportSize({width:1280,height:900});await open('account-create-company.html');await page.locator('#name').fill('New Company');await page.locator('#slug').fill('new-company');await page.locator('#submit').click();await page.waitForURL('**/account-home.html');await page.getByText('New Company',{exact:true}).waitFor();assert.equal(await page.locator('.company-card .company-avatar svg').count(),1);assert.equal(await page.locator('.specialist-card .specialist-avatar svg').count(),1);
  const [company]=await db.call(A,'get_my_companies');assert.equal(company.company.website,company.company.public_url);
  await page.getByText('Иван Обновлённый',{exact:true}).waitFor();assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
 });
