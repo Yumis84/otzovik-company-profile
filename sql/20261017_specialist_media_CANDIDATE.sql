@@ -6,8 +6,10 @@ DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname=current_user AND (r
 -- BYPASSRLS does not grant table ownership or permission to CREATE POLICY.
 DO $storage_owner$ BEGIN
  IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname=current_user AND rolsuper)
- AND NOT EXISTS(SELECT FROM pg_class c WHERE c.oid='storage.objects'::regclass AND pg_has_role(current_user,c.relowner,'USAGE')) THEN
-  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Storage policy deployment requires storage.objects ownership; do not grant roles or change managed table ownership to bypass this gate';
+ AND NOT EXISTS(SELECT FROM pg_class c WHERE c.oid='storage.objects'::regclass AND pg_has_role(current_user,c.relowner,'USAGE'))
+ AND NOT (coalesce((nullif(current_setting('supautils.policy_grants',true),'')::jsonb -> current_user) ? 'storage.objects',false)
+ AND 'supautils'=ANY(string_to_array(replace(coalesce(current_setting('shared_preload_libraries',true),'')||','||coalesce(current_setting('session_preload_libraries',true),''),' ',''),','))) THEN
+  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Storage policy deployment requires table ownership or configured supautils policy grant; do not grant roles or change managed table ownership to bypass this gate';
  END IF;
  IF NOT has_table_privilege(current_user,'storage.buckets','INSERT') THEN
   RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Storage bucket INSERT privilege required';
