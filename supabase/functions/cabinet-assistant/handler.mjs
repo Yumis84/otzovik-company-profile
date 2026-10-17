@@ -15,7 +15,7 @@ export function createHandler({url,anonKey,origins}){
    const reader=req.body?.getReader();if(!reader)return answer(400,{error:'Неверный запрос'});const decoder=new TextDecoder();let raw='',bytes=0;while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>14000){await reader.cancel();return answer(413,{error:'Запрос слишком большой'});}raw+=decoder.decode(value,{stream:true});}raw+=decoder.decode();
    let body;try{body=JSON.parse(raw);}catch{return answer(400,{error:'Неверный запрос'});}
    if(!body||typeof body!=='object'||Array.isArray(body))return answer(400,{error:'Неверный запрос'});
-   const route=routes[body.action];if(!route||Object.keys(body).some(k=>k!=='action'&&!route.fields.includes(k)))return answer(422,{error:'Поля запроса запрещены'});
+   const route=Object.hasOwn(routes,body.action)?routes[body.action]:null;if(!route||Object.keys(body).some(k=>k!=='action'&&!route.fields.includes(k)))return answer(422,{error:'Поля запроса запрещены'});
    const args=Object.fromEntries(route.fields.filter(k=>Object.hasOwn(body,k)).map(k=>[k,body[k]]));
    const rpc=await fetch(url+'/rest/v1/rpc/'+route.rpc,{method:'POST',headers:{apikey:anonKey,Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify(args),signal:AbortSignal.timeout(12000)});
    const data=await rpc.json();if(!rpc.ok){const status=[400,401,403,404,409,413,422,429,503].includes(rpc.status)?rpc.status:502;return answer(status,{error:status===409?'Профиль или диалог изменился':status===404?'Не найдено':status===429?'Лимит запросов':status===503?'Помощник временно недоступен':'Запрос отклонён',status:data.status||undefined});}
