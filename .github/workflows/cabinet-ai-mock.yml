@@ -1,0 +1,20 @@
+name: Cabinet assistant mock acceptance
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  cabinet-mock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/cabinet-ai/acceptance.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/cabinet-ai/browser.mjs
+      - run: npm run test:pages
