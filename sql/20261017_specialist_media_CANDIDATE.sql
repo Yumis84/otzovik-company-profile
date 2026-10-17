@@ -23,6 +23,9 @@ CREATE FUNCTION public.can_upload_specialist_object(p_name text) RETURNS boolean
 BEGIN
  IF NOT public.can_manage_specialist_object(p_name) THEN RETURN false; END IF;
  PERFORM pg_advisory_xact_lock(hashtextextended('specialist-media:'||split_part(p_name,'/',1),0));
+ -- Recheck ownership after waiting; coordinate with draft deletion and pin its row.
+ PERFORM 1 FROM public.specialist_profiles WHERE id::text=split_part(p_name,'/',1) AND owner_user_id=auth.uid() AND profile_status='draft' FOR KEY SHARE;
+ IF NOT FOUND THEN RETURN false; END IF;
  RETURN (SELECT count(*) FROM storage.objects WHERE bucket_id='specialist-media' AND split_part(name,'/',1)=split_part(p_name,'/',1))<20;
 END $$;
 REVOKE ALL ON FUNCTION public.can_manage_specialist_object(text),public.can_upload_specialist_object(text) FROM PUBLIC,anon,authenticated;

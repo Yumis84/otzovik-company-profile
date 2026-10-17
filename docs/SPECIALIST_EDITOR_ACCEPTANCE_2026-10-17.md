@@ -44,3 +44,5 @@ A metadata-only SELECT confirmed: base specialist draft table exists, all three 
 ## CI evidence
 
 Implementation `4270e055064edb278790077a10a03e5612e297e1` passed [LOCAL Supabase run 39061826797](https://github.com/Yumis84/otzovik-company-profile/actions/runs/39061826797): 13 real groups, including both specialist Storage/owner/cross-kind checks and browser service/contact/portfolio save/reload. [Regression run 39061826778](https://github.com/Yumis84/otzovik-company-profile/actions/runs/39061826778) passed 15 PostgreSQL groups, 12 browser groups, 7 editor security groups and 58-file artifact checks. Logs were inspected. Follow-up adds an explicit non-destructive editor-disable regression to verify company Storage still works; check final-SHA CI in the PR for its result.
+
+Upload and draft deletion share a specialist-specific advisory transaction lock. Upload also acquires a key-share profile row lock and rechecks ownership after waiting. A real concurrent upload/delete test requires one operation to lose safely, preventing objects from being committed after their owning draft disappears.

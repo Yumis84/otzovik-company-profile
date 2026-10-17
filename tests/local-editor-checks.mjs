@@ -14,6 +14,16 @@ export async function editorChecks({a,b,anonymous,ok,company,test}){
   assert.equal((await a.rpc('create_my_company_service',{p_company_id:id,p_name:'Wrong plane'})).error?.code,'42501');
   for(const c of [a,b,anonymous])for(const table of ['specialist_services','specialist_settings','specialist_media'])assert.equal((await c.from(table).select('*')).error?.code,'42501');
  });
+ await test('concurrent specialist upload/delete cannot create an orphan',async()=>{
+  for(let i=0;i<3;i++){
+   const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Race Cleanup',p_slug:'cleanup-race-'+i,p_profession:'Master'}));
+   const path=profile.id+'/portfolio/'+crypto.randomUUID()+'.png',blob=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
+   const [removed,uploaded]=await Promise.all([a.rpc('delete_my_specialist_draft',{p_specialist_id:profile.id}),a.storage.from('specialist-media').upload(path,blob,{contentType:'image/png'})]);
+   assert(removed.error||uploaded.error,'Both operations succeeded: orphan risk');
+   if(!uploaded.error){assert.equal(removed.error?.code,'55000');ok(await a.storage.from('specialist-media').remove([path]));ok(await a.rpc('delete_my_specialist_draft',{p_specialist_id:profile.id}));}
+   else assert(!removed.error,'Neither competing operation completed');
+  }
+ });
  await test('separate real specialist Storage MIME/size/owner/cross-kind policies',async()=>{
   const blob=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64'),name=id+'/avatar/'+crypto.randomUUID()+'.png';
   ok(await a.storage.from('specialist-media').upload(name,blob,{contentType:'image/png'}));
