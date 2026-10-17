@@ -40,9 +40,9 @@ await test('mobile chooser → actual create RPC → dashboard → load → upda
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.locator('#save').click();await page.waitForURL('**/account-home.html');await page.getByText('Иван Мастер',{exact:true}).waitFor();
  const [item]=await db.call(A,'get_my_specialists');id=item.id;assert.equal(item.description,'Описание <img src=x onerror=alert(1)>');
- await page.getByRole('link',{name:'Редактировать',exact:true}).click();await waitReady();
+ await page.getByRole('link',{name:/Редактировать специалиста/}).click();await waitReady();
  assert.equal(await page.locator('[name=slug]').getAttribute('readonly'),'');assert.equal(await page.locator('[name=description]').inputValue(),item.description);
- await page.locator('[name=display_name]').fill('Иван Обновлённый');await page.locator('[name=description]').fill('Новое описание');await page.locator('#save').click();await page.waitForURL('**/account-home.html');await page.getByText('Иван Обновлённый',{exact:true}).waitFor();await page.reload();await page.getByRole('link',{name:'Редактировать',exact:true}).click();await waitReady();assert.equal(await page.locator('[name=description]').inputValue(),'Новое описание');
+ await page.locator('[name=display_name]').fill('Иван Обновлённый');await page.locator('[name=description]').fill('Новое описание');await page.locator('#save').click();await page.waitForURL('**/account-home.html');await page.getByText('Иван Обновлённый',{exact:true}).waitFor();await page.reload();await page.getByRole('link',{name:/Редактировать специалиста/}).click();await waitReady();assert.equal(await page.locator('[name=description]').inputValue(),'Новое описание');
 });
 await test('unauthenticated edit preserves id through login; no data RPC before auth',async()=>{
  user=null;calls=[];await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-login.html?*');
