@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [feature/profile-kind-chooser-v1]
+    branches: [feature/profile-kind-chooser-v1, feature/specialist-main-integration-v1]
 permissions:
   contents: read
 jobs:
