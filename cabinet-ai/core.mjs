@@ -20,7 +20,7 @@ export class CabinetAssistant {
  let answer='Могу подготовить описание из вашего текста. Сначала покажу предложение; запись — только после отдельного подтверждения. Поиск по интернету в этом mock не выполняется.',proposal=null;
  if(/цен|стоим/i.test(message))answer='Подтверждённых цен и внешних источников нет. Я не буду придумывать стоимость.';
  else if(/заполн|описан|черновик/i.test(message)){
-  proposal={id:randomUUID(),conversation:c.id,owner:actor.id,kind:c.kind,profileId:c.profileId,expected_version:p.version,patch:{description:message.trim().slice(0,1500)},provenance:{kind:'owner_text',retrieved_at:new Date(this.now()).toISOString()},status:'pending'};this.proposals.set(proposal.id,proposal);answer='Подготовлено предложение описания из вашего текста. Проверьте его перед сохранением черновика.';
+  proposal={id:randomUUID(),conversation:c.id,owner:actor.id,kind:c.kind,profileId:c.profileId,expected_version:p.version,before:{description:p.description},patch:{description:message.trim().slice(0,1500)},provenance:{kind:'owner_text',retrieved_at:new Date(this.now()).toISOString()},status:'pending'};this.proposals.set(proposal.id,proposal);answer='Подготовлено предложение описания из вашего текста. Проверьте его перед сохранением черновика.';
  }
  c.turns.push({role:'user',content:message},{role:'assistant',content:answer});while(c.turns.length>10||JSON.stringify(c.turns).length>8000)c.turns.shift();c.seq++;const result={answer,proposal:proposal?structuredClone(proposal):null,seq:c.seq,mode:'synthetic-mock'};c.requests.set(request_id,{message,result});if(c.requests.size>20)c.requests.delete(c.requests.keys().next().value);return result;
  }

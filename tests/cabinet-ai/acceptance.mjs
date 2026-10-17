@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {CabinetAssistant,validateSource} from '../../cabinet-ai/core.mjs';
 import {fixtureServer} from '../../cabinet-ai/server.mjs';
 const a={id:'a'},b={id:'b'};let now=10000;const x=new CabinetAssistant({now:()=>now,ttlMs:1000});x.seed('a','company','p','A');x.seed('b','specialist','s','B');
+x.profiles.get('company:p').owner='b';assert.throws(()=>x.start(a,'company','p'));x.profiles.get('company:p').owner='a';
 const c=x.start(a,'company','p');const base={conversation_id:c.id,message:'Подготовь описание: ремонт обуви',request_id:'request-001',expected_seq:0};
 const r=x.chat(a,base);assert.equal(x.profiles.get('company:p').description,'');assert.deepEqual(x.chat(a,base),r);assert.throws(()=>x.chat(b,base));assert.throws(()=>x.history(b,c.id));assert.throws(()=>x.start(a,'specialist','s'));assert.equal(x.list(b).length,0);console.log('PASS ownership, history isolation, idempotency and no model writes');
 assert.throws(()=>x.approve(a,{proposal_id:r.proposal.id,expected_version:1,confirmed:false}));assert.throws(()=>x.approve(b,{proposal_id:r.proposal.id,expected_version:1,confirmed:true}));const saved=x.approve(a,{proposal_id:r.proposal.id,expected_version:1,confirmed:true});assert.equal(saved.profile.version,2);assert.equal(x.audit.length,1);x.approve(a,{proposal_id:r.proposal.id,confirmed:true});assert.equal(x.audit.length,1);console.log('PASS explicit scoped confirmation and once-only draft write');
