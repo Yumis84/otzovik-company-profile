@@ -1,0 +1,6 @@
+-- SUPERSEDED. DO NOT APPLY.
+-- This older design creates a company before marking it as a specialist draft.
+-- It is unsafe for existing company publication workflows and has been replaced by:
+-- sql/20261017_specialist_drafts_independent_CANDIDATE.sql
+-- sql/20261017_specialist_draft_edit_CANDIDATE.sql
+-- This file is intentionally inert to prevent accidental deployment.
