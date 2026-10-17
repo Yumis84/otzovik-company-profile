@@ -3,7 +3,7 @@
 if(!matchMedia('(max-width: 900px)').matches)return;
 const nav=document.querySelector('nav[aria-label="Навигация кабинета"]');
 if(!nav)return;
-const links=[...nav.querySelectorAll('a[href]')].filter(a=>!a.getAttribute('href').includes('account-home.html'));
+const links=[...nav.querySelectorAll('a[href]')];
 const current=links.findIndex(a=>a.classList.contains('active'));
 if(current<0)return;
 const hint=document.createElement('div');hint.setAttribute('aria-label','Навигация по разделам');hint.style.cssText='position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:9999;background:#175cd3;color:white;padding:9px 14px;border-radius:24px;box-shadow:0 3px 14px #0003;display:flex;gap:12px;align-items:center;font:600 13px system-ui';hint.innerHTML='<button type="button" data-swipe-prev style="border:0;background:transparent;color:white;font:inherit;padding:2px 8px">◀</button><span>Раздел '+(current+1)+'/'+links.length+'</span><button type="button" data-swipe-next style="border:0;background:transparent;color:white;font:inherit;padding:2px 8px">▶</button>';document.body.append(hint);
