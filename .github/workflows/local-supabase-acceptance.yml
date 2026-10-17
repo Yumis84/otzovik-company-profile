@@ -1,0 +1,30 @@
+name: Local Supabase acceptance
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/specialist-main-integration-v1]
+permissions:
+  contents: read
+jobs:
+  local-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node tests/prepare-local-stack.mjs
+      - name: Start disposable local Supabase (no hosted project)
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,edge-runtime,logflare,vector,supavisor > /tmp/otzovik-stack-start.log 2>&1
+      - name: Read local endpoints privately
+        run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+      - run: npx playwright install --with-deps chromium
+      - name: Real Auth, PostgREST, Storage and browser acceptance
+        run: node tests/local-stack.mjs
+      - name: Stop disposable stack
+        if: always()
+        run: npx supabase stop --workdir /tmp/otzovik-supabase --no-backup

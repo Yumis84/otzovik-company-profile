@@ -10,7 +10,10 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",
+    "@supabase/supabase-js": "2.115.0",
+    "esbuild": "0.25.12",
     "pg": "8.23.1",
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "supabase": "2.121.0"
   }
 }
