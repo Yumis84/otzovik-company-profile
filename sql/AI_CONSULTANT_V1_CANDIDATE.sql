@@ -1,5 +1,10 @@
 -- Candidate only. Independent of PR23. No production execution authorized.
 BEGIN;
+DO $guard$ BEGIN
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN
+ RAISE EXCEPTION 'AI candidate requires trusted BYPASSRLS deployment role' USING ERRCODE='42501';
+ END IF;
+END $guard$;
 CREATE SCHEMA ai_private;
 REVOKE ALL ON SCHEMA ai_private FROM PUBLIC,anon,authenticated;
 CREATE TABLE ai_private.configs (
@@ -59,11 +64,16 @@ DECLARE current_version integer; result jsonb;
 BEGIN
  IF NOT ai_private.can_manage(profile_kind,profile_id) THEN RAISE EXCEPTION 'Access denied' USING ERRCODE='42501'; END IF;
  IF settings IS NULL OR jsonb_typeof(settings)<>'object' OR settings - ARRAY['enabled','greeting','instructions','extra_information','position'] <> '{}'::jsonb THEN RAISE EXCEPTION 'Invalid settings' USING ERRCODE='22023'; END IF;
- PERFORM pg_advisory_xact_lock(hashtextextended(profile_kind||profile_id::text,0));
+ IF NOT settings ?& ARRAY['enabled','greeting','instructions','extra_information','position']
+ OR jsonb_typeof(settings->'enabled')<>'boolean'
+ OR jsonb_typeof(settings->'greeting')<>'string' OR btrim(settings->>'greeting')=''
+ OR jsonb_typeof(settings->'instructions')<>'string' OR jsonb_typeof(settings->'extra_information')<>'string'
+ OR jsonb_typeof(settings->'position')<>'string' THEN RAISE EXCEPTION 'All settings required with correct types' USING ERRCODE='22023'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('otzovik:ai:config:'||profile_kind||profile_id::text,0));
  SELECT version INTO current_version FROM ai_private.configs c WHERE c.kind=profile_kind AND c.profile_id=save_my_ai_config.profile_id FOR UPDATE;
  IF coalesce(current_version,0)<>expected_version THEN RAISE EXCEPTION 'Version conflict' USING ERRCODE='PT409'; END IF;
  INSERT INTO ai_private.configs AS c(kind,profile_id,version,enabled,greeting,instructions,extra_information,position)
- VALUES(profile_kind,profile_id,expected_version+1,coalesce((settings->>'enabled')::boolean,false),coalesce(settings->>'greeting',''),coalesce(settings->>'instructions',''),coalesce(settings->>'extra_information',''),coalesce(settings->>'position','bottom-right'))
+ VALUES(profile_kind,profile_id,expected_version+1,coalesce((settings->>'enabled')::boolean,false),btrim(settings->>'greeting'),coalesce(settings->>'instructions',''),coalesce(settings->>'extra_information',''),coalesce(settings->>'position','bottom-right'))
  ON CONFLICT ON CONSTRAINT configs_pkey DO UPDATE SET version=excluded.version,enabled=excluded.enabled,greeting=excluded.greeting,instructions=excluded.instructions,extra_information=excluded.extra_information,position=excluded.position
  RETURNING to_jsonb(c) INTO result;
  RETURN result;
