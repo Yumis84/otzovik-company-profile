@@ -74,7 +74,7 @@ BEGIN
  IF NOT ai_private.can_manage(profile_kind,profile_id) THEN RAISE EXCEPTION 'Access denied' USING ERRCODE='42501'; END IF;
  -- Specialist publication contract does not yet exist; never accept its draft as a snapshot.
  IF profile_kind='specialist' THEN RETURN NULL; END IF;
- IF (SELECT disabled FROM ai_private.platform WHERE singleton) THEN RAISE EXCEPTION 'AI disabled' USING ERRCODE='PT503'; END IF;
+ IF coalesce((SELECT disabled FROM ai_private.platform WHERE singleton),true) THEN RAISE EXCEPTION 'AI disabled' USING ERRCODE='PT503'; END IF;
  SELECT jsonb_build_object('kind',s.kind,'profile_id',s.profile_id,'revision',s.revision,'payload',s.payload) INTO result FROM ai_private.snapshots s WHERE s.kind=profile_kind AND s.profile_id=get_my_ai_snapshot.profile_id;
  RETURN result;
 END $$;
