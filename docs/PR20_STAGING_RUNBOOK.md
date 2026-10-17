@@ -1,6 +1,6 @@
 # PR20: isolated Supabase staging acceptance
 
-Status: PREPARATION ONLY. PR20 HEAD `354628a20a2a232f224c3da035a47ff9796c26b4` has two successful GitHub Actions `Specialist draft acceptance` runs, including PostgreSQL role/RPC tests and isolated browser tests. This is NOT a local Supabase stack run and NOT hosted Supabase Auth/PostgREST/Storage acceptance. No hosted staging environment has been created.
+Status: PREPARATION ONLY. The latest verified implementation/test commit `7f86c5212f8ab5ec04b42bfd0e82fb2aa0b7e567` has two successful GitHub Actions `Specialist draft acceptance` runs (39042027258 and 39042024888), including PostgreSQL role/RPC tests and isolated browser tests. The workflow also verifies navigation from both chooser cards to their respective forms. This is NOT a local Supabase stack run and NOT hosted Supabase Auth/PostgREST/Storage acceptance. No hosted staging environment has been created.
 
 ## Hard boundaries
 - Never use production Supabase `rzhlcszqtuhkhfibygnk`, the museum project, or production personal data as a test target.
@@ -20,6 +20,12 @@ Status: PREPARATION ONLY. PR20 HEAD `354628a20a2a232f224c3da035a47ff9796c26b4` h
 - Inspect the SQL. It must combine only the two 20261017 specialist candidate migrations as one transaction, without legacy profile_kind SQL or test fixtures.
 - A fresh Supabase project is not automatically compatible: establish the required company schema/RPC baseline with synthetic data; never import production personal data.
 - Check trusted function owner, BYPASSRLS, FORCE RLS, REVOKE, EXECUTE and trigger permissions before migration.
+
+## Evidence separation
+- CI PostgreSQL and Playwright: PASS on `7f86c52`; browser uses a stub Auth client and SQL-backed RPC adapter, not real hosted JWTs.
+- Local Supabase CLI stack (GoTrue/Auth, PostgREST, Storage): NOT RUN. Existing isolated PostgreSQL CI does not satisfy this gate.
+- Hosted Supabase staging (email, JWT, API, Storage): NOT RUN. No approved disposable target exists.
+- Do not describe a test as E2E Supabase unless its evidence includes the exact environment, JWT roles and real network calls.
 
 ## Two-user acceptance (record PASS / FAIL / NOT RUN for each)
 1. Synthetic users A and B: sign-up, email confirmation, login, logout and safe redirect.
