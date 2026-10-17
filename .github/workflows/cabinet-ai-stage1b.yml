@@ -1,0 +1,29 @@
+name: Cabinet assistant stage1b real acceptance
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  cabinet-real:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/cabinet-ai/stage1b/sql.mjs
+      - run: node tests/prepare-local-stack.mjs
+      - name: Start disposable Supabase (no hosted links)
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,edge-runtime,logflare,vector,supavisor > /tmp/cabinet-stack.log 2>&1
+      - name: Read only disposable local endpoints privately
+        run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/cabinet-ai/stage1b/local.mjs
+      - run: npm run test:pages
+      - name: Stop disposable stack
+        if: always()
+        run: npx supabase stop --workdir /tmp/otzovik-supabase --no-backup
