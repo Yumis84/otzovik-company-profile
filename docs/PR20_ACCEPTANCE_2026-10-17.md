@@ -88,3 +88,14 @@ After the owner's instruction to continue, the feature branch now builds Pages u
 `npm run test:pages` checks content preservation, exclusions, missing dependencies, traversal and symlink rejection. The existing 12 browser groups now serve the actual `_site` output. PR CI runs the artifact checks; the Pages production deployment has not been triggered, and merge remains forbidden without separate approval. This supersedes the earlier pending workflow-change recommendation above.
 
 Supabase branch provisioning attempt returned `PaymentRequiredException: Branching is supported only on the Pro plan or above`. No branch was created and no subscription upgraded. Hosted staging remains blocked on a supported disposable target; do not upgrade billing automatically. Claude/Grok review requests remain outstanding unless a newer Hub HANDOFF supplies results.
+
+
+## Independent Grok UX audit and final-SHA checkpoint (2026-10-17)
+
+Grok completed OTZOVIK task `aee8b174-2acc-4595-a1e9-2324393126cc` with HANDOFF `5dba03a1-ffa2-47de-8ed0-1c3541fd0ffa` on `5fac235f7807988b709005497d9343cc3d991941`. Static UX/Pages audit found no newly demonstrated P0 code defect; it confirmed the public manifest excludes SQL, tests and docs, and specialist drafts have no public route or publication action. Hosted Supabase Auth/PostgREST/Storage acceptance remains NOT RUN and is a release blocker. Grok flagged unclear draft status styling/copy, a11y focus treatment and next-step guidance.
+
+Follow-up commit `de4b0cfd8c0749cc662f7dc926bc188e66f330be` (`ux: distinguish private specialist drafts from published status`) updated the specialist draft UI. GitHub Actions runs [38998051674](https://github.com/Yumis84/otzovik-company-profile/actions/runs/38998051674) and [38998047882](https://github.com/Yumis84/otzovik-company-profile/actions/runs/38998047882) both succeeded on that SHA. Recheck HEAD before release; a passing older SHA does not suffice.
+
+Independent Claude security review task `a977d337-78aa-4a49-8942-591495a21da4` and separate Vitalina-Claude review task `5f4b8a29-2011-49c2-aeb2-1a87311c4f5b` were still OPEN when checked. Do not count either as approval. Grok's static audit is not a substitute for hosted two-user testing.
+
+**Decision gate:** NO-GO for production migration, merge and public release. No production change was authorized. Next safe work: receive independent security HANDOFF, identify an isolated staging target without spending or copying production user data, run hosted two-user Auth/RPC/Storage acceptance, then request explicit owner approval separately for migration and deployment.
