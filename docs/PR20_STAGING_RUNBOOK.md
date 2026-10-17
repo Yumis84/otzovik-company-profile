@@ -1,6 +1,6 @@
 # PR20: isolated Supabase staging acceptance
 
-Status: PREPARATION ONLY. No hosted environment has been created; hosted Auth/PostgREST/Storage tests remain NOT RUN.
+Status: PREPARATION ONLY. PR20 HEAD `354628a20a2a232f224c3da035a47ff9796c26b4` has two successful GitHub Actions `Specialist draft acceptance` runs, including PostgreSQL role/RPC tests and isolated browser tests. This is NOT a local Supabase stack run and NOT hosted Supabase Auth/PostgREST/Storage acceptance. No hosted staging environment has been created.
 
 ## Hard boundaries
 - Never use production Supabase `rzhlcszqtuhkhfibygnk`, the museum project, or production personal data as a test target.
@@ -9,8 +9,8 @@ Status: PREPARATION ONLY. No hosted environment has been created; hosted Auth/Po
 - Local PGlite/PostgreSQL tests are not hosted Supabase Auth/PostgREST/Storage tests.
 
 ## Environment choice
-1. Prefer a new disposable Supabase project, after cost quotation and owner approval. Use only synthetic users and fresh credentials.
-2. Alternatively rehearse with local Supabase CLI; label the result LOCAL and keep hosted acceptance as NOT RUN.
+1. First rehearse with an isolated local Supabase CLI stack, with synthetic users only; label results LOCAL and keep hosted acceptance as NOT RUN. Do not point CLI at production or museum project IDs.
+2. If hosted verification is still required, propose a disposable free Supabase project only after checking free-project limits and receiving owner approval. Do not upgrade billing.
 3. Record target project ID, region, version, cost approval, date and PR SHA. Never commit credentials.
 
 ## Offline preparation
