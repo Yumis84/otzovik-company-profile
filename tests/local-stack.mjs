@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
+import http from 'node:http';
 import pg from 'pg';
 import {createClient} from '@supabase/supabase-js';
 import {build} from 'esbuild';
@@ -17,7 +18,7 @@ const ok=r=>{assert(!r.error,r.error?.message);return r.data;};
 const client=()=>createClient(api,anon,{auth:{persistSession:false,autoRefreshToken:false}});
 const admin=createClient(api,service,{auth:{persistSession:false,autoRefreshToken:false}});
 let count=0;const test=async(name,fn)=>{await fn();console.log('PASS LOCAL',++count,name);};
-let browser;
+let browser,server;
 try{
  assert.equal((await db.query("SELECT to_regclass('public.companies') t")).rows[0].t,null,'Disposable fresh database required');
  // Use real Auth roles/schema/uid(), replacing only the old unit-test harness prefix.
@@ -60,16 +61,19 @@ try{
  const ctx=await browser.newContext({viewport:{width:390,height:844}});const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  page.on('response',async r=>{if(r.url().startsWith(api+'/auth/')&&r.status()>=400){try{const d=await r.json();console.log('LOCAL Auth diagnostic',r.status(),d.error_code||d.code||'',d.msg||d.message||d.error_description||'');}catch{console.log('LOCAL Auth response unreadable',r.status());}}});
  page.on('requestfailed',r=>{if(r.url().startsWith(api))console.log('LOCAL request failed',new URL(r.url()).pathname,r.failure()?.errorText);});
- await ctx.route('**/*',async route=>{
-  const u=new URL(route.request().url());
-  if(u.origin===api)return route.continue();
-  if(u.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:sdk.outputFiles[0].text});
-  if(u.origin==='http://127.0.0.1:4173'&&/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){
+ server=http.createServer(async(req,res)=>{
+  try{
+   const u=new URL(req.url,'http://127.0.0.1:4173');
+   if(u.pathname==='/supabase-sdk.js'){res.writeHead(200,{'content-type':'text/javascript'});res.end(sdk.outputFiles[0].text);return;}
+   if(!/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){res.writeHead(404);res.end();return;}
    const text=await fs.readFile(new URL('../_site'+u.pathname,import.meta.url),'utf8');
-   return route.fulfill({contentType:u.pathname.endsWith('.js')?'text/javascript':u.pathname.endsWith('.css')?'text/css':'text/html',body:text.replaceAll('https://rzhlcszqtuhkhfibygnk.supabase.co',api).replaceAll('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',anon)});
-  }
-  return route.abort();
+   const body=text.replaceAll('https://rzhlcszqtuhkhfibygnk.supabase.co',api).replaceAll('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',anon).replaceAll('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm','/supabase-sdk.js');
+   res.writeHead(200,{'content-type':u.pathname.endsWith('.js')?'text/javascript':u.pathname.endsWith('.css')?'text/css':'text/html; charset=utf-8'});res.end(body);
+  }catch{res.writeHead(500);res.end('Local fixture failed');}
  });
+ await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(4173,'127.0.0.1',resolve);});
+ await ctx.route('**/*',route=>{const u=new URL(route.request().url());return [api,'http://127.0.0.1:4173'].includes(u.origin)?route.continue():route.abort();});
+ page.on('console',msg=>{if(/CORS|Access to fetch|Local Network Access/.test(msg.text()))console.log('LOCAL browser network policy:',msg.text().replace(/https?:[^\s'"]+/g,x=>{try{return new URL(x).origin+new URL(x).pathname;}catch{return '[url]';}}));});
  const open=path=>page.goto('http://127.0.0.1:4173/'+path);
  async function login(email){await open('account-login.html');await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();try{await page.waitForURL('**/account-home.html');}catch{throw Error('Browser login failed: '+await page.locator('#status').innerText()+'; page errors: '+errors.join('; '));}}
  await test('two real Auth signups, email confirmation through Mailpit, password login',async()=>{
@@ -170,4 +174,4 @@ try{
   await db.query('GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated');
  });
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
-}finally{if(browser)await browser.close();await db.end();}
+}finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}
