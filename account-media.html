@@ -29,5 +29,5 @@ import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.11
 </script>
 <script type="module">const file=document.getElementById('media-file'),kind=document.getElementById('media-kind'),form=document.getElementById('media-form');const openUpload=k=>{kind.value=k;file.click()};document.querySelectorAll('.media-target,.media-trigger').forEach(x=>{x.addEventListener('click',e=>{if(e.target.closest('.media-delete'))return;openUpload(x.dataset.kind||'logo')});x.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openUpload(x.dataset.kind||'logo')}})});file.addEventListener('change',()=>{if(file.files.length)form.requestSubmit()});</script>
 <script type="module" src="account-company-context.js?v=20260920-11"></script>
-</body>
+<script defer src="account-mobile-swipe.js?v=1"></script></body>
 </html>
