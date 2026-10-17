@@ -10,7 +10,7 @@ let dirty=false,start=null;
 const editable='input,textarea,select,[contenteditable="true"],[role="slider"],[role="dialog"],[data-no-swipe]';
 const panel=document.createElement('div');
 panel.setAttribute('aria-label','Переход между разделами');
-panel.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);z-index:2147483000;display:flex;align-items:center;gap:12px;max-width:95vw;background:#175cd3;color:#fff;border-radius:28px;padding:8px 12px;box-shadow:0 3px 16px #0004;font:600 13px system-ui';
+panel.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);z-index:2147483000;display:flex;align-items:center;gap:12px;max-width:95vw;background:#121820;color:#fff;border-radius:28px;padding:8px 12px;box-shadow:0 3px 16px #0004;font:600 13px system-ui';
 panel.innerHTML='<button type="button" data-dir="-1" aria-label="Предыдущий раздел" style="border:0;background:transparent;color:inherit;padding:5px 10px;font:inherit">◀</button><span style="white-space:nowrap">'+(current+1)+' / '+pages.length+' · '+pages[current][1]+'</span><button type="button" data-dir="1" aria-label="Следующий раздел" style="border:0;background:transparent;color:inherit;padding:5px 10px;font:inherit">▶</button>';
 document.body.append(panel);
 panel.querySelector('[data-dir="-1"]').disabled=current===0;
