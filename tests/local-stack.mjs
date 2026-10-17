@@ -54,11 +54,29 @@ try{
    await new Promise(r=>setTimeout(r,1000));
   }throw Error('Local confirmation email not received');
  }
+ await buildPages();
+ const sdk=await build({stdin:{contents:"export {createClient} from '@supabase/supabase-js'",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'browser',write:false});
+ browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const ctx=await browser.newContext({viewport:{width:390,height:844}});const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ page.on('response',async r=>{if(r.url().startsWith(api+'/auth/')&&r.status()>=400){try{const d=await r.json();console.log('LOCAL Auth diagnostic',r.status(),d.error_code||d.code||'',d.msg||d.message||d.error_description||'');}catch{console.log('LOCAL Auth response unreadable',r.status());}}});
+ page.on('requestfailed',r=>{if(r.url().startsWith(api))console.log('LOCAL request failed',new URL(r.url()).pathname,r.failure()?.errorText);});
+ await ctx.route('**/*',async route=>{
+  const u=new URL(route.request().url());
+  if(u.origin===api)return route.continue();
+  if(u.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:sdk.outputFiles[0].text});
+  if(u.origin==='http://127.0.0.1:4173'&&/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){
+   const text=await fs.readFile(new URL('../_site'+u.pathname,import.meta.url),'utf8');
+   return route.fulfill({contentType:u.pathname.endsWith('.js')?'text/javascript':u.pathname.endsWith('.css')?'text/css':'text/html',body:text.replaceAll('https://rzhlcszqtuhkhfibygnk.supabase.co',api).replaceAll('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',anon)});
+  }
+  return route.abort();
+ });
+ const open=path=>page.goto('http://127.0.0.1:4173/'+path);
+ async function login(email){await open('account-login.html');await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();try{await page.waitForURL('**/account-home.html');}catch{throw Error('Browser login failed: '+await page.locator('#status').innerText()+'; page errors: '+errors.join('; '));}}
  await test('two real Auth signups, email confirmation through Mailpit, password login',async()=>{
   for(const [c,email] of [[a,emails[0]],[b,emails[1]]]){
-   const signup=ok(await c.auth.signUp({email,password}));assert.equal(signup.session,null);
+   if(c===a){await open('account-login.html');await page.locator('#signupTab').click();await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();await page.locator('#status').filter({hasText:'Проверьте почту'}).waitFor();}else{const signup=ok(await c.auth.signUp({email,password}));assert.equal(signup.session,null);}
    assert((await c.auth.signInWithPassword({email,password})).error);
-   const confirm=await fetch(await confirmation(email),{redirect:'manual'});assert.equal(confirm.status,303);
+   if(c===a){await page.goto(await confirmation(email));await page.waitForURL('**/account-create-profile.html');await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');}else{const confirm=await fetch(await confirmation(email),{redirect:'manual'});assert.equal(confirm.status,303);}
    ok(await c.auth.signInWithPassword({email,password}));
   }
   uidA=ok(await a.auth.getUser()).user.id;uidB=ok(await b.auth.getUser()).user.id;
@@ -121,22 +139,6 @@ try{
   }
   await db.query("UPDATE company_memberships SET verification_status='verified' WHERE company_id=$1 AND user_id=$2",[company.id,uidA]);
  });
- await buildPages();
- const sdk=await build({stdin:{contents:"export {createClient} from '@supabase/supabase-js'",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'browser',write:false});
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- const ctx=await browser.newContext({viewport:{width:390,height:844}});const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await ctx.route('**/*',async route=>{
-  const u=new URL(route.request().url());
-  if(u.origin===api)return route.continue();
-  if(u.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:sdk.outputFiles[0].text});
-  if(u.origin==='http://127.0.0.1:4173'&&/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){
-   const text=await fs.readFile(new URL('../_site'+u.pathname,import.meta.url),'utf8');
-   return route.fulfill({contentType:u.pathname.endsWith('.js')?'text/javascript':u.pathname.endsWith('.css')?'text/css':'text/html',body:text.replaceAll('https://rzhlcszqtuhkhfibygnk.supabase.co',api).replaceAll('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',anon)});
-  }
-  return route.abort();
- });
- const open=path=>page.goto('http://127.0.0.1:4173/'+path);
- async function login(email){await open('account-login.html');await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();try{await page.waitForURL('**/account-home.html');}catch{throw Error('Browser login failed: '+await page.locator('#status').innerText()+'; page errors: '+errors.join('; '));}}
  await test('real browser login → chooser → specialist create → home → edit → reload → relogin',async()=>{
   await login(emails[0]);await page.getByText('Local Edited',{exact:true}).waitFor();
   await open('account-create-profile.html');await page.locator('a[href="account-create-specialist.html"]').click();
@@ -147,6 +149,17 @@ try{
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
   await page.reload();await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[1]);await open('account-create-specialist.html?id='+row.id);await page.getByText(/Черновик не найден или недоступен/).waitFor();assert(await page.locator('#save').isDisabled());
+ });
+ await test('real browser company edit, branch/service save and photo upload',async()=>{
+  await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[0]);
+  await open('account-profile.html?company_id='+company.id);await page.locator('#profile-fields:not([disabled])').waitFor();await page.locator('#description').fill('Browser company persisted');await page.locator('#save').click();await page.locator('#save-state').filter({hasText:'Изменения сохранены'}).waitFor();
+  await page.reload();await page.locator('#profile-fields:not([disabled])').waitFor();assert.equal(await page.locator('#description').inputValue(),'Browser company persisted');
+  await open('account-branches.html?company_id='+company.id);await page.locator('#branch-submit:not([disabled])').waitFor();await page.locator('#new-name').fill('Browser Branch');await page.locator('#new-address').fill('Street 2');await page.locator('#new-city').fill('City');await page.locator('#branch-submit').click();await page.locator('#branches').getByText('Browser Branch',{exact:true}).waitFor();
+  await open('account-services.html?company_id='+company.id);await page.locator('#svc-name').fill('Browser Service');await page.locator('#svc-submit').click();await page.locator('#services').getByText('Browser Service',{exact:true}).waitFor();
+  await open('account-media.html?company_id='+company.id);await page.locator('#active-company-name').filter({hasText:'Company Edited'}).waitFor();
+  const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=4;return c.toDataURL('image/png').split(',')[1];});
+  await page.locator('#media-file').setInputFiles({name:'browser.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#media-state').filter({hasText:'Фотография загружена и опубликована'}).waitFor();
+  assert(ok(await a.from('company_media').select('*')).some(x=>x.storage_object_name.endsWith('.webp')));
  });
  assert.deepEqual(errors,[]);
  await test('private drafts remain absent from publisher and rollback preserves data',async()=>{
