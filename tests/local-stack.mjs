@@ -73,9 +73,10 @@ try{
   assert.deepEqual(ok(await b.rpc('get_my_specialists')),[]);
   assert((await b.rpc('update_my_specialist_draft',{p_id:draft.id,p_display_name:'Stolen',p_profession:'Other'})).error);
   for(const c of [b,anonymous])for(const table of ['specialist_profiles','profile_slug_registry']){
-   const read=await c.from(table).select('*');assert(read.error||read.data.length===0);
-   assert((await c.from(table).update({slug:'stolen'}).eq('slug','local-specialist')).error);
-   assert((await c.from(table).insert({slug:'stolen'})).error);
+   const read=await c.from(table).select('*');assert.equal(read.error?.code,'42501');
+   assert.equal((await c.from(table).update({slug:'stolen'}).eq('slug','local-specialist')).error?.code,'42501');
+   assert.equal((await c.from(table).insert({slug:'stolen'})).error?.code,'42501');
+   assert.equal((await c.from(table).delete().eq('slug','local-specialist')).error?.code,'42501');
   }
   assert((await anonymous.rpc('get_my_specialists')).error);
   assert((await anonymous.rpc('create_my_specialist_draft',{p_display_name:'Anon',p_slug:'anon-master',p_profession:'Master'})).error);
@@ -128,14 +129,14 @@ try{
   const u=new URL(route.request().url());
   if(u.origin===api)return route.continue();
   if(u.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:sdk.outputFiles[0].text});
-  if(u.origin==='http://cabinet.test'&&/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){
+  if(u.origin==='http://127.0.0.1:4173'&&/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){
    const text=await fs.readFile(new URL('../_site'+u.pathname,import.meta.url),'utf8');
    return route.fulfill({contentType:u.pathname.endsWith('.js')?'text/javascript':u.pathname.endsWith('.css')?'text/css':'text/html',body:text.replaceAll('https://rzhlcszqtuhkhfibygnk.supabase.co',api).replaceAll('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',anon)});
   }
   return route.abort();
  });
- const open=path=>page.goto('http://cabinet.test/'+path);
- async function login(email){await open('account-login.html');await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();await page.waitForURL('**/account-home.html');}
+ const open=path=>page.goto('http://127.0.0.1:4173/'+path);
+ async function login(email){await open('account-login.html');await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();try{await page.waitForURL('**/account-home.html');}catch{throw Error('Browser login failed: '+await page.locator('#status').innerText()+'; page errors: '+errors.join('; '));}}
  await test('real browser login → chooser → specialist create → home → edit → reload → relogin',async()=>{
   await login(emails[0]);await page.getByText('Local Edited',{exact:true}).waitFor();
   await open('account-create-profile.html');await page.locator('a[href="account-create-specialist.html"]').click();
