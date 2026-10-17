@@ -178,5 +178,14 @@ try{
   assert((await a.rpc('get_my_specialists')).error);assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
   await db.query('GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated');
  });
+ await test('editor emergency disable preserves records and company Storage',async()=>{
+  const before=(await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n;
+  await db.query(await fs.readFile(new URL('../sql/20261017_specialist_editor_DISABLE_CANDIDATE.sql',import.meta.url),'utf8'));
+  const draft=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='local-specialist');
+  assert.equal((await a.rpc('get_my_specialist_services',{p_specialist_id:draft.id})).error?.code,'42501');
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n,before);
+  const photo=ok(await a.from('company_media').select('*')).find(x=>x.status==='published');assert(photo);ok(await a.storage.from('company-media').download(photo.storage_object_name));
+  assert(ok(await a.rpc('get_my_companies')).some(x=>x.company.id===company.id));
+ });
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
 }finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}
