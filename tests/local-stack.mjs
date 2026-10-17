@@ -162,7 +162,7 @@ try{
   await open('account-services.html?company_id='+company.id);await page.locator('#svc-name').fill('Browser Service');await page.locator('#svc-submit').click();await page.locator('#services').getByText('Browser Service',{exact:true}).waitFor();
   await open('account-media.html?company_id='+company.id);await page.locator('#active-company-name').filter({hasText:'Company Edited'}).waitFor();
   const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=4;return c.toDataURL('image/png').split(',')[1];});
-  await page.locator('#media-file').setInputFiles({name:'browser.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#media-state').filter({hasText:'Фотография загружена и опубликована'}).waitFor();
+  await page.locator('#media-file').setInputFiles({name:'browser.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#media-state').filter({hasText:/Фотография (загружена|заменена) и опубликована/}).waitFor({timeout:30000}).catch(async e=>{throw Error('Browser media upload failed: '+await page.locator('#media-state').innerText()+'; page errors: '+errors.join('; '),{cause:e});});
   assert(ok(await a.from('company_media').select('*')).some(x=>x.storage_object_name.endsWith('.webp')));
  });
  assert.deepEqual(errors,[]);
