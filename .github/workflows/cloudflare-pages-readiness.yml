@@ -1,0 +1,30 @@
+name: Cloudflare Pages readiness
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:pages
+      - run: node scripts/build-pages.mjs
+      - run: node scripts/check-cloudflare-pages.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-cloudflare-pages-static
+          path: _site/
+          include-hidden-files: true
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-pages-artifact-hashes
+          path: reports/cloudflare-pages-artifact.json
+          if-no-files-found: error
