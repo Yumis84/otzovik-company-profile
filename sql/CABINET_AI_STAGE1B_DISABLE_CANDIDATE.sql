@@ -1,0 +1,12 @@
+BEGIN;
+DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RAISE EXCEPTION 'cabinet requires BYPASSRLS deployment' USING ERRCODE='42501'; END IF; END $$;
+UPDATE cabinet_ai.flags SET cabinet_kill=true;
+REVOKE EXECUTE ON FUNCTION public.cabinet_create_conversation(uuid,uuid) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_list_conversations() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_get_conversation(uuid) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_delete_conversation(uuid) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_profile_context(uuid) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_send_mock(uuid,uuid,text,integer,text) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_reject_proposal(uuid) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cabinet_apply_proposal(uuid,text,boolean,jsonb) FROM authenticated;
+COMMIT;

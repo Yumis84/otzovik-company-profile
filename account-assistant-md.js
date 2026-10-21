@@ -1,0 +1,3 @@
+// Safe text-first subset: paragraphs, bullet list lines, bold and inline code.
+// HTML, images and links stay inert text. No innerHTML or resource-loading nodes.
+export function renderMessage(root,text){root.replaceChildren();for(const line of String(text).slice(0,4000).split('\n')){const p=document.createElement('p');const parts=line.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);for(const part of parts){if(part.startsWith('**')&&part.endsWith('**')){const b=document.createElement('strong');b.textContent=part.slice(2,-2);p.append(b);}else if(part.startsWith('`')&&part.endsWith('`')){const code=document.createElement('code');code.textContent=part.slice(1,-1);p.append(code);}else p.append(document.createTextNode(part));}root.append(p);}}
