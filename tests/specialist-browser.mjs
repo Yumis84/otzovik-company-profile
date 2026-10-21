@@ -121,12 +121,17 @@ await test('company editor saves actual SQL, reloads, and keeps specialist indep
  await page.reload();await page.locator('#profile-fields:not([disabled])').waitFor();assert.equal(await page.locator('#description').inputValue(),'Company description');
  assert.equal((await db.call(A,'get_my_specialists')).find(x=>x.slug==='ivan-master').description,'Новое описание');
 });
-await test('company sections keep company_id, role navigation and mobile swipe from main',async()=>{
+await test('company sections keep company_id and use upper menu without swipe navigation',async()=>{
  const [row]=await db.call(A,'get_my_companies');const id=row.company.id;
  await page.setViewportSize({width:390,height:844});
  await open('account-branches.html?company_id='+id);await page.getByText('Сохранённых филиалов пока нет',{exact:true}).waitFor();
  await page.locator('#new-name').fill('Test Branch');await page.locator('#new-address').fill('Street 1');await page.locator('#new-city').fill('City');await page.locator('#branch-submit').click();await page.locator('#branches').getByText('Test Branch',{exact:true}).waitFor();
- await page.getByRole('button',{name:'Следующий раздел',exact:true}).click();await page.waitForURL('**/account-services.html?company_id='+id);
+ assert.equal(await page.getByRole('button',{name:'Следующий раздел',exact:true}).count(),0);
+ assert.equal(await page.getByRole('button',{name:'Предыдущий раздел',exact:true}).count(),0);
+ const beforeSwipe=page.url();
+ await page.evaluate(()=>{const target=document.querySelector('main');const touch=(x)=>({identifier:1,target,clientX:x,clientY:250});for(const [type,x] of [['touchstart',280],['touchend',70]]){const e=new Event(type,{bubbles:true});Object.defineProperties(e,{touches:{value:type==='touchstart'?[touch(x)]:[]},changedTouches:{value:[touch(x)]}});target.dispatchEvent(e);}});
+ assert.equal(page.url(),beforeSwipe);
+ await page.locator('main nav[aria-label="Навигация кабинета"] a[href^="account-services.html"]').click();await page.waitForURL('**/account-services.html?company_id='+id);
  await page.locator('#svc-name').fill('Test Service');await page.locator('#svc-submit').click();await page.locator('#services').getByText('Test Service',{exact:true}).waitFor();
  assert.equal(records.locations[0].company_id,id);assert.equal(records.services[0].company_id,id);
  await open('account-media.html?company_id='+id);await page.locator('#active-company-name').filter({hasText:'Company Edited'}).waitFor();assert.equal(await page.locator('#media-file').count(),1);
