@@ -1,0 +1,51 @@
+name: AI consultant mock acceptance
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  ai:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: acceptance-only
+          POSTGRES_DB: otzovik_ai_acceptance
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d otzovik_ai_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/ai/acceptance.mjs
+        env:
+          AI_TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_ai_acceptance
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/ai/browser.mjs
+      - run: npm run test:pages
+  ai-local-rpc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/prepare-local-stack.mjs
+      - name: Start disposable Supabase without hosted links
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,edge-runtime,logflare,vector,supavisor > /tmp/ai-stack-start.log 2>&1
+      - name: Read only disposable local keys privately
+        run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+      - run: node tests/ai/local-rpc.mjs
+      - name: Stop disposable stack
+        if: always()
+        run: npx supabase stop --workdir /tmp/otzovik-supabase --no-backup
