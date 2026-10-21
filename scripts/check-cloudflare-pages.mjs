@@ -32,7 +32,7 @@ for(const name of actual.sort()){
  files.push({path:name,bytes:bytes.length,sha256:sha256(bytes)});
 }
 const swipe=await fs.readFile(path.join(output,'account-mobile-swipe.js'),'utf8');
-if(!/^\s*\/\*[\s\S]*?\*\/\s*$/.test(swipe))throw Error('Page swipe entrypoint must remain inert');
+if(swipe.replace(/\/\*[\s\S]*?\*\//g,'').trim())throw Error('Page swipe entrypoint must remain inert');
 await fs.mkdir(path.join(root,'reports'),{recursive:true});
 await fs.writeFile(path.join(root,'reports/cloudflare-pages-artifact.json'),JSON.stringify({schema:1,buildCommand:'node scripts/build-pages.mjs',output:'_site',files},null,2)+'\n');
 console.log('PASS Cloudflare Pages readiness: '+files.length+' byte-identical allowlisted files; no privileged key patterns; no page swipe; hashes outside public artifact');
