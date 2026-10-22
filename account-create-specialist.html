@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><title>Профиль специалиста | Отзыв.com</title>
+<link rel="stylesheet" href="account-preview.css">
 <style>
-:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101828;background:#f6f8fb}*{box-sizing:border-box}
-body{margin:0}.wrap{width:min(660px,calc(100% - 28px));margin:30px auto 70px}
+.specialist-editor{width:min(660px,100%);margin:18px auto 22px}
 .card{background:white;border:1px solid #e4e7ec;border-radius:18px;padding:24px}
 h1{font-size:clamp(26px,5vw,36px);margin:12px 0}p{color:#667085;line-height:1.5}
 a{color:#175cd3}.field{display:block;margin:18px 0;font-size:14px;font-weight:750}
@@ -12,8 +12,10 @@ input,textarea{display:block;width:100%;margin-top:7px;padding:12px;border:1px s
 button{background:#101828;color:white;border:0;border-radius:10px;padding:13px 16px;font:inherit;font-weight:800}
 button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 </style></head>
-<body><main class="wrap"><a href="account-create-profile.html">← Выбор типа профиля</a>
-<section class="card"><a href="account-home.html">Мои профили</a><h1>Индивидуальный специалист</h1>
+<body><header><div class="wrap top"><a class="brand" href="https://отзыв.com/">отзыв<span>.com</span></a><b role="link" tabindex="0" onclick="location.href='account-home.html'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();location.href='account-home.html'}" style="cursor:pointer">ЛИЧНЫЙ КАБИНЕТ</b></div></header><main class="wrap">
+<nav aria-label="Навигация кабинета"><a href="account-home.html">Мои профили</a><a class="active" href="#profile">Профиль</a></nav>
+<div class="specialist-editor"><a href="account-create-profile.html">← Выбор типа профиля</a>
+<section class="card" id="profile"><h1>Индивидуальный специалист</h1>
 <p class="notice" role="status"><strong>Черновик специалиста.</strong> Профиль не публикуется автоматически.</p>
 <form id="preview"><fieldset id="fields" disabled style="border:0;padding:0;margin:0;min-width:0">
 <label class="field">Публичное имя *<input name="display_name" required minlength="2" maxlength="150" autocomplete="name" placeholder="Как вас будут видеть клиенты"></label>
@@ -25,7 +27,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 <p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Публикация, услуги и отзывы будут доступны на следующем этапе.</p>
 <button type="submit" id="save" disabled>Сохранить черновик</button>
 </fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
-</form></section></main>
+</form></section></div></main>
 <script type="module">
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
 const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
