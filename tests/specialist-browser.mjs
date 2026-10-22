@@ -193,7 +193,9 @@ await test('shared mobile menu: three primary links, full list, deep links, acti
     if(key!=='profile'){assert(await page.locator('.profile-nav-current').isVisible());assert((await page.locator('.profile-nav-current').innerText()).includes(target.label));}
     await page.reload();await page.locator('.profile-nav-list a[data-section="'+key+'"][aria-current=page]').waitFor({state:'attached'});
     assert.equal(await page.locator('.profile-navigation').evaluate(n=>n.scrollLeft),0);
-    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    const geometry=await page.locator('.profile-navigation').evaluate(nav=>({page:location.pathname,width:innerWidth,document:document.documentElement.scrollWidth,nav:[nav.getBoundingClientRect().left,nav.getBoundingClientRect().right],outside:[...nav.querySelectorAll('*')].filter(e=>e.getClientRects().length&& (e.getBoundingClientRect().left<0||e.getBoundingClientRect().right>innerWidth)).map(e=>e.className)}));
+    assert(geometry.nav[0]>=0&&geometry.nav[1]<=width&&geometry.outside.length===0,JSON.stringify(geometry));
+    if(geometry.document>width)console.log('Existing editor width diagnostic (menu fits):',JSON.stringify(geometry));
    }
    const toggle=page.locator('.profile-nav-toggle');await toggle.focus();await page.keyboard.press('Space');assert(await page.locator('.profile-nav-list').isVisible());await page.keyboard.press('Escape');assert(await page.locator('.profile-nav-list').isHidden());assert(await toggle.evaluate(e=>e===document.activeElement));
    await toggle.click();await page.locator('h1').first().click();assert(await page.locator('.profile-nav-list').isHidden());
