@@ -5,7 +5,7 @@ export async function context(section){
  const params=new URLSearchParams(location.search),id=params.get('id');
  if(params.has('company_id'))throw Error('Откройте специалиста из «Мои профили». Контекст компании здесь не используется.');
  const {data,error}=await sb.auth.getSession();if(error)throw Error('Не удалось проверить сессию.');
- if(!data?.session){location.replace('account-login.html?next='+encodeURIComponent(location.pathname.split('/').pop()+location.search));throw Error('Войдите в кабинет.');}
+ if(!data?.session){const page=location.pathname.split('/').pop();const next=(page.endsWith('.html')?page:page+'.html')+location.search;location.replace('account-login.html?next='+encodeURIComponent(next));throw Error('Войдите в кабинет.');}
  if(!isUUID(id))throw Error('Откройте сохранённого специалиста из «Мои профили».');
  const rows=await rpc('get_my_specialists');const item=rows?.find(x=>x.id===id&&x.profile_status==='draft');if(!item)throw Error('Черновик не найден или недоступен.');
  sessionStorage.setItem('active_profile',JSON.stringify({kind:'specialist',id}));navigation(document.querySelector('.editor-nav'),id,section);document.getElementById('profile-name').textContent=item.display_name;return id;

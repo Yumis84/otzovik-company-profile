@@ -14,6 +14,7 @@ await context.route('**/*',async route=>{
  const url=new URL(route.request().url());
  if(url.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:await fs.readFile(new URL('./browser-client-stub.js',import.meta.url),'utf8')});
  if(url.origin==='https://cabinet.test'){
+  if(/^\/account-[a-z-]+$/.test(url.pathname))url.pathname+='.html';
   if(!/^\/account-[a-z-]+\.(html|js|css)$/.test(url.pathname))return route.fulfill({status:404,body:''});
   return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html',body:await fs.readFile(new URL('../_site'+url.pathname,import.meta.url),'utf8')});
  }
@@ -164,6 +165,7 @@ await test('12 specialist sections, safe disabled AI/MCP, explicit id and no pag
   for(const link of links.filter(x=>x.includes('section='))){await open(link);await page.locator('#section-content:not([hidden])').waitFor();assert.equal(await page.locator('.editor-nav a').count(),12);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await page.locator('#section-content button:not([disabled]), #section-content textarea:not([disabled]), #section-content input:not([disabled])').count(),0);}
  }
  const before=calls.length;user=B;await open('account-specialist-section.html?id='+id+'&section=mcp');await page.locator('#status').filter({hasText:'недоступен'}).waitFor();assert(await page.locator('#section-content').isHidden());assert(!calls.slice(before).some(x=>x.name.startsWith('save_')));
+ user=null;await open('account-specialist-section?id='+id+'&section=mcp');await page.waitForURL('**/account-login.html?*');assert.equal(new URL(page.url()).searchParams.get('next'),'account-specialist-section.html?id='+id+'&section=mcp');
  user=A;await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-specialist-profile.html?id='+id);await waitReady();
 });
 await test('service/contact save and reload; missing media/backend disables writes',async()=>{
