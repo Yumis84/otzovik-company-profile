@@ -76,5 +76,5 @@ form.addEventListener('submit',async event=>{
  }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
  finally{busy=false;save.disabled=false;}
 });
-await initialize();
+if(!editing)await initialize();
 </script></body></html>
