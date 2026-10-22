@@ -13,7 +13,7 @@ const context=await browser.newContext();
 await context.route('**/*',async route=>{
  const url=new URL(route.request().url());
  if(url.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:await fs.readFile(new URL('./browser-client-stub.js',import.meta.url),'utf8')});
- if(url.origin==='http://cabinet.test'){
+ if(url.origin==='https://cabinet.test'){
   if(!/^\/account-[a-z-]+\.(html|js|css)$/.test(url.pathname))return route.fulfill({status:404,body:''});
   return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html',body:await fs.readFile(new URL('../_site'+url.pathname,import.meta.url),'utf8')});
  }
@@ -57,7 +57,7 @@ await context.exposeBinding('testRPC',async(_,name,args={})=>{
  try{return {data:await db.call(user,name,names.map(n=>args[n])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}
 });
 const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-const open=path=>page.goto('http://cabinet.test/'+path);
+const open=path=>page.goto('https://cabinet.test/'+path);
 const note=()=>page.locator('#save-note');
 const waitReady=()=>page.locator('#save:not([disabled])').waitFor();
 let count=0;const test=async(name,fn)=>{await fn();console.log('PASS browser',++count,name);};
@@ -159,7 +159,7 @@ await test('12 specialist sections, safe disabled AI/MCP, explicit id and no pag
   await page.setViewportSize({width,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
   assert.equal(await page.locator('.editor-nav a').count(),12);assert.equal(await page.getByRole('link',{name:'Филиалы',exact:true}).count(),0);
   const links=await page.locator('.editor-nav a').evaluateAll(es=>es.map(e=>e.getAttribute('href')));
-  for(const link of links)assert.equal(new URL(link,'http://cabinet.test').searchParams.get('id'),id);
+  for(const link of links)assert.equal(new URL(link,'https://cabinet.test').searchParams.get('id'),id);
   const before=page.url();await page.evaluate(()=>{const target=document.querySelector('h1');for(const [type,x] of [['touchstart',350],['touchend',20]]){const e=new Event(type,{bubbles:true});Object.defineProperty(e,type==='touchstart'?'touches':'changedTouches',{value:[{clientX:x,clientY:350}]});target.dispatchEvent(e);}});assert.equal(page.url(),before);
   for(const link of links.filter(x=>x.includes('section='))){await open(link);await page.locator('#section-content:not([hidden])').waitFor();assert.equal(await page.locator('.editor-nav a').count(),12);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await page.locator('#section-content button:not([disabled]), #section-content textarea:not([disabled]), #section-content input:not([disabled])').count(),0);}
  }
