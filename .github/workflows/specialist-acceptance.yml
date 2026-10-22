@@ -31,6 +31,10 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Public artifact allowlist and local references
         run: npm run test:pages
+      - name: Exact Cloudflare static artifact
+        run: node scripts/build-pages.mjs && node scripts/check-cloudflare-pages.mjs
+      - name: Specialist editor security contracts
+        run: npm run test:editor
       - name: Real PostgreSQL roles, RPCs and overlapping transactions
         run: npm test
         env:

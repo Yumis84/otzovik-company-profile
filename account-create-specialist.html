@@ -33,6 +33,7 @@ const form=document.getElementById('preview'),save=document.getElementById('save
 const params=new URLSearchParams(location.search);
 const editing=params.has('id');
 const editId=params.get('id');
+if(editing)location.replace('account-specialist-profile.html?id='+encodeURIComponent(editId||''));
 let ready=false,busy=false;
 const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementById('specialist-url');
 function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';}
@@ -71,9 +72,9 @@ form.addEventListener('submit',async event=>{
    note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
   }
   if(!data?.id||data.profile_status!=='draft')throw new Error('Unexpected response');
-  note.textContent='Черновик сохранён. Переходим к списку профилей.';location.assign('account-home.html');
+  note.textContent='Черновик сохранён. Открываем кабинет специалиста.';location.assign('account-specialist-profile.html?id='+encodeURIComponent(data.id));
  }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
  finally{busy=false;save.disabled=false;}
 });
-await initialize();
+if(!editing)await initialize();
 </script></body></html>

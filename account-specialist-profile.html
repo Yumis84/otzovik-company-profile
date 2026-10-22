@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Кабинет специалиста | Отзыв.com</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101828;background:#f6f8fb}*{box-sizing:border-box}
+body{margin:0}.wrap{width:min(660px,calc(100% - 28px));margin:30px auto 70px}
+.card{background:white;border:1px solid #e4e7ec;border-radius:18px;padding:24px}
+h1{font-size:clamp(26px,5vw,36px);margin:12px 0}p{color:#667085;line-height:1.5}
+a{color:#175cd3}.field{display:block;margin:18px 0;font-size:14px;font-weight:750}
+input,textarea{display:block;width:100%;margin-top:7px;padding:12px;border:1px solid #d0d5dd;border-radius:9px;font:inherit}
+.slug-field{display:flex;align-items:stretch;margin-top:7px;border:1px solid #d0d5dd;border-radius:9px;overflow:hidden;background:#fff}.slug-field:focus-within{outline:2px solid #84caff;outline-offset:1px}.slug-field input{margin:0;border:0;border-radius:0;min-width:0;flex:1;padding:12px 2px;outline:none}.slug-part{display:flex;align-items:center;padding:0 8px;color:#667085;font-weight:500;white-space:nowrap;background:transparent}.slug-part:first-child{padding-left:12px;padding-right:3px}.slug-part:last-child{padding-left:2px;padding-right:12px}.slug-preview{display:block;margin-top:8px;color:#475467;font-size:13px;font-weight:500;overflow-wrap:anywhere}.slug-preview strong{color:#175cd3;font-weight:750}textarea{min-height:100px;resize:vertical}.notice{background:#eff8ff;border:1px solid #b2ddff;border-radius:10px;padding:14px}
+button{background:#101828;color:white;border:0;border-radius:10px;padding:13px 16px;font:inherit;font-weight:800}
+button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
+</style><link rel="stylesheet" href="account-specialist-ui.css"></head>
+<body><main class="wrap"><a href="account-create-profile.html">← Выбор типа профиля</a>
+<section class="card"><a href="account-home.html">Мои профили</a><h1>Индивидуальный специалист</h1><nav class="editor-nav" aria-label="Разделы профиля специалиста"></nav>
+<p class="notice" role="status"><strong>Черновик специалиста.</strong> Профиль не публикуется автоматически.</p>
+<form id="preview"><fieldset id="fields" disabled style="border:0;padding:0;margin:0;min-width:0">
+<label class="field">Публичное имя *<input name="display_name" required minlength="2" maxlength="150" autocomplete="name" placeholder="Как вас будут видеть клиенты"></label>
+<label class="field">Адрес профиля *<span class="slug-field"><span class="slug-part">https://</span><input name="slug" required minlength="3" maxlength="63" pattern="[a-z0-9][a-z0-9\-]*[a-z0-9]" placeholder="master-ivan" aria-label="Имя адреса профиля"><span class="slug-part">.отзыв.com</span></span><span class="slug-preview">После публикации: <strong id="specialist-url">https://master-ivan.отзыв.com/</strong></span></label>
+<label class="field">Профессия *<input name="profession" required maxlength="120" placeholder="Например, фотограф"></label>
+<label class="field">Специализация<input name="specialization" maxlength="160" placeholder="Например, предметная съёмка"></label>
+<label class="field">Город<input name="city" maxlength="120" placeholder="Или укажите «Работаю онлайн»"></label>
+<label class="field">Описание<textarea name="description" maxlength="2000" placeholder="Опишите опыт, услуги и подход к работе"></textarea></label>
+<p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Разделы доступны в верхнем меню. Неподключённые возможности отмечены отдельно. Данные компаний не используются.</p>
+<button type="submit" id="save" disabled>Сохранить черновик</button>
+<button type="button" id="delete-draft" hidden class="danger">Удалить черновик</button></fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
+</form></section></main>
+<script type="module">
+import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
+const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
+const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note'),fields=document.getElementById('fields');
+import {navigation} from './account-specialist-ui.js';
+const params=new URLSearchParams(location.search);
+const editing=true;
+const ambiguous=new URLSearchParams(location.search).has('company_id');
+const editId=params.get('id');
+navigation(document.querySelector('.editor-nav'),null);
+let ready=false,busy=false;
+const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementById('specialist-url');
+function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';}
+slugInput.addEventListener('input',updateUrlPreview);updateUrlPreview();
+const failLoad=message=>{note.textContent=message;fields.disabled=true;save.disabled=true;};
+async function initialize(){
+ if(ambiguous){failLoad('Откройте специалиста из «Мои профили».');return;}
+ try{
+  const {data,error}=await s.auth.getSession();
+  if(error||!data?.session){
+   const next='account-specialist-profile.html'+(editing?'?id='+encodeURIComponent(editId||''):'');
+   location.replace('account-login.html?next='+encodeURIComponent(next));return;
+  }
+  if(editing){
+   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editId||'')){failLoad('Некорректная ссылка на черновик.');return;}
+   const result=await s.rpc('get_my_specialists');
+   if(result.error){failLoad('Не удалось загрузить черновик. Обновите страницу и попробуйте снова.');return;}
+   const item=Array.isArray(result.data)?result.data.find(x=>x.id===editId):null;
+   if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
+   for(const key of ['display_name','slug','profession','specialization','city','description'])form.elements.namedItem(key).value=item[key]||'';
+   form.elements.namedItem('slug').readOnly=true;updateUrlPreview();
+   navigation(document.querySelector('.editor-nav'),editId);
+   document.querySelector('h1').textContent=item.display_name;
+   save.textContent='Сохранить изменения';
+   s.rpc('get_my_specialist_services',{p_specialist_id:editId}).then(editor=>{document.getElementById('delete-draft').hidden=!!editor.error;}).catch(()=>{});
+  }
+  ready=true;fields.disabled=false;save.disabled=false;note.textContent='Изменения сохранятся только после нажатия кнопки.';
+ }catch{failLoad('Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');}
+}
+form.addEventListener('submit',async event=>{
+ event.preventDefault();if(!ready||busy||!form.reportValidity())return;
+ const fd=new FormData(form),name=String(fd.get('display_name')||'').trim(),slug=String(fd.get('slug')||'').trim().toLowerCase(),profession=String(fd.get('profession')||'').trim();
+ if(name.length<2||name.length>150||!profession||profession.length>120||!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug)||slug.startsWith('xn--')||['www','api','admin','test','test2','account','login','profiles','specialists'].includes(slug)){
+  note.textContent='Проверьте имя, профессию и адрес: 3–63 латинских символа, цифры или дефис. Служебные адреса недоступны.';return;
+ }
+ busy=true;save.disabled=true;note.textContent='Сохраняем черновик…';
+ try{
+  const {data,error}=await s.rpc(editing?'update_my_specialist_draft':'create_my_specialist_draft',{...(editing?{p_id:editId}:{p_slug:slug}),p_display_name:name,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
+  if(error){
+   note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
+  }
+  if(data?.id!==editId||data.profile_status!=='draft')throw new Error('Unexpected response');
+  note.textContent='Изменения сохранены в приватном черновике.';
+  document.querySelector('h1').textContent=data.display_name||name;
+ }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
+ finally{busy=false;save.disabled=false;}
+});
+document.getElementById('delete-draft').addEventListener('click',async()=>{
+ if(!editing||!ready||busy||!confirm('Удалить этот черновик, его услуги и контакты? Адрес освободится. Сначала удалите все фотографии и незавершённые загрузки.'))return;
+ busy=true;fields.disabled=true;note.textContent='Удаляем черновик…';
+ try{
+  const {data,error}=await s.rpc('delete_my_specialist_draft',{p_specialist_id:editId});
+  if(error){note.textContent=error.code==='55000'?'Сначала удалите фотографии и незавершённые загрузки в разделе «Фото и портфолио».':error.code==='42501'?'Черновик недоступен. Обновите список профилей.':'Не удалось удалить черновик. Обновите список профилей перед повторной попыткой.';return;}
+  if(!data?.deleted||data.id!==editId)throw Error('Unexpected deletion response');
+  sessionStorage.removeItem('active_profile');location.assign('account-home.html');
+ }catch{note.textContent='Не удалось подтвердить удаление. Проверьте «Мои профили» перед повторной попыткой.';}
+ finally{busy=false;fields.disabled=false;}
+});
+await initialize();
+</script></body></html>

@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 import {database,A,B} from './database.mjs';
 import {buildPages} from '../scripts/build-pages.mjs';
 await buildPages();
-const db=await database();
+const db=await database({editor:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--disable-dev-shm-usage']});
 let user=A,failRPC=null,throwRPC=null,calls=[],slowRPC=null,authMode='confirm',authFail=false,authCalls=[];
 const records={locations:[],services:[],media:[]};
@@ -13,7 +13,8 @@ const context=await browser.newContext();
 await context.route('**/*',async route=>{
  const url=new URL(route.request().url());
  if(url.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:await fs.readFile(new URL('./browser-client-stub.js',import.meta.url),'utf8')});
- if(url.origin==='http://cabinet.test'){
+ if(url.origin==='https://cabinet.test'){
+  if(/^\/account-[a-z-]+$/.test(url.pathname))url.pathname+='.html';
   if(!/^\/account-[a-z-]+\.(html|js|css)$/.test(url.pathname))return route.fulfill({status:404,body:''});
   return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'text/html',body:await fs.readFile(new URL('../_site'+url.pathname,import.meta.url),'utf8')});
  }
@@ -49,12 +50,15 @@ await context.exposeBinding('testRPC',async(_,name,args={})=>{
   if(name.startsWith('get_'))return {data:records[kind].filter(x=>x.company_id===args.p_company_id),error:null};
   const record={id:crypto.randomUUID(),company_id:args.p_company_id,status:'published',...Object.fromEntries(Object.entries(args).map(([k,v])=>[k.replace(/^p_/,''),v]))};records[kind].push(record);return {data:record,error:null};
  }
+ if(name==='get_my_specialist_media')return {data:null,error:{code:'PGRST202',message:'Not installed'}};
+ const editorNames={get_my_specialist_services:['p_specialist_id'],save_my_specialist_service:['p_specialist_id','p_service_id','p_name','p_description','p_price_from','p_price_to','p_currency','p_duration_minutes','p_is_active','p_version'],delete_my_specialist_service:['p_specialist_id','p_service_id','p_version'],get_my_specialist_settings:['p_specialist_id'],save_my_specialist_settings:['p_specialist_id','p_phone','p_email','p_website','p_work_formats','p_service_area','p_qualifications','p_version']};
+ if(editorNames[name]){try{return {data:await db.call(user,name,editorNames[name].map(n=>args[n]??null)),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}}
  const names={update_my_company_profile:['p_company_id','p_name','p_description','p_website','p_phone','p_city','p_email'],create_my_specialist_draft:['p_display_name','p_slug','p_profession','p_specialization','p_city','p_description'],update_my_specialist_draft:['p_id','p_display_name','p_profession','p_specialization','p_city','p_description'],create_my_company:['p_name','p_slug','p_website','p_phone','p_city','p_email'],get_my_companies:[],get_my_specialists:[]}[name];
  assert(names,'Unexpected RPC '+name);assert.deepEqual(Object.keys(args).sort(),[...names].sort());
  try{return {data:await db.call(user,name,names.map(n=>args[n])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}
 });
 const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-const open=path=>page.goto('http://cabinet.test/'+path);
+const open=path=>page.goto('https://cabinet.test/'+path);
 const note=()=>page.locator('#save-note');
 const waitReady=()=>page.locator('#save:not([disabled])').waitFor();
 let count=0;const test=async(name,fn)=>{await fn();console.log('PASS browser',++count,name);};
@@ -76,30 +80,30 @@ await test('mobile chooser → actual create RPC → dashboard → load → upda
  await open('account-create-profile.html');assert.equal(await page.locator('.type-icon svg').count(),2);assert.equal(await page.getByRole('link',{name:/Создать компанию/}).count(),1);await page.getByRole('link',{name:/Создать компанию/}).click();await page.waitForURL('**/account-create-company.html');await page.locator('#name').waitFor();await open('account-create-profile.html');await page.getByRole('link',{name:/Индивидуальный специалист/}).click();await waitReady();
  await page.locator('[name=display_name]').fill('Иван Мастер');await page.locator('[name=slug]').fill('ivan-master');await page.locator('[name=profession]').fill('Фотограф');await page.locator('[name=specialization]').fill('Портреты');await page.locator('[name=city]').fill('Калининград');await page.locator('[name=description]').fill('Описание <img src=x onerror=alert(1)>');
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
- await page.locator('#save').click();await page.waitForURL('**/account-home.html');await page.getByText('Иван Мастер',{exact:true}).waitFor(); assert.equal(await page.locator('.specialist-card .specialist-avatar svg').count(),1); assert.equal(await page.locator('.specialist-card .company-avatar').count(),0);
+ await page.locator('#save').click();await page.waitForURL('**/account-specialist-profile.html?id=*');await open('account-home.html');await page.getByText('Иван Мастер',{exact:true}).waitFor(); assert.equal(await page.locator('.specialist-card .specialist-avatar svg').count(),1); assert.equal(await page.locator('.specialist-card .company-avatar').count(),0);
  const [item]=await db.call(A,'get_my_specialists');id=item.id;assert.equal(item.description,'Описание <img src=x onerror=alert(1)>');
  await page.getByRole('link',{name:/Редактировать специалиста/}).click();await waitReady();
  assert.equal(await page.locator('[name=slug]').getAttribute('readonly'),'');assert.equal(await page.locator('[name=description]').inputValue(),item.description);
- await page.locator('[name=display_name]').fill('Иван Обновлённый');await page.locator('[name=description]').fill('Новое описание');await page.locator('#save').click();await page.waitForURL('**/account-home.html');await page.getByText('Иван Обновлённый',{exact:true}).waitFor(); assert.equal(await page.locator('.specialist-card .specialist-avatar svg').count(),1);await page.reload();await page.getByRole('link',{name:/Редактировать специалиста/}).click();await waitReady();assert.equal(await page.locator('[name=description]').inputValue(),'Новое описание');
+ await page.locator('[name=display_name]').fill('Иван Обновлённый');await page.locator('[name=description]').fill('Новое описание');await page.locator('#save').click();await note().filter({hasText:'Изменения сохранены'}).waitFor();await open('account-home.html');await page.getByText('Иван Обновлённый',{exact:true}).waitFor(); assert.equal(await page.locator('.specialist-card .specialist-avatar svg').count(),1);await page.reload();await page.getByRole('link',{name:/Редактировать специалиста/}).click();await waitReady();assert.equal(await page.locator('[name=description]').inputValue(),'Новое описание');
 });
 await test('unauthenticated edit preserves id through login; no data RPC before auth',async()=>{
- user=null;calls=[];await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-login.html?*');
- assert.equal(new URL(page.url()).searchParams.get('next'),'account-create-specialist.html?id='+id);assert.equal(calls.length,0);
- user=A;await page.reload();await page.waitForURL('**/account-create-specialist.html?id='+id);await waitReady();
+ user=null;calls=[];await open('account-specialist-profile.html?id='+id);await page.waitForURL('**/account-login.html?*');
+ assert.equal(new URL(page.url()).searchParams.get('next'),'account-specialist-profile.html?id='+id);assert.equal(calls.length,0);
+ user=A;await page.reload();await page.waitForURL('**/account-specialist-profile.html?id='+id);await waitReady();
 });
 await test('specialist-only user login lands in cabinet',async()=>{
  await open('account-login.html');await page.waitForURL('**/account-home.html');await page.getByText('Иван Обновлённый',{exact:true}).waitFor();
 });
 await test('foreign profile and malformed id fail closed',async()=>{
- user=B;await open('account-create-specialist.html?id='+id);await note().filter({hasText:'недоступен'}).waitFor();assert(await page.locator('#save').isDisabled());assert.equal(await page.locator('[name=display_name]').inputValue(),'');
- for(const invalid of ['','not-a-uuid']){calls=[];await open('account-create-specialist.html?id='+invalid);await note().filter({hasText:'Некорректная'}).waitFor();assert(await page.locator('#save').isDisabled());assert.equal(calls.length,0);}
+ user=B;await open('account-specialist-profile.html?id='+id);await note().filter({hasText:'недоступен'}).waitFor();assert(await page.locator('#save').isDisabled());assert.equal(await page.locator('[name=display_name]').inputValue(),'');
+ for(const invalid of ['','not-a-uuid']){calls=[];await open('account-specialist-profile.html?id='+invalid);await note().filter({hasText:'Некорректная'}).waitFor();assert(await page.locator('#save').isDisabled());assert.equal(calls.length,0);}
  user=A;
 });
 await test('missing RPC, rejected network, retry and duplicate address are visible',async()=>{
  await open('account-create-specialist.html');await waitReady();await page.locator('[name=display_name]').fill('Другой Мастер');await page.locator('[name=slug]').fill('ivan-master');await page.locator('[name=profession]').fill('Мастер');await page.locator('#save').click();await note().filter({hasText:'Адрес уже занят'}).waitFor();assert(await page.locator('#save').isEnabled());
  await page.locator('[name=slug]').fill('retry-master');failRPC='create_my_specialist_draft';await page.locator('#save').click();await note().filter({hasText:'временно недоступно'}).waitFor();assert(await page.locator('#save').isEnabled());failRPC=null;
  throwRPC='create_my_specialist_draft';await page.locator('#save').click();await note().filter({hasText:'Не удалось подтвердить'}).waitFor();throwRPC=null;assert(await page.locator('#save').isEnabled());
- slowRPC='create_my_specialist_draft';calls=[];await page.evaluate(()=>{const f=document.querySelector('form');f.dispatchEvent(new Event('submit',{cancelable:true}));f.dispatchEvent(new Event('submit',{cancelable:true}));});await page.waitForURL('**/account-home.html');assert.equal(calls.filter(x=>x.name==='create_my_specialist_draft').length,1);slowRPC=null;
+ slowRPC='create_my_specialist_draft';calls=[];await page.evaluate(()=>{const f=document.querySelector('form');f.dispatchEvent(new Event('submit',{cancelable:true}));f.dispatchEvent(new Event('submit',{cancelable:true}));});await page.waitForURL('**/account-specialist-profile.html?id=*');assert.equal(calls.filter(x=>x.name==='create_my_specialist_draft').length,1);slowRPC=null;
 });
 await test('dashboard read errors are not shown as empty profiles; company failure does not hide specialist',async()=>{
  failRPC='get_my_companies';await open('account-home.html');await page.locator('#status').filter({hasText:'Не удалось загрузить компании'}).waitFor();await page.getByText('Иван Обновлённый',{exact:true}).waitFor();
@@ -107,7 +111,7 @@ await test('dashboard read errors are not shown as empty profiles; company failu
  for(const rpc of ['get_my_companies','get_my_pending_company_invitations']){throwRPC=rpc;await open('account-home.html');await page.getByText('Иван Обновлённый',{exact:true}).waitFor();await page.locator('#status').filter({hasText:'Не удалось загрузить'}).waitFor();}throwRPC=null;
 });
 await test('failed edit load disables all fields and cannot overwrite draft',async()=>{
- failRPC='get_my_specialists';await open('account-create-specialist.html?id='+id);await note().filter({hasText:'Не удалось загрузить'}).waitFor();assert(await page.locator('#save').isDisabled());assert(await page.locator('[name=display_name]').isDisabled());failRPC=null;
+ failRPC='get_my_specialists';await open('account-specialist-profile.html?id='+id);await note().filter({hasText:'Не удалось загрузить'}).waitFor();assert(await page.locator('#save').isDisabled());assert(await page.locator('[name=display_name]').isDisabled());failRPC=null;
 });
 await test('existing company form creates company through exact RPC, then displays in cabinet',async()=>{
  await page.setViewportSize({width:1280,height:900});await open('account-create-company.html');await page.locator('#name').fill('New Company');await page.locator('#slug').fill('new-company');await page.locator('#submit').click();await page.waitForURL('**/account-home.html');await page.getByText('New Company',{exact:true}).waitFor();assert.equal(await page.locator('.company-card .company-avatar svg').count(),1);assert((await page.locator('.specialist-card .specialist-avatar svg').count())>=1);
@@ -144,11 +148,54 @@ await test('company sections keep company_id and use upper menu without swipe na
 await test('repeat specialist update keeps one row; logout and external next fail closed',async()=>{
  const before=(await db.call(A,'get_my_specialists')).length;
  for(let i=0;i<2;i++){
-  await open('account-create-specialist.html?id='+id);await waitReady();await page.locator('#save').click();await page.waitForURL('**/account-home.html');
+  await open('account-specialist-profile.html?id='+id);await waitReady();await page.locator('#save').click();await note().filter({hasText:'Изменения сохранены'}).waitFor();
  }
  assert.equal((await db.call(A,'get_my_specialists')).length,before);
- await page.locator('#logout').click();await page.waitForURL('**/account-login.html');assert.equal(user,null);
+ await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');assert.equal(user,null);
  user=A;await open('account-login.html?next=https%3A%2F%2Fevil.example');await page.waitForURL('**/account-home.html');
+});
+await test('12 specialist sections, safe disabled AI/MCP, explicit id and no page swipe on desktop/mobile',async()=>{
+ user=A;
+ for(const width of [1280,390]){
+  await page.setViewportSize({width,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
+  assert.equal(await page.locator('.editor-nav a').count(),12);assert.equal(await page.getByRole('link',{name:'Филиалы',exact:true}).count(),0);
+  const links=await page.locator('.editor-nav a').evaluateAll(es=>es.map(e=>e.getAttribute('href')));
+  for(const link of links)assert.equal(new URL(link,'https://cabinet.test').searchParams.get('id'),id);
+  const before=page.url();await page.evaluate(()=>{const target=document.querySelector('h1');for(const [type,x] of [['touchstart',350],['touchend',20]]){const e=new Event(type,{bubbles:true});Object.defineProperty(e,type==='touchstart'?'touches':'changedTouches',{value:[{clientX:x,clientY:350}]});target.dispatchEvent(e);}});assert.equal(page.url(),before);
+  for(const link of links.filter(x=>x.includes('section='))){await open(link);await page.locator('#section-content:not([hidden])').waitFor();assert.equal(await page.locator('.editor-nav a').count(),12);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await page.locator('#section-content button:not([disabled]), #section-content textarea:not([disabled]), #section-content input:not([disabled])').count(),0);}
+ }
+ const before=calls.length;user=B;await open('account-specialist-section.html?id='+id+'&section=mcp');await page.locator('#status').filter({hasText:'недоступен'}).waitFor();assert(await page.locator('#section-content').isHidden());assert(!calls.slice(before).some(x=>x.name.startsWith('save_')));
+ user=null;await open('account-specialist-section?id='+id+'&section=mcp');await page.waitForURL('**/account-login.html?*');assert.equal(new URL(page.url()).searchParams.get('next'),'account-specialist-section.html?id='+id+'&section=mcp');
+ user=A;await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-specialist-profile.html?id='+id);await waitReady();
+});
+await test('mobile specialist active tab aligns left on navigation/reload, clamps edges and permits manual scroll',async()=>{
+ user=A;await page.setViewportSize({width:390,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
+ const labels=await page.locator('.editor-nav a').allTextContents();
+ async function alignedLeft(label){
+  await page.waitForFunction(expected=>{
+   const nav=document.querySelector('.editor-nav'),a=nav?.querySelector('a[aria-current="page"]');if(!a||a.textContent!==expected)return false;
+   const max=Math.max(0,nav.scrollWidth-nav.clientWidth);
+   const wanted=Math.min(max,Math.max(0,nav.scrollLeft+a.getBoundingClientRect().left-nav.getBoundingClientRect().left-nav.clientLeft-8));
+   return Math.abs(nav.scrollLeft-wanted)<1;
+  },label);
+ }
+ for(const index of [0,7,11,4,0]){
+  await page.locator('.editor-nav a').nth(index).click();await alignedLeft(labels[index]);
+  await page.reload();await alignedLeft(labels[index]);
+  assert.equal(new URL(page.url()).searchParams.get('id'),id);
+  assert.deepEqual(await page.locator('.editor-nav a').allTextContents(),labels);
+ }
+ await page.locator('.editor-nav a').nth(7).click();await alignedLeft(labels[7]);
+ const manual=await page.locator('.editor-nav').evaluate(nav=>{nav.scrollBy({left:-80,behavior:'instant'});return nav.scrollLeft;});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ assert.equal(await page.locator('.editor-nav').evaluate(nav=>nav.scrollLeft),manual);
+ assert.equal(await page.locator('a[aria-current="page"]').textContent(),labels[7]);
+ assert.equal(await page.getByRole('button',{name:/Следующий раздел|Предыдущий раздел/}).count(),0);
+});
+await test('service/contact save and reload; missing media/backend disables writes',async()=>{
+ user=A;await open('account-specialist-services.html?id='+id);try{await page.locator('#fields:not([disabled])').waitFor({timeout:5000});}catch{throw Error('Service UI did not enable: '+await page.locator('#status').innerText()+'; errors='+JSON.stringify(errors)+'; calls='+JSON.stringify(calls.slice(-6)));}await page.locator('#name').fill('Portrait');await page.locator('#price-from').fill('1500');await page.locator('#duration').fill('45');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();await page.reload();await page.locator('#items').getByText('Portrait',{exact:true}).waitFor();
+ await open('account-specialist-contacts.html?id='+id);await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+7 private');await page.locator('[name=format][value=online]').check();await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+7 private');
+ for(const [file,rpc] of [['services','get_my_specialist_services'],['contacts','get_my_specialist_settings'],['media','get_my_specialist_media']]){failRPC=rpc;await open('account-specialist-'+file+'.html?id='+id);await page.locator('#status').filter({hasText:'Хранилище'}).waitFor();assert.equal(await page.locator('#fields').getAttribute('disabled'),'');assert(await page.locator('#save').isDisabled());}failRPC=null;
 });
 assert.deepEqual(errors,[]);console.log(`PASS ${count} browser groups; all external requests blocked; SQL-backed RPC adapter (not hosted Auth/PostgREST)`);
 }finally{await browser.close();await db.close();}

@@ -5,7 +5,7 @@ import pg from 'pg';
 import {migrationSQL} from '../scripts/specialist-migration.mjs';
 export const A='11111111-1111-4111-8111-111111111111';
 export const B='22222222-2222-4222-8222-222222222222';
-export async function database(){
+export async function database({editor=false}={}){
  const url=process.env.TEST_DATABASE_URL;
  let pool,embedded;
  if(url){
@@ -24,6 +24,11 @@ export async function database(){
  const before=(await query('SELECT row_to_json(c) data FROM companies c')).rows;
  await exec(await migrationSQL());
  assert.deepEqual((await query('SELECT row_to_json(c) data FROM companies c')).rows,before);
+ if(editor){
+  await exec("CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]); CREATE TABLE storage.objects(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,bucket_id text,name text,metadata jsonb,UNIQUE(bucket_id,name)); ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY; GRANT USAGE ON SCHEMA storage TO authenticated; GRANT SELECT,INSERT,DELETE ON storage.objects TO authenticated;");
+  const {editorMigrationSQL}=await import('../scripts/specialist-editor-migration.mjs');await exec(await editorMigrationSQL());
+ }
+
  async function runSession(uid,fn,role='authenticated'){
   const c=pool?await pool.connect():embedded;
   try{

@@ -1,0 +1,64 @@
+# Specialist editor: services, private media and contacts
+
+Scope: `feature/specialist-editor-navigation-v1`, based on `a9e57a4`; Claude critical HANDOFF `03aa8503-dd0a-4ccc-94dd-bbd3e0608100` is the architecture constraint. Company pages, company context keys, company RPCs and routing are unchanged.
+
+## Implemented
+
+Separate specialist services/contact/media pages share only new pure UI helpers and styles. Navigation requires an explicit validated specialist UUID and verified ownership; the context key is `active_profile={kind:'specialist',id}`. Missing/foreign/company IDs fail closed. Creation does not activate section links until a draft exists. Unimplemented sections remain disabled.
+
+- `specialist_services`: private name/description, price range/currency, duration, availability, version; owner-scoped list/save/delete RPCs; 50 services per profile, serialized profile lock, optimistic version checks. Client-generated service UUID prevents duplicate rows on ambiguous retries.
+- `specialist_settings`: private contacts, HTTPS website, online/studio/onsite formats, city/region service area, self-declared qualifications. Contact visibility is constrained to private, no exact home address or verified badge. Version check prevents stale overwrites.
+- `specialist_media`: private avatar/portfolio metadata with separate bucket `specialist-media`, 5 MiB limit and JPEG/PNG/WebP allowlist. One avatar and 20 objects/profile, including interrupted uploads. Storage policy checks specialist owner, draft status, typed UUID paths and operation. No company membership lookup or company bucket. No anonymous policy. Client decodes/resizes images to WebP and renders authenticated downloads as blob URLs; no public URLs or signed links are displayed. Interrupted files can be explicitly cleaned up.
+- Lifecycle: at most 10 drafts per user, serialized creation; explicit owner delete RPC and confirmed editor action release slug via existing registry trigger and cascades editor records. Deletion is refused until all private files (including interrupted uploads) are removed. No automatic deletion, publication or slug changes. The delete action requires confirmation and explains the mandatory file cleanup.
+
+## Migration and rollback
+
+**Candidates only, not applied to production.** Existing specialist draft schema is prerequisite. Generate one transaction without a database connection:
+
+```sh
+node scripts/specialist-editor-migration.mjs > /tmp/specialist-editor.sql
+```
+
+It includes editor, media and lifecycle candidates in order. Trusted BYPASSRLS owner required; table FORCE RLS, no direct client table grants, narrow SECURITY DEFINER RPCs with empty search_path. Storage uses narrow owner-check helpers. Existing bucket causes migration refusal rather than silently changing its privacy. No production config/bucket was changed.
+
+Deploy only after final-SHA CI, independent review and explicit owner approval. Recheck base schema/functions/bucket absence and archive definitions/grants first. Apply atomically in isolated staging, validate two users and company regressions, then request production GO. Rollback: restore previous frontend and apply the reviewed `sql/20261017_specialist_editor_DISABLE_CANDIDATE.sql`: remove specialist Storage policies first, then revoke editor/lifecycle/helper EXECUTE in the same transaction; retain tables, objects and slug registry. Do not drop data. Restore the previous create-draft function only from a verified snapshot if reverting the quota, with explicit approval.
+
+## Verification
+
+`npm run test:editor`: 7 SQL/security groups pass locally using PGlite and a minimal Storage table fixture. Tests cover owner/foreign/anonymous and cross-kind denial, direct table denial, stale versions, private defaults, bounds, quota, MIME metadata, avatar uniqueness, cleanup-before-delete and slug release. Static tests reject company RPC/context/bucket use in specialist modules and dynamic innerHTML rendering.
+
+Pages builds 58 explicit public files; artifact checks pass. Existing company files remain byte-identical to the branch baseline. Existing SQL regression suite and browser suite are rerun in CI. The LOCAL Supabase workflow additionally applies these exact candidates to a real disposable PostgreSQL17/Auth/PostgREST/Storage stack and runs two-user Storage and specialist UI checks; final results must be read on the final SHA, not inferred from the PGlite fixture.
+
+## Limits and release gates
+
+- No public specialist snapshot, publisher, reviews, AI consultant, bookings, billing, domain/routing changes or employee/branch model was added.
+- Private signed Storage links are bearer capabilities if an owner creates one independently. Foreign users cannot mint links; possession of an already valid signed URL is not prevented by RLS. The UI avoids signed URLs and uses authenticated downloads.
+- Bucket MIME checks enforce declared types and size; they are not malware/content scanning or server image decoding. Public publication requires separate moderation/content validation and privacy review.
+- Local email confirmation is real SMTP to Mailpit, not hosted email deliverability. Hosted gateway/CDN/publisher acceptance remains separate.
+- Owner approval remains required for production SQL/Storage policies, merge/main and frontend release. No production mutation or unfinished feature publication was performed.
+
+## Read-only production preflight
+
+A metadata-only SELECT confirmed: base specialist draft table exists, all three editor tables and the new specialist bucket are absent. No user rows were read and no production writes were performed. This is an existence check, not deployment authorization. Recheck all prerequisites immediately before an approved deployment.
+
+## CI evidence
+
+Implementation `4270e055064edb278790077a10a03e5612e297e1` passed [LOCAL Supabase run 39061826797](https://github.com/Yumis84/otzovik-company-profile/actions/runs/39061826797): 13 real groups, including both specialist Storage/owner/cross-kind checks and browser service/contact/portfolio save/reload. [Regression run 39061826778](https://github.com/Yumis84/otzovik-company-profile/actions/runs/39061826778) passed 15 PostgreSQL groups, 12 browser groups, 7 editor security groups and 58-file artifact checks. Logs were inspected. Follow-up adds an explicit non-destructive editor-disable regression to verify company Storage still works; check final-SHA CI in the PR for its result.
+
+Upload and draft deletion share a specialist-specific advisory transaction lock. Upload also acquires a key-share profile row lock and rechecks ownership after waiting. A real concurrent upload/delete test requires one operation to lose safely, preventing objects from being committed after their owning draft disappears.
+
+## Claude audit follow-up
+
+Read-only hosted ACL inspection on 2026-10-17 found deployment role `postgres` is not superuser; it has BYPASSRLS and bucket INSERT but cannot use owner role `supabase_storage_admin` for `storage.objects`. **Native ownership checks alone do not establish failure:** a second metadata-only SELECT confirmed `session_preload_libraries=supautils` and `supautils.policy_grants` explicitly includes `postgres` → `storage.objects`. This is Supabase's documented policy-management mechanism ([official supautils source](https://github.com/supabase/supautils#manage-policies)). No role grants, configuration changes or DDL were performed. The migration guard accepts native ownership/superuser OR this explicit loaded supautils grant. A real hosted DDL/Storage acceptance is still outstanding; metadata evidence is not a production deployment authorization.
+
+New editor-only metadata preflight is `sql/20261017_specialist_editor_preflight_READ_ONLY.sql`; the older preflight targets the already deployed base migration and must not be used as the editor gate. Migration fails before bucket creation if neither supported policy permission is present; the combined transaction rolls back all changes. Do not change managed Storage ownership, grant privileged roles or split the atomic migration to bypass a failed gate.
+
+Audit fixes: read-only section RPCs no longer acquire write locks; UUID helper lookup uses a guarded cast and the profile primary-key index; service saves scope the row lock to the owned specialist before inspecting a colliding foreign service UUID. SQL tests exercise malformed/foreign/company helper paths. Real LOCAL acceptance adds competing uploads at 19 objects, requiring exactly one winner and exactly 20 resulting objects. Final CI for these changes must be checked independently.
+
+Account deletion remains a release procedure prerequisite: Auth cascade removes database metadata but does not remove Storage bytes. Before deleting an Auth user, an authorized operator must enumerate that user's specialist IDs, remove all corresponding private objects through the Storage API, verify no objects remain, and only then delete the user. If any removal fails, stop the account deletion. Do not delete `storage.objects` rows with SQL; reconcile orphan objects via Storage API using an audited dry-run list. No production cleanup or account deletion was performed.
+
+## Recovery after emergency disable
+
+`sql/20261017_specialist_editor_ENABLE_CANDIDATE.sql` restores only the reviewed authenticated editor/helper EXECUTE grants and three owner-scoped specialist Storage policies in one transaction. It requires the original private bucket limits/MIME configuration and refuses pre-existing specialist policy names instead of replacing them. No records, objects, bucket, functions or tables are recreated; direct client table access and anonymous EXECUTE remain revoked. Never rerun the apply migration after disable: the existing bucket intentionally makes it fail. Recovery requires reviewed function definitions matching the deployed commit, the same deployment identity as apply/disable, and separate owner authorization on production. Test the full apply → disable → enable cycle in staging before release.
+
+Added SQL recovery contract and real LOCAL Storage/API recovery tests including company Storage upload/download/remove. These candidates are not applied to production.
