@@ -17,7 +17,7 @@ export function renderNavigation(node,adapter,id,active='profile',role='owner'){
  const label=document.createElement('p');label.className='profile-nav-current';label.textContent='Текущий раздел: '+(current?.label||'Настройки');
  node.append(primary,toggle,label,list);
  const media=matchMedia('(max-width: 640px)');let expanded=false;
- function sync(){primary.hidden=!media.matches;toggle.hidden=!media.matches;label.hidden=!media.matches||!!current?.primary;list.hidden=media.matches&&!expanded;toggle.setAttribute('aria-expanded',String(media.matches&&expanded));node.dataset.expanded=String(media.matches&&expanded);}
+ function sync(){primary.hidden=!media.matches;toggle.hidden=!media.matches;label.hidden=!!current?.primary;list.hidden=media.matches&&!expanded;toggle.setAttribute('aria-expanded',String(media.matches&&expanded));node.dataset.expanded=String(media.matches&&expanded);}
  function close(focus=false){expanded=false;sync();if(focus)toggle.focus();}
  function clicked(event){if(event.target.closest('a'))close();}
  function outside(event){if(expanded&&!node.contains(event.target))close();}

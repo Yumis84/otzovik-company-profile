@@ -199,7 +199,7 @@ await test('shared mobile menu: three primary links, full list, deep links, acti
    }
    const toggle=page.locator('.profile-nav-toggle');await toggle.focus();await page.keyboard.press('Space');assert(await page.locator('.profile-nav-list').isVisible());await page.keyboard.press('Escape');assert(await page.locator('.profile-nav-list').isHidden());assert(await toggle.evaluate(e=>e===document.activeElement));
    await toggle.click();await page.locator('h1').first().click();assert(await page.locator('.profile-nav-list').isHidden());
-   await page.setViewportSize({width:1280,height:844});assert(await page.locator('.profile-nav-list').isVisible());assert(await toggle.isHidden());
+   await page.setViewportSize({width:1280,height:844});assert(await page.locator('.profile-nav-list').isVisible());assert(await toggle.isHidden());assert(await page.locator('.profile-nav-current').isVisible());
    assert.equal(await page.locator('.profile-nav-list a[aria-current=page]').count(),1);
    const manual=await page.locator('.profile-nav-list').evaluate(n=>{n.scrollLeft=80;return n.scrollLeft;});await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert.equal(await page.locator('.profile-nav-list').evaluate(n=>n.scrollLeft),manual);
   }
