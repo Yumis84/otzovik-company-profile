@@ -1,7 +1,7 @@
 name: Local Supabase acceptance
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/specialist-cabinet-complete]
   push:
     branches: [feature/specialist-main-integration-v1]
 permissions:

@@ -11,7 +11,7 @@ input,textarea{display:block;width:100%;margin-top:7px;padding:12px;border:1px s
 .slug-field{display:flex;align-items:stretch;margin-top:7px;border:1px solid #d0d5dd;border-radius:9px;overflow:hidden;background:#fff}.slug-field:focus-within{outline:2px solid #84caff;outline-offset:1px}.slug-field input{margin:0;border:0;border-radius:0;min-width:0;flex:1;padding:12px 2px;outline:none}.slug-part{display:flex;align-items:center;padding:0 8px;color:#667085;font-weight:500;white-space:nowrap;background:transparent}.slug-part:first-child{padding-left:12px;padding-right:3px}.slug-part:last-child{padding-left:2px;padding-right:12px}.slug-preview{display:block;margin-top:8px;color:#475467;font-size:13px;font-weight:500;overflow-wrap:anywhere}.slug-preview strong{color:#175cd3;font-weight:750}textarea{min-height:100px;resize:vertical}.notice{background:#eff8ff;border:1px solid #b2ddff;border-radius:10px;padding:14px}
 button{background:#101828;color:white;border:0;border-radius:10px;padding:13px 16px;font:inherit;font-weight:800}
 button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
-</style><link rel="stylesheet" href="account-specialist-ui.css"></head>
+</style><link rel="stylesheet" href="account-specialist-ui.css"><link rel="stylesheet" href="account-profile-shell.css"></head>
 <body><main class="wrap"><a href="account-create-profile.html">← Выбор типа профиля</a>
 <section class="card"><a href="account-home.html">Мои профили</a><h1>Индивидуальный специалист</h1><nav class="editor-nav" aria-label="Разделы профиля специалиста"></nav>
 <p class="notice" role="status"><strong>Черновик специалиста.</strong> Профиль не публикуется автоматически.</p>
@@ -27,8 +27,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 <button type="button" id="delete-draft" hidden class="danger">Удалить черновик</button></fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
 </form></section></main>
 <script type="module">
-import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
-const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
+import {sb as s,loadContext,saveBasic} from './account-specialist-api.js';
 const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note'),fields=document.getElementById('fields');
 import {navigation} from './account-specialist-ui.js';
 const params=new URLSearchParams(location.search);
@@ -44,17 +43,9 @@ const failLoad=message=>{note.textContent=message;fields.disabled=true;save.disa
 async function initialize(){
  if(ambiguous){failLoad('Откройте специалиста из «Мои профили».');return;}
  try{
-  const {data,error}=await s.auth.getSession();
-  if(error||!data?.session){
-   const next='account-specialist-profile.html'+(editing?'?id='+encodeURIComponent(editId||''):'');
-   location.replace('account-login.html?next='+encodeURIComponent(next));return;
-  }
   if(editing){
-   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editId||'')){failLoad('Некорректная ссылка на черновик.');return;}
-   const result=await s.rpc('get_my_specialists');
-   if(result.error){failLoad('Не удалось загрузить черновик. Обновите страницу и попробуйте снова.');return;}
-   const item=Array.isArray(result.data)?result.data.find(x=>x.id===editId):null;
-   if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
+   let profile;try{profile=await loadContext('profile');}catch(error){failLoad(error.code==='42501'?error.message:error.message==='Войдите в кабинет.'?error.message:error.message.startsWith('Некорректная')?error.message:'Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');return;}
+   const item=profile.data;
    for(const key of ['display_name','slug','profession','specialization','city','description'])form.elements.namedItem(key).value=item[key]||'';
    form.elements.namedItem('slug').readOnly=true;updateUrlPreview();
    navigation(document.querySelector('.editor-nav'),editId);
@@ -73,7 +64,7 @@ form.addEventListener('submit',async event=>{
  }
  busy=true;save.disabled=true;note.textContent='Сохраняем черновик…';
  try{
-  const {data,error}=await s.rpc(editing?'update_my_specialist_draft':'create_my_specialist_draft',{...(editing?{p_id:editId}:{p_slug:slug}),p_display_name:name,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
+  let data,error;try{data=await saveBasic({display_name:name,profession,specialization:String(fd.get('specialization')||'').trim()||null,city:String(fd.get('city')||'').trim()||null,description:String(fd.get('description')||'').trim()||null});}catch(e){error=e;}
   if(error){
    note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
   }

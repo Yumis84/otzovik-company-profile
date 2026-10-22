@@ -1,15 +1,12 @@
+// Compatibility adapter for existing specialist editor URLs and RPC clients.
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
-import {isUUID,navigation} from './account-specialist-ui.js';
+import {createCabinet,profileRPC} from './account-profile-core.js';
+import {profileAdapter} from './account-profile-adapters.js';
+import {mountCabinet} from './account-profile-shell.js';
+export {message,status} from './account-profile-shell.js';
 export const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
-export async function context(section){
- const params=new URLSearchParams(location.search),id=params.get('id');
- if(params.has('company_id'))throw Error('Откройте специалиста из «Мои профили». Контекст компании здесь не используется.');
- const {data,error}=await sb.auth.getSession();if(error)throw Error('Не удалось проверить сессию.');
- if(!data?.session){const page=location.pathname.split('/').pop();const next=(page.endsWith('.html')?page:page+'.html')+location.search;location.replace('account-login.html?next='+encodeURIComponent(next));throw Error('Войдите в кабинет.');}
- if(!isUUID(id))throw Error('Откройте сохранённого специалиста из «Мои профили».');
- const rows=await rpc('get_my_specialists');const item=rows?.find(x=>x.id===id&&x.profile_status==='draft');if(!item)throw Error('Черновик не найден или недоступен.');
- sessionStorage.setItem('active_profile',JSON.stringify({kind:'specialist',id}));navigation(document.querySelector('.editor-nav'),id,section);document.getElementById('profile-name').textContent=item.display_name;return id;
-}
-export async function rpc(name,args={}){const {data,error}=await sb.rpc(name,args);if(error)throw error;return data;}
-export function message(error){return error?.code==='40001'?'Данные уже изменились. Обновите страницу перед сохранением.':error?.code==='42501'?'Нет доступа к черновику или сессия истекла.':error?.code==='54000'?'Достигнут лимит. Удалите ненужные элементы.':['42883','PGRST202'].includes(error?.code)?'Хранилище этого раздела ещё не подключено. Сохранение отключено.':error?.code==='23505'?'Элемент уже существует. Для замены аватара сначала удалите прежний.':error?.code==='22023'||String(error?.code||'').startsWith('23')?'Проверьте поля и ограничения формы.':error?.constructor===Error&&error.message&&!error.code?error.message:'Не удалось подтвердить операцию. Обновите список перед повторной попыткой.';}
-export function status(value){document.getElementById('status').textContent=value;}
+const adapter=profileAdapter('specialist'),cabinet=createCabinet({client:sb,adapter});
+export async function loadContext(section){mountCabinet(adapter,{id:null,name:'Проверяем доступ…',role:null},section);const profile=await cabinet.load();mountCabinet(adapter,profile,section);return profile;}
+export async function context(section){return (await loadContext(section)).id;}
+export const saveBasic=values=>cabinet.saveBasic(values);
+export const rpc=(name,args={})=>profileRPC(sb,name,args);

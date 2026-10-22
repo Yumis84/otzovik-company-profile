@@ -158,6 +158,7 @@ await test('12 specialist sections, safe disabled AI/MCP, explicit id and no pag
  user=A;
  for(const width of [1280,390]){
   await page.setViewportSize({width,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
+  assert.equal(await page.locator('[data-cabinet-header][data-profile-kind=specialist]').count(),1);assert.equal(await page.locator('.cabinet-home').getAttribute('href'),'account-home.html');assert.equal(await page.locator('main.wrap > .editor-nav').count(),1);
   assert.equal(await page.locator('.editor-nav a').count(),12);assert.equal(await page.getByRole('link',{name:'Филиалы',exact:true}).count(),0);
   const links=await page.locator('.editor-nav a').evaluateAll(es=>es.map(e=>e.getAttribute('href')));
   for(const link of links)assert.equal(new URL(link,'https://cabinet.test').searchParams.get('id'),id);
@@ -196,6 +197,15 @@ await test('service/contact save and reload; missing media/backend disables writ
  user=A;await open('account-specialist-services.html?id='+id);try{await page.locator('#fields:not([disabled])').waitFor({timeout:5000});}catch{throw Error('Service UI did not enable: '+await page.locator('#status').innerText()+'; errors='+JSON.stringify(errors)+'; calls='+JSON.stringify(calls.slice(-6)));}await page.locator('#name').fill('Portrait');await page.locator('#price-from').fill('1500');await page.locator('#duration').fill('45');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();await page.reload();await page.locator('#items').getByText('Portrait',{exact:true}).waitFor();
  await open('account-specialist-contacts.html?id='+id);await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+7 private');await page.locator('[name=format][value=online]').check();await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+7 private');
  for(const [file,rpc] of [['services','get_my_specialist_services'],['contacts','get_my_specialist_settings'],['media','get_my_specialist_media']]){failRPC=rpc;await open('account-specialist-'+file+'.html?id='+id);await page.locator('#status').filter({hasText:'Хранилище'}).waitFor();assert.equal(await page.locator('#fields').getAttribute('disabled'),'');assert(await page.locator('#save').isDisabled());}failRPC=null;
+});
+await test('one shell renders both typed adapters without duplicate headers or cross-kind URLs',async()=>{
+ user=A;await open('account-specialist-profile.html?id='+id);await waitReady();
+ const result=await page.evaluate(async()=>{
+  const {mountCabinet}=await import('./account-profile-shell.js');const {profileAdapter}=await import('./account-profile-adapters.js');
+  const snapshots=[];
+  for(const kind of ['company','specialist','company']){const adapter=profileAdapter(kind);mountCabinet(adapter,{id:'33333333-3333-4333-8333-333333333333',name:'Fixture',role:'owner'},'profile');snapshots.push({kind:document.querySelector('[data-cabinet-header]').dataset.profileKind,headers:document.querySelectorAll('[data-cabinet-header]').length,links:[...document.querySelectorAll('.editor-nav a')].map(a=>a.getAttribute('href'))});}return snapshots;
+ });
+ for(const snapshot of result){assert.equal(snapshot.headers,1);for(const link of snapshot.links){const params=new URL(link,'https://cabinet.test').searchParams;assert.equal(params.get(snapshot.kind==='company'?'company_id':'id'),'33333333-3333-4333-8333-333333333333');assert(!params.has(snapshot.kind==='company'?'id':'company_id'));}}
 });
 assert.deepEqual(errors,[]);console.log(`PASS ${count} browser groups; all external requests blocked; SQL-backed RPC adapter (not hosted Auth/PostgREST)`);
 }finally{await browser.close();await db.close();}

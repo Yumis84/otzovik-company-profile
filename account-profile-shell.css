@@ -1,0 +1,2 @@
+/* Scoped header copied from the existing company cabinet; no global company selectors. */
+.cabinet-header{background:#101828;color:#fff}.cabinet-header-row{width:min(1000px,calc(100% - 28px));margin:auto;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}.cabinet-brand{font-size:23px;font-weight:900;color:#fff;text-decoration:none}.cabinet-brand span{color:#53b1fd}.cabinet-home{font-size:12px;font-weight:800;color:#fff;text-decoration:none}.cabinet-header a:focus-visible{outline:3px solid #84caff;outline-offset:4px}

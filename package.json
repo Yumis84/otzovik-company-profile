@@ -7,7 +7,8 @@
     "test:browser": "node tests/specialist-browser.mjs",
     "build:pages": "node scripts/build-pages.mjs",
     "test:pages": "node tests/pages-artifact.mjs",
-    "test:editor": "node tests/specialist-editor.mjs"
+    "test:editor": "node tests/specialist-editor.mjs",
+    "test:shared": "node tests/shared-cabinet.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",
