@@ -1,21 +1,8 @@
 // One presentation module for both kinds; business operations belong to adapters.
 import {isUUID} from './account-profile-core.js';
 export function text(tag,value,className=''){const el=document.createElement(tag);el.textContent=value??'';el.className=className;return el;}
-export function renderNavigation(node,adapter,id,active='profile',role='owner'){
- node.replaceChildren();
- for(const [key,label,file] of adapter.menu){
-  if(!adapter.visible(key,role))continue;
-  const a=document.createElement(isUUID(id)?'a':'span');a.textContent=label;
-  if(isUUID(id)){const params=new URLSearchParams({[adapter.idKey]:id});if(!file)params.set('section',key);a.href=(file||'account-specialist-section.html')+'?'+params;}
-  else a.setAttribute('aria-disabled','true');
-  if(key===active){a.className='active';a.setAttribute('aria-current','page');}node.append(a);
- }
- requestAnimationFrame(()=>requestAnimationFrame(()=>{
-  const current=node.querySelector('a[aria-current="page"]');if(!node.isConnected||!current)return;
-  const left=node.scrollLeft+current.getBoundingClientRect().left-node.getBoundingClientRect().left-node.clientLeft-8;
-  node.scrollTo({left:Math.min(Math.max(0,node.scrollWidth-node.clientWidth),Math.max(0,left)),behavior:'auto'});
- }));
-}
+import {renderNavigation} from './account-profile-navigation.js';
+export {renderNavigation} from './account-profile-navigation.js';
 export function mountCabinet(adapter,context,active){
  let header=document.querySelector('[data-cabinet-header]');
  if(!header){header=document.createElement('header');header.className='cabinet-header';header.dataset.cabinetHeader='';const row=text('div','','cabinet-header-row');const brand=text('a','отзыв','cabinet-brand');brand.href='https://отзыв.com/';brand.append(text('span','.com'));const home=text('a','ЛИЧНЫЙ КАБИНЕТ','cabinet-home');home.href='account-home.html';row.append(brand,home);header.append(row);document.body.prepend(header);}

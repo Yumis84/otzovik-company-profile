@@ -34,10 +34,17 @@ try{
   }
   console.log('PASS shared controller + SQL adapter: '+kind);
  }
- // The immutable company source snapshot also guards legacy CSS/menu/auth code.
+ // Company editors/header/CSS stay identical after removing the old menu markup.
+ // Only navigation markup and its stylesheet link are excluded from this parity gate.
  const baseline=JSON.parse(await fs.readFile(new URL('./fixtures/company-source-hashes.json',import.meta.url),'utf8'));
- for(const [file,hash] of Object.entries(baseline))assert.equal(crypto.createHash('sha256').update(await fs.readFile(new URL('../'+file,import.meta.url))).digest('hex'),hash,'Company source changed: '+file);
+ for(const [file,hash] of Object.entries(baseline))assert.equal(crypto.createHash('sha256').update((await fs.readFile(new URL('../'+file,import.meta.url),'utf8')).replace('<link rel="stylesheet" href="account-profile-navigation.css">','')).digest('hex'),hash,'Company editor/header/CSS changed: '+file);
  assert.throws(()=>profileAdapter('unknown'));assert.throws(()=>profileAdapter('__proto__'));
  assert(!profileAdapter('specialist').menu.some(([key])=>key==='branches'));
- console.log('PASS immutable company sources: '+Object.keys(baseline).length+'; typed navigation/unknown adapter');
+ assert(profileAdapter('company').menu.some(([key])=>key==='branches'));
+ assert(!profileAdapter('company').visible('access','admin'));assert(!profileAdapter('company').visible('profile','analyst'));
+ const {activeSection,sectionsFor}=await import('../account-profile-sections.js');
+ for(const kind of ['company','specialist'])for(const item of sectionsFor(kind)){const search='?'+(item.route==='account-specialist-section.html'?'section='+item.key:'');for(const pathname of ['/'+item.route,'/'+item.route.replace('.html','')])assert.equal(activeSection(kind,{pathname,search}),item.key);}
+ const navSource=await fs.readFile(new URL('../account-profile-navigation.js',import.meta.url),'utf8');assert(!/scrollTo|scrollIntoView|scrollLeft\s*=/.test(navSource));
+ const companySource=await fs.readFile(new URL('../account-company-context.js',import.meta.url),'utf8');assert(companySource.includes("from './account-profile-navigation.js'"));assert(!/ensureHomeNav|ensureSourcesNav|ensureAccessNav|applyRoleAccess|revealActiveNav/.test(companySource));
+ console.log('PASS company editor/header/CSS parity: '+Object.keys(baseline).length+'; typed navigation/unknown adapter');
 }finally{await db.close();}
