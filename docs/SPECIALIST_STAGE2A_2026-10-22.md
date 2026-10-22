@@ -26,3 +26,5 @@ All imported SQL files are reviewed PR23 candidates required by disposable local
 
 ## Known limits
 Published specialist editing is intentionally unavailable until a separate revision/publication contract. Client image re-encoding does not provide server content scanning. Hosted email delivery is outside this stage. The reused synthetic staging company fixture lacks the pending-invitations RPC and may show an unrelated dashboard warning. Owner visual acceptance is required before merge.
+
+Hosted preflight/testing found a supported transport variation: existing staging uses PT409 for optimistic conflicts; PR23 disposable fixtures use 40001. The specialist error mapper handles both without changing SQL. tests/stage2-hosted.mjs requires an external private config and restricts all writes to the approved staging ref. It never reads production credentials.
