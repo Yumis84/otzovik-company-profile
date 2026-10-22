@@ -1,6 +1,7 @@
+import {initChannels} from './account-specialist-channels.js';
 import {context,rpc,message,status} from './account-specialist-api.js';
 const form=document.getElementById('contacts-form'),fields=document.getElementById('fields');let id,version=0,busy=false;
 const mapping={phone:'phone',email:'email',website:'website',area:'service_area',qualifications:'qualifications'};
 function fill(data){version=data.version;for(const [key,prop] of Object.entries(mapping))document.getElementById(key).value=data[prop]??'';for(const c of form.querySelectorAll('[name=format]'))c.checked=data.work_formats.includes(c.value);}
 form.onsubmit=async e=>{e.preventDefault();if(busy||!id||!form.reportValidity())return;const args={p_specialist_id:id,p_version:version,p_work_formats:[...form.querySelectorAll('[name=format]:checked')].map(x=>x.value)};for(const [key,prop] of Object.entries(mapping))args['p_'+prop]=document.getElementById(key).value.trim()||null;busy=true;fields.disabled=true;status('Сохраняем…');try{fill(await rpc('save_my_specialist_settings',args));status('Контакты сохранены. Доступны только вам.');}catch(e){status(message(e));}finally{busy=false;fields.disabled=false;}};
-try{id=await context('contacts');fill(await rpc('get_my_specialist_settings',{p_specialist_id:id}));fields.disabled=false;status('Контакты: только вам.');}catch(e){status(message(e));}
+try{id=await context('contacts');void initChannels(id);fill(await rpc('get_my_specialist_settings',{p_specialist_id:id}));fields.disabled=false;status('Контакты: только вам.');}catch(e){status(message(e));}
