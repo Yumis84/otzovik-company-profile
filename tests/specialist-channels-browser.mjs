@@ -51,7 +51,7 @@ try{
   assert.equal(await root.locator('input[type=checkbox]:checked').count(),2); // one inquiry and one preferred
   await rows.first().locator('input').nth(1).fill('<img src=x onerror=alert(1)>');
   await rows.last().getByRole('button',{name:'Удалить',exact:true}).click();await save.click();await note.filter({hasText:'Каналы сохранены'}).waitFor();
-  await ready();assert.equal(await rows.count(),6);assert.equal(await rows.first().locator('select').inputValue(),'max');assert.equal(await root.locator('img').count(),0);await page.setViewportSize({width:390,height:900});await root.screenshot({path:'C:/Users/Yumis/otzovik-stage2b-contacts-mobile.png'});await page.setViewportSize({width:1440,height:1000});await root.screenshot({path:'C:/Users/Yumis/otzovik-stage2b-contacts-desktop.png'});
+  await ready();assert.equal(await rows.count(),6);assert.equal(await rows.first().locator('select').inputValue(),'max');assert.equal(await root.locator('img').count(),0);if(process.env.CHANNEL_SCREENSHOT_DIR){await page.setViewportSize({width:390,height:900});await root.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/contacts-mobile.png'});await page.setViewportSize({width:1440,height:1000});await root.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/contacts-desktop.png'});}
   assert.equal(await rows.first().locator('input').nth(1).inputValue(),'<img src=x onerror=alert(1)>');
   for(const a of await root.locator('a').all()){assert((await a.getAttribute('href')).startsWith('https://'));assert((await a.getAttribute('rel')).includes('noopener'));}
  });
