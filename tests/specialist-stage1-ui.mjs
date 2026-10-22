@@ -10,7 +10,7 @@ await context.route('**/*',async route=>{
  const u=new URL(route.request().url());
  if(u.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'text/javascript',body:`export const createClient=()=>({auth:{getSession:async()=>({data:{session:await window.session()}})},rpc:(n,a)=>window.rpc(n,a)});`});
  if(u.origin==='http://cabinet.test'){
-  try{return route.fulfill({contentType:u.pathname.endsWith('.css')?'text/css':'text/html',body:await fs.readFile(new URL('.'+u.pathname,root),'utf8')})}catch{return route.fulfill({status:404,body:''})}
+  try{return route.fulfill({contentType:u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.js')?'text/javascript':'text/html',body:await fs.readFile(new URL('.'+u.pathname,root),'utf8')})}catch{return route.fulfill({status:404,body:''})}
  }
  return route.abort();
 });
