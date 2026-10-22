@@ -54,22 +54,23 @@ export async function editorChecks({a,b,anonymous,ok,company,test}){
  });
 }
 export async function editorBrowser({page,open,a,ok,test}){
+ async function section(key){const toggle=page.locator('.profile-nav-toggle');await page.locator('.profile-nav-list a').first().waitFor({state:'attached'});if(await toggle.isVisible())await toggle.click();await page.locator('.profile-nav-list a[data-section="'+key+'"]').click();}
  const draft=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='browser-specialist');
  await test('specialist navigation, services, contacts and portfolio through real browser/Storage',async()=>{
-  await open('account-create-specialist.html?id='+draft.id);await page.getByRole('link',{name:'Услуги и цены',exact:true}).click();await page.locator('#fields:not([disabled])').waitFor();
+  await open('account-create-specialist.html?id='+draft.id);await section('services');await page.locator('#fields:not([disabled])').waitFor();
   await page.locator('#name').fill('<img src=x onerror=alert(1)> Service');await page.locator('#price-from').fill('1200');await page.locator('#duration').fill('45');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();
   await page.reload();await page.locator('#items').getByText('<img src=x onerror=alert(1)> Service',{exact:true}).waitFor();assert.equal(await page.locator('#items img').count(),0);
   await page.locator('#items').getByRole('button',{name:'Изменить',exact:true}).click();await page.locator('#price-to').fill('1800');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();
-  await page.getByRole('link',{name:'Контакты и работа',exact:true}).click();await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+7 private');await page.locator('[name=format][value=online]').check();await page.locator('#area').fill('City only');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();
+  await section('contacts');await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+7 private');await page.locator('[name=format][value=online]').check();await page.locator('#area').fill('City only');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();
   await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+7 private');
-  await page.getByRole('link',{name:'Фото и портфолио',exact:true}).click();await page.locator('#fields:not([disabled])').waitFor();await page.locator('#kind').selectOption('portfolio');
+  await section('media');await page.locator('#fields:not([disabled])').waitFor();await page.locator('#kind').selectOption('portfolio');
   const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=4;return c.toDataURL('image/png').split(',')[1];});
   await page.locator('#file').setInputFiles({name:'private.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#caption').fill('Private portfolio');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Фотография сохранена'}).waitFor();
   await page.reload();await page.locator('#items').getByText('Private portfolio',{exact:true}).waitFor();assert.equal(await page.locator('#items img').count(),1);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   assert.deepEqual(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('active_profile'))),{kind:'specialist',id:draft.id});
   for(const href of await page.locator('.editor-nav a').evaluateAll(els=>els.map(e=>e.getAttribute('href'))))assert.equal(new URL(href,'http://cabinet.test').searchParams.get('id'),draft.id);
   page.once('dialog',d=>d.accept());await page.locator('#items').getByRole('button',{name:'Удалить',exact:true}).click();await page.locator('#status').filter({hasText:'Фотография удалена'}).waitFor();
-  await page.getByRole('link',{name:'Профиль',exact:true}).click();await page.locator('#save:not([disabled])').waitFor();page.once('dialog',d=>d.accept());await page.locator('#delete-draft').click();await page.waitForURL('**/account-home.html');assert(!ok(await a.rpc('get_my_specialists')).some(x=>x.id===draft.id));
+  await section('profile');await page.locator('#save:not([disabled])').waitFor();page.once('dialog',d=>d.accept());await page.locator('#delete-draft').click();await page.waitForURL('**/account-home.html');assert(!ok(await a.rpc('get_my_specialists')).some(x=>x.id===draft.id));
 
  });
 }

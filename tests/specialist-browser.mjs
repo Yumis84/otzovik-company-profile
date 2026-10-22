@@ -39,6 +39,8 @@ await context.exposeBinding('testRPC',async(_,name,args={})=>{
  if(throwRPC===name)throw new Error('Simulated offline');
  if(failRPC===name)return {data:null,error:{code:'PGRST202',message:'Not installed'}};
  if(name==='get_my_pending_company_invitations')return {data:[],error:null};
+ if(name==='get_my_company_review_sources')return {data:[],error:null};
+ if(name==='get_my_company_client_content')return {data:{review_statements:[],questions_answers:[]},error:null};
  // Unchanged company subsystem RPCs use a contract stub, not a claim of backend acceptance.
  if(name==='get_my_company_publication_status')return {data:{status:'unknown'},error:null};
  if(name==='get_public_company_profile_v2')return {data:{locations:[],services:[]},error:null};
@@ -135,7 +137,7 @@ await test('company sections keep company_id and use upper menu without swipe na
  const beforeSwipe=page.url();
  await page.evaluate(()=>{const target=document.querySelector('main');const touch=(x)=>({identifier:1,target,clientX:x,clientY:250});for(const [type,x] of [['touchstart',280],['touchend',70]]){const e=new Event(type,{bubbles:true});Object.defineProperties(e,{touches:{value:type==='touchstart'?[touch(x)]:[]},changedTouches:{value:[touch(x)]}});target.dispatchEvent(e);}});
  assert.equal(page.url(),beforeSwipe);
- await page.locator('main nav[aria-label="Навигация кабинета"] a[href^="account-services.html"]').click();await page.waitForURL('**/account-services.html?company_id='+id);
+ await page.locator('.profile-nav-primary a[data-section=services]').click();await page.waitForURL('**/account-services.html?company_id='+id);
  await page.locator('#svc-name').fill('Test Service');await page.locator('#svc-submit').click();await page.locator('#services').getByText('Test Service',{exact:true}).waitFor();
  assert.equal(records.locations[0].company_id,id);assert.equal(records.services[0].company_id,id);
  await open('account-media.html?company_id='+id);await page.locator('#active-company-name').filter({hasText:'Company Edited'}).waitFor();assert.equal(await page.locator('#media-file').count(),1);
@@ -158,44 +160,67 @@ await test('12 specialist sections, safe disabled AI/MCP, explicit id and no pag
  user=A;
  for(const width of [1280,390]){
   await page.setViewportSize({width,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
-  assert.equal(await page.locator('.editor-nav a').count(),12);assert.equal(await page.getByRole('link',{name:'Филиалы',exact:true}).count(),0);
-  const links=await page.locator('.editor-nav a').evaluateAll(es=>es.map(e=>e.getAttribute('href')));
+  assert.equal(await page.locator('[data-cabinet-header][data-profile-kind=specialist]').count(),1);assert.equal(await page.locator('.cabinet-home').getAttribute('href'),'account-home.html');assert.equal(await page.locator('main.wrap > .editor-nav').count(),1);
+  assert.equal(await page.locator('.editor-nav .profile-nav-list a').count(),12);assert.equal(await page.getByRole('link',{name:'Филиалы',exact:true}).count(),0);
+  const links=await page.locator('.editor-nav .profile-nav-list a').evaluateAll(es=>es.map(e=>e.getAttribute('href')));
   for(const link of links)assert.equal(new URL(link,'https://cabinet.test').searchParams.get('id'),id);
   const before=page.url();await page.evaluate(()=>{const target=document.querySelector('h1');for(const [type,x] of [['touchstart',350],['touchend',20]]){const e=new Event(type,{bubbles:true});Object.defineProperty(e,type==='touchstart'?'touches':'changedTouches',{value:[{clientX:x,clientY:350}]});target.dispatchEvent(e);}});assert.equal(page.url(),before);
-  for(const link of links.filter(x=>x.includes('section='))){await open(link);await page.locator('#section-content:not([hidden])').waitFor();assert.equal(await page.locator('.editor-nav a').count(),12);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await page.locator('#section-content button:not([disabled]), #section-content textarea:not([disabled]), #section-content input:not([disabled])').count(),0);}
+  for(const link of links.filter(x=>x.includes('section='))){await open(link);await page.locator('#section-content:not([hidden])').waitFor();assert.equal(await page.locator('.editor-nav .profile-nav-list a').count(),12);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await page.locator('#section-content button:not([disabled]), #section-content textarea:not([disabled]), #section-content input:not([disabled])').count(),0);}
  }
  const before=calls.length;user=B;await open('account-specialist-section.html?id='+id+'&section=mcp');await page.locator('#status').filter({hasText:'недоступен'}).waitFor();assert(await page.locator('#section-content').isHidden());assert(!calls.slice(before).some(x=>x.name.startsWith('save_')));
  user=null;await open('account-specialist-section?id='+id+'&section=mcp');await page.waitForURL('**/account-login.html?*');assert.equal(new URL(page.url()).searchParams.get('next'),'account-specialist-section.html?id='+id+'&section=mcp');
  user=A;await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-specialist-profile.html?id='+id);await waitReady();
 });
-await test('mobile specialist active tab aligns left on navigation/reload, clamps edges and permits manual scroll',async()=>{
- user=A;await page.setViewportSize({width:390,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
- const labels=await page.locator('.editor-nav a').allTextContents();
- async function alignedLeft(label){
-  await page.waitForFunction(expected=>{
-   const nav=document.querySelector('.editor-nav'),a=nav?.querySelector('a[aria-current="page"]');if(!a||a.textContent!==expected)return false;
-   const max=Math.max(0,nav.scrollWidth-nav.clientWidth);
-   const wanted=Math.min(max,Math.max(0,nav.scrollLeft+a.getBoundingClientRect().left-nav.getBoundingClientRect().left-nav.clientLeft-8));
-   return Math.abs(nav.scrollLeft-wanted)<1;
-  },label);
+await test('shared mobile menu: three primary links, full list, deep links, active extra label, keyboard and no forced scroll',async()=>{
+ user=A;const [row]=await db.call(A,'get_my_companies');const companyId=row.company.id;
+ for(const kind of ['company','specialist']){
+  const prefix=kind==='company'?'account-profile':'account-specialist-profile',query=(kind==='company'?'company_id=':'id=')+(kind==='company'?companyId:id);
+  for(const width of [320,390]){
+   await page.setViewportSize({width,height:844});await open(prefix+'.html?'+query);
+   await page.locator('.profile-nav-primary a').first().waitFor();
+   assert.deepEqual(await page.locator('.profile-nav-primary a').allTextContents(),['Профиль','Услуги','Фото']);assert(await page.locator('.profile-nav-primary a').evaluateAll(es=>es.every(e=>e.getBoundingClientRect().height>=44&&parseFloat(getComputedStyle(e).fontSize)>=14)));
+   assert(await page.locator('.profile-nav-list').isHidden());
+   const links=await page.locator('.profile-nav-list a').evaluateAll(es=>es.map(e=>({href:e.getAttribute('href'),label:e.textContent,key:e.dataset.section})));
+   assert.equal(links.some(x=>x.key==='branches'),kind==='company');
+   if(kind==='specialist')assert(links.find(x=>x.key==='media').label.includes('портфолио'));
+   for(const key of ['profile','reviews','assistant',kind==='company'?'analytics':'settings']){
+    const target=links.find(x=>x.key===key);
+    await page.locator('.profile-nav-toggle').click();
+    assert.equal(await page.locator('.profile-nav-toggle').getAttribute('aria-expanded'),'true');
+    assert(await page.locator('.profile-nav-toggle').evaluate(e=>e.getBoundingClientRect().height>=44));
+    await page.locator('.profile-nav-list a[data-section="'+key+'"]').click();
+    await page.waitForURL('**/'+target.href);await page.locator('.profile-nav-list a[data-section="'+key+'"][aria-current=page]').waitFor({state:'attached'});
+    assert(await page.locator('.profile-nav-list').isHidden());
+    if(key!=='profile'){assert(await page.locator('.profile-nav-toggle.active').isVisible());assert((await page.locator('.profile-nav-selected').textContent()).includes(target.label));assert(await page.locator('.profile-nav-current').isVisible());assert((await page.locator('.profile-nav-current').innerText()).includes(target.label));}
+    await page.reload();await page.locator('.profile-nav-list a[data-section="'+key+'"][aria-current=page]').waitFor({state:'attached'});
+    assert.equal(await page.locator('.profile-navigation').evaluate(n=>n.scrollLeft),0);
+    const geometry=await page.locator('.profile-navigation').evaluate(nav=>({page:location.pathname,width:innerWidth,document:document.documentElement.scrollWidth,nav:[nav.getBoundingClientRect().left,nav.getBoundingClientRect().right],outside:[...nav.querySelectorAll('*')].filter(e=>e.getClientRects().length&& (e.getBoundingClientRect().left<0||e.getBoundingClientRect().right>innerWidth)).map(e=>e.className)}));
+    assert(geometry.nav[0]>=0&&geometry.nav[1]<=width&&geometry.outside.length===0,JSON.stringify(geometry));
+    if(geometry.document>width)console.log('Existing editor width diagnostic (menu fits):',JSON.stringify(geometry));
+   }
+   const toggle=page.locator('.profile-nav-toggle');await toggle.focus();await page.keyboard.press('Space');assert(await page.locator('.profile-nav-list').isVisible());await page.keyboard.press('Escape');assert(await page.locator('.profile-nav-list').isHidden());assert(await toggle.evaluate(e=>e===document.activeElement));
+   await toggle.click();await page.locator('h1').first().click();assert(await page.locator('.profile-nav-list').isHidden());
+   await toggle.click();await page.locator('.profile-nav-list a').first().focus();
+   await page.evaluate(()=>document.querySelector('h1').setAttribute('tabindex','-1'));await page.locator('h1').first().focus();assert(await page.locator('.profile-nav-list').isHidden());
+   await page.setViewportSize({width:1280,height:844});await page.locator('.profile-nav-list').waitFor({state:'visible'});await toggle.waitFor({state:'hidden'});assert(await page.locator('.profile-nav-current').isVisible());
+   assert.equal(await page.locator('.profile-nav-list a[aria-current=page]').count(),1);assert(await page.locator('.profile-nav-list a[aria-current=page]').evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}));
+   const manual=await page.locator('.profile-nav-list').evaluate(n=>{n.scrollLeft=80;return n.scrollLeft;});await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert.equal(await page.locator('.profile-nav-list').evaluate(n=>n.scrollLeft),manual);
+  }
  }
- for(const index of [0,7,11,4,0]){
-  await page.locator('.editor-nav a').nth(index).click();await alignedLeft(labels[index]);
-  await page.reload();await alignedLeft(labels[index]);
-  assert.equal(new URL(page.url()).searchParams.get('id'),id);
-  assert.deepEqual(await page.locator('.editor-nav a').allTextContents(),labels);
- }
- await page.locator('.editor-nav a').nth(7).click();await alignedLeft(labels[7]);
- const manual=await page.locator('.editor-nav').evaluate(nav=>{nav.scrollBy({left:-80,behavior:'instant'});return nav.scrollLeft;});
- await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
- assert.equal(await page.locator('.editor-nav').evaluate(nav=>nav.scrollLeft),manual);
- assert.equal(await page.locator('a[aria-current="page"]').textContent(),labels[7]);
- assert.equal(await page.getByRole('button',{name:/Следующий раздел|Предыдущий раздел/}).count(),0);
 });
 await test('service/contact save and reload; missing media/backend disables writes',async()=>{
  user=A;await open('account-specialist-services.html?id='+id);try{await page.locator('#fields:not([disabled])').waitFor({timeout:5000});}catch{throw Error('Service UI did not enable: '+await page.locator('#status').innerText()+'; errors='+JSON.stringify(errors)+'; calls='+JSON.stringify(calls.slice(-6)));}await page.locator('#name').fill('Portrait');await page.locator('#price-from').fill('1500');await page.locator('#duration').fill('45');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();await page.reload();await page.locator('#items').getByText('Portrait',{exact:true}).waitFor();
  await open('account-specialist-contacts.html?id='+id);await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+7 private');await page.locator('[name=format][value=online]').check();await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+7 private');
  for(const [file,rpc] of [['services','get_my_specialist_services'],['contacts','get_my_specialist_settings'],['media','get_my_specialist_media']]){failRPC=rpc;await open('account-specialist-'+file+'.html?id='+id);await page.locator('#status').filter({hasText:'Хранилище'}).waitFor();assert.equal(await page.locator('#fields').getAttribute('disabled'),'');assert(await page.locator('#save').isDisabled());}failRPC=null;
+});
+await test('one shell renders both typed adapters without duplicate headers or cross-kind URLs',async()=>{
+ user=A;await open('account-specialist-profile.html?id='+id);await waitReady();
+ const result=await page.evaluate(async()=>{
+  const {mountCabinet}=await import('./account-profile-shell.js');const {profileAdapter}=await import('./account-profile-adapters.js');
+  const snapshots=[];
+  for(const kind of ['company','specialist','company']){const adapter=profileAdapter(kind);mountCabinet(adapter,{id:'33333333-3333-4333-8333-333333333333',name:'Fixture',role:'owner'},'profile');snapshots.push({kind:document.querySelector('[data-cabinet-header]').dataset.profileKind,headers:document.querySelectorAll('[data-cabinet-header]').length,links:[...document.querySelectorAll('.editor-nav .profile-nav-list a')].map(a=>a.getAttribute('href'))});}return snapshots;
+ });
+ for(const snapshot of result){assert.equal(snapshot.headers,1);for(const link of snapshot.links){const params=new URL(link,'https://cabinet.test').searchParams;assert.equal(params.get(snapshot.kind==='company'?'company_id':'id'),'33333333-3333-4333-8333-333333333333');assert(!params.has(snapshot.kind==='company'?'id':'company_id'));}}
 });
 assert.deepEqual(errors,[]);console.log(`PASS ${count} browser groups; all external requests blocked; SQL-backed RPC adapter (not hosted Auth/PostgREST)`);
 }finally{await browser.close();await db.close();}

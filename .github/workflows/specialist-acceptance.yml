@@ -1,7 +1,7 @@
 name: Specialist draft acceptance
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/specialist-cabinet-complete]
   push:
     branches: [feature/profile-kind-chooser-v1, feature/specialist-main-integration-v1]
 permissions:
@@ -33,6 +33,8 @@ jobs:
         run: npm run test:pages
       - name: Exact Cloudflare static artifact
         run: node scripts/build-pages.mjs && node scripts/check-cloudflare-pages.mjs
+      - name: Shared cabinet adapters and immutable company sources
+        run: npm run test:shared
       - name: Specialist editor security contracts
         run: npm run test:editor
       - name: Real PostgreSQL roles, RPCs and overlapping transactions
