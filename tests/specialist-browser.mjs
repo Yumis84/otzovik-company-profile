@@ -178,19 +178,20 @@ await test('shared mobile menu: three primary links, full list, deep links, acti
   for(const width of [320,390]){
    await page.setViewportSize({width,height:844});await open(prefix+'.html?'+query);
    await page.locator('.profile-nav-primary a').first().waitFor();
-   assert.deepEqual(await page.locator('.profile-nav-primary a').allTextContents(),['Профиль','Услуги','Фото']);
+   assert.deepEqual(await page.locator('.profile-nav-primary a').allTextContents(),['Профиль','Услуги','Фото']);assert(await page.locator('.profile-nav-primary a').evaluateAll(es=>es.every(e=>e.getBoundingClientRect().height>=44&&parseFloat(getComputedStyle(e).fontSize)>=14)));
    assert(await page.locator('.profile-nav-list').isHidden());
    const links=await page.locator('.profile-nav-list a').evaluateAll(es=>es.map(e=>({href:e.getAttribute('href'),label:e.textContent,key:e.dataset.section})));
    assert.equal(links.some(x=>x.key==='branches'),kind==='company');
    if(kind==='specialist')assert(links.find(x=>x.key==='media').label.includes('портфолио'));
    for(const key of ['profile','reviews','assistant',kind==='company'?'analytics':'settings']){
     const target=links.find(x=>x.key===key);
-    await page.getByRole('button',{name:'Все разделы',exact:true}).click();
+    await page.locator('.profile-nav-toggle').click();
     assert.equal(await page.locator('.profile-nav-toggle').getAttribute('aria-expanded'),'true');
+    assert(await page.locator('.profile-nav-toggle').evaluate(e=>e.getBoundingClientRect().height>=44));
     await page.locator('.profile-nav-list a[data-section="'+key+'"]').click();
     await page.waitForURL('**/'+target.href);await page.locator('.profile-nav-list a[data-section="'+key+'"][aria-current=page]').waitFor({state:'attached'});
     assert(await page.locator('.profile-nav-list').isHidden());
-    if(key!=='profile'){assert(await page.locator('.profile-nav-current').isVisible());assert((await page.locator('.profile-nav-current').innerText()).includes(target.label));}
+    if(key!=='profile'){assert(await page.locator('.profile-nav-toggle.active').isVisible());assert((await page.locator('.profile-nav-selected').textContent()).includes(target.label));assert(await page.locator('.profile-nav-current').isVisible());assert((await page.locator('.profile-nav-current').innerText()).includes(target.label));}
     await page.reload();await page.locator('.profile-nav-list a[data-section="'+key+'"][aria-current=page]').waitFor({state:'attached'});
     assert.equal(await page.locator('.profile-navigation').evaluate(n=>n.scrollLeft),0);
     const geometry=await page.locator('.profile-navigation').evaluate(nav=>({page:location.pathname,width:innerWidth,document:document.documentElement.scrollWidth,nav:[nav.getBoundingClientRect().left,nav.getBoundingClientRect().right],outside:[...nav.querySelectorAll('*')].filter(e=>e.getClientRects().length&& (e.getBoundingClientRect().left<0||e.getBoundingClientRect().right>innerWidth)).map(e=>e.className)}));
@@ -199,8 +200,10 @@ await test('shared mobile menu: three primary links, full list, deep links, acti
    }
    const toggle=page.locator('.profile-nav-toggle');await toggle.focus();await page.keyboard.press('Space');assert(await page.locator('.profile-nav-list').isVisible());await page.keyboard.press('Escape');assert(await page.locator('.profile-nav-list').isHidden());assert(await toggle.evaluate(e=>e===document.activeElement));
    await toggle.click();await page.locator('h1').first().click();assert(await page.locator('.profile-nav-list').isHidden());
+   await toggle.click();await page.locator('.profile-nav-list a').first().focus();
+   await page.evaluate(()=>document.querySelector('h1').setAttribute('tabindex','-1'));await page.locator('h1').first().focus();assert(await page.locator('.profile-nav-list').isHidden());
    await page.setViewportSize({width:1280,height:844});await page.locator('.profile-nav-list').waitFor({state:'visible'});await toggle.waitFor({state:'hidden'});assert(await page.locator('.profile-nav-current').isVisible());
-   assert.equal(await page.locator('.profile-nav-list a[aria-current=page]').count(),1);
+   assert.equal(await page.locator('.profile-nav-list a[aria-current=page]').count(),1);assert(await page.locator('.profile-nav-list a[aria-current=page]').evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}));
    const manual=await page.locator('.profile-nav-list').evaluate(n=>{n.scrollLeft=80;return n.scrollLeft;});await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert.equal(await page.locator('.profile-nav-list').evaluate(n=>n.scrollLeft),manual);
   }
  }
