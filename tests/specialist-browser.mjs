@@ -168,23 +168,24 @@ await test('12 specialist sections, safe disabled AI/MCP, explicit id and no pag
  user=null;await open('account-specialist-section?id='+id+'&section=mcp');await page.waitForURL('**/account-login.html?*');assert.equal(new URL(page.url()).searchParams.get('next'),'account-specialist-section.html?id='+id+'&section=mcp');
  user=A;await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-specialist-profile.html?id='+id);await waitReady();
 });
-await test('mobile specialist active tab centers on navigation/reload, clamps edges and permits manual scroll',async()=>{
+await test('mobile specialist active tab aligns left on navigation/reload, clamps edges and permits manual scroll',async()=>{
  user=A;await page.setViewportSize({width:390,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
  const labels=await page.locator('.editor-nav a').allTextContents();
- async function centered(label){
+ async function alignedLeft(label){
   await page.waitForFunction(expected=>{
    const nav=document.querySelector('.editor-nav'),a=nav?.querySelector('a[aria-current="page"]');if(!a||a.textContent!==expected)return false;
    const max=Math.max(0,nav.scrollWidth-nav.clientWidth);
-   const wanted=Math.min(max,Math.max(0,nav.scrollLeft+a.getBoundingClientRect().left-nav.getBoundingClientRect().left-nav.clientLeft-(nav.clientWidth-a.offsetWidth)/2));
+   const wanted=Math.min(max,Math.max(0,nav.scrollLeft+a.getBoundingClientRect().left-nav.getBoundingClientRect().left-nav.clientLeft-8));
    return Math.abs(nav.scrollLeft-wanted)<1;
   },label);
  }
  for(const index of [0,7,11,4,0]){
-  await page.locator('.editor-nav a').nth(index).click();await centered(labels[index]);
-  await page.reload();await centered(labels[index]);
+  await page.locator('.editor-nav a').nth(index).click();await alignedLeft(labels[index]);
+  await page.reload();await alignedLeft(labels[index]);
   assert.equal(new URL(page.url()).searchParams.get('id'),id);
+  assert.deepEqual(await page.locator('.editor-nav a').allTextContents(),labels);
  }
- await page.locator('.editor-nav a').nth(7).click();await centered(labels[7]);
+ await page.locator('.editor-nav a').nth(7).click();await alignedLeft(labels[7]);
  const manual=await page.locator('.editor-nav').evaluate(nav=>{nav.scrollBy({left:-80,behavior:'instant'});return nav.scrollLeft;});
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  assert.equal(await page.locator('.editor-nav').evaluate(nav=>nav.scrollLeft),manual);
