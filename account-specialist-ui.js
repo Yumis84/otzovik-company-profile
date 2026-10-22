@@ -4,6 +4,14 @@ export function navigation(node,id,active='profile'){
  node.replaceChildren();
  const items=[['profile','Профиль','account-specialist-profile.html'],['services','Услуги и цены','account-specialist-services.html'],['media','Фото и портфолио','account-specialist-media.html'],['contacts','Контакты и работа','account-specialist-contacts.html'],['reviews','Отзывы и ответы'],['questions','Вопросы пользователей'],['sources','Источники рейтингов'],['analytics','Аналитика'],['notifications','Уведомления'],['assistant','ИИ-ассистент'],['mcp','Мой ИИ-агент · MCP'],['settings','Настройки и публикация']];
  for(const [key,label,file] of items){const a=document.createElement(isUUID(id)?'a':'span');a.textContent=label;if(isUUID(id))a.href=(file||'account-specialist-section.html')+'?id='+encodeURIComponent(id)+(file?'':'&section='+key);else a.setAttribute('aria-disabled','true');if(key===active){a.className='active';a.setAttribute('aria-current','page');}node.append(a);}
+ // As in the company menu, wait for layout and reveal the active tab once.
+ // Scroll only this menu so the page position and subsequent manual scrolling stay intact.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const current=node.querySelector('a[aria-current="page"]');
+  if(!node.isConnected||!current)return;
+  const left=node.scrollLeft+current.getBoundingClientRect().left-node.getBoundingClientRect().left-node.clientLeft-(node.clientWidth-current.offsetWidth)/2;
+  node.scrollTo({left:Math.min(Math.max(0,node.scrollWidth-node.clientWidth),Math.max(0,left)),behavior:'auto'});
+ }));
 }
 export function text(tag,value,className=''){const el=document.createElement(tag);el.textContent=value??'';el.className=className;return el;}
 export async function optimizeImage(file){

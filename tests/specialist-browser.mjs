@@ -168,6 +168,29 @@ await test('12 specialist sections, safe disabled AI/MCP, explicit id and no pag
  user=null;await open('account-specialist-section?id='+id+'&section=mcp');await page.waitForURL('**/account-login.html?*');assert.equal(new URL(page.url()).searchParams.get('next'),'account-specialist-section.html?id='+id+'&section=mcp');
  user=A;await open('account-create-specialist.html?id='+id);await page.waitForURL('**/account-specialist-profile.html?id='+id);await waitReady();
 });
+await test('mobile specialist active tab centers on navigation/reload, clamps edges and permits manual scroll',async()=>{
+ user=A;await page.setViewportSize({width:390,height:844});await open('account-specialist-profile.html?id='+id);await waitReady();
+ const labels=await page.locator('.editor-nav a').allTextContents();
+ async function centered(label){
+  await page.waitForFunction(expected=>{
+   const nav=document.querySelector('.editor-nav'),a=nav?.querySelector('a[aria-current="page"]');if(!a||a.textContent!==expected)return false;
+   const max=Math.max(0,nav.scrollWidth-nav.clientWidth);
+   const wanted=Math.min(max,Math.max(0,nav.scrollLeft+a.getBoundingClientRect().left-nav.getBoundingClientRect().left-nav.clientLeft-(nav.clientWidth-a.offsetWidth)/2));
+   return Math.abs(nav.scrollLeft-wanted)<1;
+  },label);
+ }
+ for(const index of [0,7,11,4,0]){
+  await page.locator('.editor-nav a').nth(index).click();await centered(labels[index]);
+  await page.reload();await centered(labels[index]);
+  assert.equal(new URL(page.url()).searchParams.get('id'),id);
+ }
+ await page.locator('.editor-nav a').nth(7).click();await centered(labels[7]);
+ const manual=await page.locator('.editor-nav').evaluate(nav=>{nav.scrollBy({left:-80,behavior:'instant'});return nav.scrollLeft;});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ assert.equal(await page.locator('.editor-nav').evaluate(nav=>nav.scrollLeft),manual);
+ assert.equal(await page.locator('a[aria-current="page"]').textContent(),labels[7]);
+ assert.equal(await page.getByRole('button',{name:/Следующий раздел|Предыдущий раздел/}).count(),0);
+});
 await test('service/contact save and reload; missing media/backend disables writes',async()=>{
  user=A;await open('account-specialist-services.html?id='+id);try{await page.locator('#fields:not([disabled])').waitFor({timeout:5000});}catch{throw Error('Service UI did not enable: '+await page.locator('#status').innerText()+'; errors='+JSON.stringify(errors)+'; calls='+JSON.stringify(calls.slice(-6)));}await page.locator('#name').fill('Portrait');await page.locator('#price-from').fill('1500');await page.locator('#duration').fill('45');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();await page.reload();await page.locator('#items').getByText('Portrait',{exact:true}).waitFor();
  await open('account-specialist-contacts.html?id='+id);await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+7 private');await page.locator('[name=format][value=online]').check();await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+7 private');
