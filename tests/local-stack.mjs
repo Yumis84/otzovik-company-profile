@@ -7,6 +7,8 @@ import {createClient} from '@supabase/supabase-js';
 import {build} from 'esbuild';
 import {chromium} from 'playwright';
 import {migrationSQL} from '../scripts/specialist-migration.mjs';
+import {editorMigrationSQL} from '../scripts/specialist-editor-migration.mjs';
+import {editorChecks,editorBrowser} from './local-editor-checks.mjs';
 import {buildPages} from '../scripts/build-pages.mjs';
 const cfg=JSON.parse(await fs.readFile('/tmp/otzovik-local-status.json','utf8'));
 const api=cfg.API_URL,anon=cfg.ANON_KEY,service=cfg.SERVICE_ROLE_KEY;
@@ -39,6 +41,7 @@ try{
  // Limit subsidiary RPCs to authenticated just as the cabinet's API contract requires.
  for(const f of snapshot.functions){const r=await db.query("SELECT oid::regprocedure::text signature FROM pg_proc WHERE proname=$1 AND pronamespace='public'::regnamespace",[f.name]);for(const row of r.rows)await db.query(`REVOKE ALL ON FUNCTION ${row.signature} FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION ${row.signature} TO authenticated;`);}
  await db.query(await migrationSQL());
+ await db.query(await editorMigrationSQL());
  ok(await admin.storage.createBucket('company-media',{public:false}));
  await db.query("NOTIFY pgrst,'reload schema'");
  await new Promise(r=>setTimeout(r,1500));
@@ -146,9 +149,9 @@ try{
  await test('real browser login → chooser → specialist create → home → edit → reload → relogin',async()=>{
   await login(emails[0]);await page.getByText('Local Edited',{exact:true}).waitFor();
   await open('account-create-profile.html');await page.locator('a[href="account-create-specialist.html"]').click();
-  await page.locator('[name=display_name]').fill('Browser Specialist');await page.locator('[name=slug]').fill('browser-specialist');await page.locator('[name=profession]').fill('Master');await page.locator('#save').click();await page.waitForURL('**/account-home.html');
+  await page.locator('[name=display_name]').fill('Browser Specialist');await page.locator('[name=slug]').fill('browser-specialist');await page.locator('[name=profession]').fill('Master');await page.locator('#save').click();await page.waitForURL('**/account-specialist-profile.html?id=*');
   const row=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='browser-specialist');assert(row);
-  await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();await page.locator('[name=description]').fill('Browser persisted');await page.locator('#save').click();await page.waitForURL('**/account-home.html');
+  await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();await page.locator('[name=description]').fill('Browser persisted');await page.locator('#save').click();await page.locator('#save-note').filter({hasText:'Изменения сохранены'}).waitFor();await open('account-home.html');
   await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[0]);
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
   await page.reload();await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
@@ -165,6 +168,8 @@ try{
   await page.locator('#media-file').setInputFiles({name:'browser.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#media-state').filter({hasText:/Фотография (загружена|заменена) и опубликована/}).waitFor({timeout:30000}).catch(async e=>{throw Error('Browser media upload failed: '+await page.locator('#media-state').innerText()+'; page errors: '+errors.join('; '),{cause:e});});
   assert(ok(await a.from('company_media').select('*')).some(x=>x.storage_object_name.endsWith('.webp')));
  });
+ await editorChecks({a,b,anonymous,ok,company,test});
+ await editorBrowser({page,open,a,ok,test});
  assert.deepEqual(errors,[]);
  await test('private drafts remain absent from publisher and rollback preserves data',async()=>{
   const before=(await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n;
@@ -172,6 +177,32 @@ try{
   await db.query('REVOKE EXECUTE ON FUNCTION public.get_my_specialists() FROM authenticated');
   assert((await a.rpc('get_my_specialists')).error);assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
   await db.query('GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated');
+ });
+ await test('editor emergency disable preserves records and company Storage',async()=>{
+  const before=(await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n;
+  await db.query(await fs.readFile(new URL('../sql/20261017_specialist_editor_DISABLE_CANDIDATE.sql',import.meta.url),'utf8'));
+  const draft=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='local-specialist');
+  assert.equal((await a.rpc('get_my_specialist_services',{p_specialist_id:draft.id})).error?.code,'42501');
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n,before);
+  const photo=ok(await a.from('company_media').select('*')).find(x=>x.status==='published');assert(photo);ok(await a.storage.from('company-media').download(photo.storage_object_name));
+  assert(ok(await a.rpc('get_my_companies')).some(x=>x.company.id===company.id));
+ });
+ await test('editor re-enable restores owner API and Storage without company regression',async()=>{
+  const draft=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='local-specialist');
+  const before=(await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n;
+  await db.query(await fs.readFile(new URL('../sql/20261017_specialist_editor_ENABLE_CANDIDATE.sql',import.meta.url),'utf8'));
+  assert(ok(await a.rpc('get_my_specialist_services',{p_specialist_id:draft.id})).length>0);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_services')).rows[0].n,before);
+  for(const c of [b,anonymous])assert.equal((await c.rpc('get_my_specialist_services',{p_specialist_id:draft.id})).error?.code,'42501');
+  const path=draft.id+'/portfolio/'+crypto.randomUUID()+'.png',bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
+  ok(await a.storage.from('specialist-media').upload(path,bytes,{contentType:'image/png'}));
+  ok(await a.storage.from('specialist-media').download(path));
+  assert((await b.storage.from('specialist-media').download(path)).error);
+  ok(await a.storage.from('specialist-media').remove([path]));
+  const companyPath=company.id+'/logo/recovery-'+crypto.randomUUID()+'.png';
+  ok(await a.storage.from('company-media').upload(companyPath,bytes,{contentType:'image/png'}));
+  ok(await a.storage.from('company-media').download(companyPath));
+  ok(await a.storage.from('company-media').remove([companyPath]));
  });
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
 }finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}
