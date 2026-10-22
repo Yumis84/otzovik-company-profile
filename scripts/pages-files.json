@@ -47,5 +47,14 @@
   "review-submit.html",
   "reviews.json",
   "reviews/index.html",
-  "styles.css"
+  "styles.css",
+  "account-specialist-api.js",
+  "account-specialist-ui.js",
+  "account-specialist-ui.css",
+  "account-specialist-services.html",
+  "account-specialist-services.js",
+  "account-specialist-media.html",
+  "account-specialist-media.js",
+  "account-specialist-contacts.html",
+  "account-specialist-contacts.js"
 ]
