@@ -100,3 +100,6 @@ try{
  });
  assert.deepEqual(errors,[]);console.log('FIXED CONTACTS BROWSER RESULT',count,'groups PASS; disposable SQL adapter, not hosted');
 }finally{await browser.close();await db.close();}
+
+// Run specialist UX regression in the same browser acceptance entry point.
+await import('./specialist-ux-browser.mjs');

@@ -22,21 +22,22 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 <label class="field">Адрес профиля *<span class="slug-field"><span class="slug-part">https://</span><input name="slug" required minlength="3" maxlength="63" pattern="[a-z0-9][a-z0-9\-]*[a-z0-9]" placeholder="master-ivan" aria-label="Имя адреса профиля"><span class="slug-part">.отзыв.com</span></span><span class="slug-preview">После публикации: <strong id="specialist-url">https://master-ivan.отзыв.com/</strong></span></label>
 <label class="field">Профессия *<input name="profession" required maxlength="120" placeholder="Например, фотограф"></label>
 <label class="field">Специализация<input name="specialization" maxlength="160" placeholder="Например, предметная съёмка"></label>
-<label class="field">Город<input name="city" maxlength="120" placeholder="Или укажите «Работаю онлайн»"></label>
+<label class="field">Город, где вы находитесь<input name="city" maxlength="120" placeholder="Например, Калининград"><span class="hint">Территорию обслуживания и работу онлайн можно указать в разделе «Контакты и работа».</span></label>
 <label class="field">Описание<textarea name="description" maxlength="2000" placeholder="Опишите опыт, услуги и подход к работе"></textarea></label>
-<p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Публикация, услуги и отзывы будут доступны на следующем этапе.</p>
+<p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Услуги, фотографии и контакты можно заполнить после сохранения. Публикация и отзывы пока не подключены.</p>
 <button type="submit" id="save" disabled>Сохранить черновик</button>
 </fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
-</form></section></div></main>
+</form><p><a href="account-home.html">К списку профилей</a></p></section></div></main>
 <script type="module">
-import {navigation} from './account-specialist-ui.js';
+import {navigation,installValidation,validateForm,fieldError} from './account-specialist-ui.js';
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
 const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
 const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note'),fields=document.getElementById('fields');
 const params=new URLSearchParams(location.search);
-const editing=params.has('id');
-const editId=params.get('id');
+let editing=params.has('id');
+let editId=params.get('id');
 let ready=false,busy=false;
+installValidation(form);
 const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementById('specialist-url');
 function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';}
 slugInput.addEventListener('input',updateUrlPreview);updateUrlPreview();
@@ -62,21 +63,25 @@ async function initialize(){
  }catch{failLoad('Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');}
 }
 form.addEventListener('submit',async event=>{
- event.preventDefault();if(!ready||busy||!form.reportValidity())return;
+ event.preventDefault();if(!ready||busy)return;
  const fd=new FormData(form),name=String(fd.get('display_name')||'').trim(),slug=String(fd.get('slug')||'').trim().toLowerCase(),profession=String(fd.get('profession')||'').trim();
- if(name.length<2||name.length>150||!profession||profession.length>120||!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug)||slug.startsWith('xn--')||['www','api','admin','test','test2','account','login','profiles','specialists'].includes(slug)){
-  note.textContent='Проверьте имя, профессию и адрес: 3–63 латинских символа, цифры или дефис. Служебные адреса недоступны.';return;
+ if(name.length<2||name.length>150){note.textContent='Проверьте публичное имя.';fieldError(form.elements.namedItem('display_name'),'Укажите имя от 2 до 150 символов.');return;}
+ if(!editing&&(!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug)||slug.startsWith('xn--')||['www','api','admin','test','test2','account','login','profiles','specialists'].includes(slug))){
+  note.textContent='Проверьте адрес профиля.';fieldError(slugInput,'Адрес: 3–63 латинских символа, цифры или дефис. Служебные адреса недоступны.');return;
  }
- busy=true;save.disabled=true;note.textContent='Сохраняем черновик…';
+ if(!profession||profession.length>120){note.textContent='Проверьте профессию.';fieldError(form.elements.namedItem('profession'),'Укажите профессию до 120 символов.');return;}
+ if(!validateForm(form)){note.textContent='Проверьте выделенные поля.';return;}
+ busy=true;save.disabled=true;fields.disabled=true;note.textContent='Сохраняем черновик…';
  try{
   const {data,error}=await s.rpc(editing?'update_my_specialist_draft':'create_my_specialist_draft',{...(editing?{p_id:editId}:{p_slug:slug}),p_display_name:name,p_profession:profession,p_specialization:String(fd.get('specialization')||'').trim()||null,p_city:String(fd.get('city')||'').trim()||null,p_description:String(fd.get('description')||'').trim()||null});
   if(error){
+   fields.disabled=false;if(error.code==='23505'&&!editing)fieldError(slugInput,'Адрес уже занят. Выберите другой.');
    note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
   }
   if(!data?.id||data.profile_status!=='draft')throw new Error('Unexpected response');
-  note.textContent='Черновик сохранён. Переходим к списку профилей.';location.assign('account-home.html');
+  editing=true;editId=data.id;history.replaceState(null,'',location.pathname+'?id='+encodeURIComponent(editId));slugInput.value=slug;slugInput.readOnly=true;updateUrlPreview();save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',name);note.textContent='Сохранено. Изменения видны только вам.';
  }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
- finally{busy=false;save.disabled=false;}
+ finally{busy=false;save.disabled=false;fields.disabled=false;}
 });
 await initialize();
 </script></body></html>
