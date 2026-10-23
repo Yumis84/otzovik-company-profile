@@ -3,7 +3,7 @@ import {kinds,normalizeChannel,validateChannels} from './account-specialist-chan
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 export async function initChannels(id){
  const root=document.getElementById('specialist-channels');
- const form=el('form'),fields=el('fieldset'),legend=el('legend','Мессенджеры, соцсети и портфолио'),notice=el('p','Все контакты в этом разделе видны только вам. Публичный показ пока недоступен. Указание ссылки не подтверждает владение аккаунтом.');
+ const form=el('form'),fields=el('fieldset'),legend=el('legend','Личные мессенджеры и социальные сети'),notice=el('p','Все контакты в этом разделе видны только вам. Публичный показ пока недоступен. Указание ссылки не подтверждает владение аккаунтом.');
  const state=el('p','Загрузка контактов…');state.setAttribute('role','status');state.setAttribute('aria-live','polite');
  const list=el('div'),add=el('button','Добавить контакт'),save=el('button','Сохранить каналы');
  fields.disabled=true;add.type='button';save.type='submit';list.className='channel-list';
@@ -14,7 +14,7 @@ export async function initChannels(id){
   rows.forEach((row,index)=>{
    const box=el('fieldset'),title=el('legend','Контакт '+(index+1));box.className='channel-row';box.append(title);
    function label(text,node){const l=el('label',text);l.append(node);box.append(l);return node;}
-   const type=el('select');for(const [key,text] of Object.entries(kinds)){const o=el('option',text);o.value=key;type.append(o);}type.value=row.kind;label('Канал',type);
+   const type=el('select');const groups=[['Мессенджеры',['telegram','max','whatsapp']],['Социальные сети',['vk','ok']],['Сайт и портфолио',['website','portfolio']]];for(const [heading,keys] of groups){const group=el('optgroup');group.label=heading;for(const key of keys){const option=el('option',kinds[key]);option.value=key;group.append(option);}type.append(group);}type.value=row.kind;label('Мессенджер, социальная сеть или сайт',type);
    const value=el('input');value.value=row.value_raw;value.required=true;value.maxLength=500;value.autocomplete='off';value.spellcheck=false;
    const placeholders={telegram:'@username или https://t.me/username',max:'https://max.ru/…',vk:'https://vk.com/…',whatsapp:'+79991234567 или https://wa.me/79991234567',ok:'https://ok.ru/profile/…',website:'https://example.ru',portfolio:'https://example.ru/portfolio'};
    value.placeholder=placeholders[row.kind];label('Ссылка или контакт',value);
@@ -26,7 +26,7 @@ export async function initChannels(id){
    value.onchange=()=>{try{normalizeChannel(row.kind,row.value_raw);value.setCustomValidity('');}catch(e){value.setCustomValidity(e.message);}};
    name.oninput=()=>{row.label=name.value;};inquiries.onchange=()=>row.accepts_inquiries=inquiries.checked;
    preferred.onchange=()=>{for(const r of rows)r.is_preferred=false;row.is_preferred=preferred.checked;render();};
-   if(row.href){try{if(normalizeChannel(row.kind,row.href)===row.href){const a=el('a','Открыть сохранённую ссылку');a.href=row.href;a.target='_blank';a.rel='noopener noreferrer nofollow ugc';box.append(a);}}catch{}}
+   if(row.href){try{if(normalizeChannel(row.kind,row.href)===row.href){const a=el('a','Открыть '+kinds[row.kind]);a.href=row.href;a.target='_blank';a.rel='noopener noreferrer nofollow ugc';box.append(a);}}catch{}}
    const actions=el('div');actions.className='channel-actions';
    for(const [text,delta] of [['Выше',-1],['Ниже',1]]){const b=el('button',text);b.type='button';b.disabled=index+delta<0||index+delta>=rows.length;b.onclick=()=>{[rows[index],rows[index+delta]]=[rows[index+delta],rows[index]];render();};actions.append(b);}
    const remove=el('button','Удалить');remove.type='button';remove.onclick=()=>{rows.splice(index,1);render();};actions.append(remove);box.append(actions);list.append(box);
