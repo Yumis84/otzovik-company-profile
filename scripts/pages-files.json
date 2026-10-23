@@ -56,5 +56,7 @@
   "account-specialist-media.html",
   "account-specialist-media.js",
   "account-specialist-contacts.html",
-  "account-specialist-contacts.js"
+  "account-specialist-contacts.js",
+  "account-specialist-channel-rules.js",
+  "account-specialist-channels.js"
 ]
