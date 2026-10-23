@@ -60,7 +60,7 @@ try{
   let data=await read();const old=payload(data.channels);old[0].label='<img src=x onerror=alert(1)>';old[0].is_preferred=true;old[0].accepts_inquiries=true;
   old.push({...old[0],id:crypto.randomUUID(),value_raw:'@extra_test',label:'extra',is_preferred:false});old.push({...old[0],id:crypto.randomUUID(),kind:'website',value_raw:'https://oldsite.ru/Case',label:'old site',is_preferred:false});
   await db.call(A,'save_my_specialist_channels',[a.id,data.version,JSON.stringify(old)]);await ready();
-  assert.equal(await root.locator('input[data-kind=telegram]').count(),2);assert.equal(await root.locator('input[data-kind=website]').count(),1);assert.equal(await root.locator('img').count(),0);
+  assert.equal(await root.locator('input[data-kind=telegram]').count(),2);assert.equal(await page.locator('#other-links a').count(),1);assert.equal(await page.locator('#contacts-form img').count(),0);
   await input('telegram').fill('@updated_test');await saved();data=await read();assert.deepEqual(data.channels.map(r=>r.id),old.map(r=>r.id));assert.equal(data.channels[0].label,old[0].label);assert(data.channels[0].is_preferred&&data.channels[0].accepts_inquiries);
   assert.equal(data.channels.at(-1).value_raw,'https://oldsite.ru/Case');
   await root.locator('input[data-kind=telegram]').last().fill('https://t.me/updated_test');await save.click();assert.equal(await root.locator('input[data-kind=telegram]').last().getAttribute('aria-invalid'),'true');await ready();
@@ -69,6 +69,31 @@ try{
   await page.locator('#phone').fill('+79992222222');await input('telegram').fill('@retry_test');offline=true;await save.click();await note.filter({hasText:'Основные поля сохранены, но'}).waitFor();assert.equal(await input('telegram').inputValue(),'@retry_test');
   const version=(await db.call(A,'get_my_specialist_settings',[a.id])).version;offline=false;hold=true;await save.click();assert.equal(await save.isEnabled(),false);await note.filter({hasText:'Контакты сохранены'}).waitFor();hold=false;assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).version,version);
   const current=await read();await db.call(A,'save_my_specialist_channels',[a.id,current.version,'[]']);await save.click();await note.filter({hasText:'Обновите'}).waitFor();assert.equal(await input('telegram').inputValue(),'@retry_test');
+ });
+ await test('custom named links add repeatedly, stay inert, save/reopen/edit/delete',async()=>{
+  await ready();const box=page.locator('#other-links'),title=box.locator('#other-link-name'),urlInput=box.locator('#other-link-url'),add=box.getByRole('button',{name:'Добавить ссылку',exact:true});
+  const version=(await read()).version;
+  await add.click();assert.equal(await box.locator('li').count(),0);assert.equal(await title.getAttribute('aria-invalid'),'true');
+  await title.fill('Мой блог');await urlInput.fill('javascript:alert(1)');await add.click();assert.equal(await box.locator('li').count(),0);
+  await urlInput.fill(' Https://Example.com/MyBlog?A=B ');await add.click();assert.equal(await box.locator('li').count(),1);assert.equal(await title.inputValue(),'');assert.equal(await urlInput.inputValue(),'');assert.equal((await read()).version,version);
+  await title.fill('<img src=x onerror=alert(1)>');await urlInput.fill('https://gallery.ru/work');await add.click();assert.equal(await box.locator('li').count(),2);assert.equal(await box.locator('img').count(),0);
+  await title.fill('Дубль');await urlInput.fill('https://example.com/MyBlog?A=B');await add.click();assert.equal(await box.locator('li').count(),2);assert.equal(await urlInput.getAttribute('aria-invalid'),'true');
+  await title.fill('');await urlInput.fill('');await saved();await ready();
+  assert.equal(await box.locator('li').count(),2);const link=box.getByRole('link',{name:'Мой блог',exact:true});assert.equal(await link.getAttribute('href'),'https://example.com/MyBlog?A=B');assert.equal(await link.getAttribute('rel'),'noopener noreferrer nofollow');
+  const original=(await read()).channels;
+  await box.getByRole('button',{name:'Изменить ссылку Мой блог',exact:true}).click();await title.fill('Мой журнал');await urlInput.fill('https://example.com/Updated');await box.getByRole('button',{name:'Применить изменения',exact:true}).click();await saved();await ready();
+  assert.equal((await read()).channels[0].id,original[0].id);assert.equal(await box.getByRole('link',{name:'Мой журнал',exact:true}).count(),1);
+  await box.getByRole('button',{name:'Удалить ссылку Мой журнал',exact:true}).click();await saved();await ready();assert.equal(await box.locator('li').count(),1);
+  // Direct Save includes a completed composer, but rejects incomplete input.
+  await title.fill('Следующая');const before=await read();await save.click();assert.deepEqual(await read(),before);
+  await urlInput.fill('https://next.ru/work');offline=true;await save.click();await note.filter({hasText:'не сохранены'}).waitFor();assert.equal(await box.locator('li').count(),2);offline=false;await saved();await ready();assert.equal(await box.locator('li').count(),2);
+  for(const width of [320,390,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ });
+ await test('custom links share 20-contact limit, with deletion freeing a slot',async()=>{
+  const data=await read(),many=Array.from({length:20},(_,i)=>({id:crypto.randomUUID(),kind:'website',value_raw:'https://site'+i+'.ru',label:'Ссылка '+i,is_preferred:false,accepts_inquiries:false,is_public:false}));
+  await db.call(A,'save_my_specialist_channels',[a.id,data.version,JSON.stringify(many)]);await ready();
+  const box=page.locator('#other-links');await box.locator('#other-link-name').fill('Ещё');await box.locator('#other-link-url').fill('https://more.ru');await box.getByRole('button',{name:'Добавить ссылку',exact:true}).click();assert.equal(await box.locator('li').count(),20);await box.locator('[role=status]').filter({hasText:'20 контактов'}).waitFor();
+  await box.getByRole('button',{name:'Удалить ссылку Ссылка 0',exact:true}).click();await box.getByRole('button',{name:'Добавить ссылку',exact:true}).click();assert.equal(await box.locator('li').count(),20);await saved();assert.equal((await read()).channels.length,20);
  });
  await test('missing channels RPC leaves old settings usable without false all-saved message',async()=>{
   missing=true;await ready();assert.equal(await input('telegram').isEnabled(),false);assert.equal(await save.isEnabled(),true);await page.locator('#phone').fill('+79993333333');await save.click();await note.filter({hasText:'недоступны и не изменены'}).waitFor();
