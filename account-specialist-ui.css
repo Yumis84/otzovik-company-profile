@@ -8,3 +8,6 @@ h1{font-size:clamp(26px,5vw,36px);margin:20px 0 8px}p{line-height:1.5;color:#667
 
 /* Private custom specialist links; no company styling. */
 #other-links{margin:20px 0}#other-links legend{font-weight:700}#other-links .other-links-list{padding:0;list-style:none}#other-links li{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}#other-links li a{overflow-wrap:anywhere;min-width:0;max-width:100%}#other-links [role=status]:empty{display:none}#other-links button[hidden]{display:none}
+
+/* Specialist form validation only. */
+.specialist-editor input[aria-invalid=true],.specialist-editor textarea[aria-invalid=true],.specialist-editor select[aria-invalid=true]{border-color:#d92d20;outline:1px solid #d92d20}

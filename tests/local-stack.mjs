@@ -149,10 +149,10 @@ try{
  await test('real browser login → chooser → specialist create → home → edit → reload → relogin',async()=>{
   await login(emails[0]);await page.getByText('Local Edited',{exact:true}).waitFor();
   await open('account-create-profile.html');await page.locator('a[href="account-create-specialist.html"]').click();
-  await page.locator('[name=display_name]').fill('Browser Specialist');await page.locator('[name=slug]').fill('browser-specialist');await page.locator('[name=profession]').fill('Master');await page.locator('#save').click();await page.waitForURL('**/account-home.html');
+  await page.locator('[name=display_name]').fill('Browser Specialist');await page.locator('[name=slug]').fill('browser-specialist');await page.locator('[name=profession]').fill('Master');await page.locator('#save').click();await page.locator('#save-note').filter({hasText:'Сохранено.'}).waitFor();
   const row=ok(await a.rpc('get_my_specialists')).find(x=>x.slug==='browser-specialist');assert(row);
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();await page.locator('[name=description]').fill('Browser persisted');await page.locator('#save').click();await page.waitForURL('**/account-home.html');
-  await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[0]);
+  await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[0]);
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
   await page.reload();await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[1]);await open('account-create-specialist.html?id='+row.id);await page.getByText(/Черновик не найден или недоступен/).waitFor();assert(await page.locator('#save').isDisabled());
