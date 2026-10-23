@@ -29,9 +29,9 @@ async function saved(){await save.click();await note.filter({hasText:'Конта
 let count=0;const test=async(name,fn)=>{await fn();console.log('PASS FIXED CONTACTS BROWSER',++count,name);};
 try{
  await test('one form, fixed optional labels, single black save; empty fields create no contacts',async()=>{
-  await ready();assert.equal(await page.locator('#phone').inputValue(),'+7');assert.equal(await input('whatsapp').inputValue(),'+7');assert.equal(await page.locator('form').count(),1);assert.equal(await root.locator('select,button').count(),0);assert.equal(await root.locator('input').count(),6);assert.equal(await page.locator('#website').count(),1);
+  await ready();assert.equal(await page.locator('#email').getAttribute('placeholder'),'name@mail.ru');assert.equal(await page.locator('#email').inputValue(),'');assert.equal(await page.locator('#website').getAttribute('placeholder'),'Ссылка профиля — после публикации');assert.equal(await page.locator('#website').inputValue(),'');assert.equal(await page.locator('#phone').inputValue(),'+7');assert.equal(await input('whatsapp').inputValue(),'+7');assert.equal(await page.locator('form').count(),1);assert.equal(await root.locator('select,button').count(),0);assert.equal(await root.locator('input').count(),6);assert.equal(await page.locator('#website').count(),1);
   assert.equal(await save.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(16, 24, 40)');
-  await input('telegram').fill('   ');await saved();assert.equal((await read()).channels.length,0);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).phone??null,null);
+  await input('telegram').fill('   ');await saved();assert.equal((await read()).channels.length,0);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).phone??null,null);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).website??null,null);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).email??null,null);
   assert.equal(await page.locator('.editor-nav a').count(),5);assert.equal(await page.getByText('Все разделы',{exact:true}).count(),0);
  });
  await test('editable prefixes; foreign numbers survive reopen; bare +7 stores no contact',async()=>{
