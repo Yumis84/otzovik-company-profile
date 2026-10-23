@@ -57,7 +57,14 @@ try{
  for(const r of await rows.all()){assert.equal(await r.locator('input').count(),1);assert.equal(await r.locator('select').count(),1);assert.equal(await r.locator('button').count(),1);}
  assert.equal(await root.locator('input[type=checkbox]').count(),0);
  pass('compact browser shows seven rows: service, one input and accessible delete only');
- await root.getByRole('button',{name:'Добавить контакт',exact:true}).click();await rows.last().locator('input').fill('@Otzovik_second_test');await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,8);
+ await root.getByRole('button',{name:'Добавить контакт',exact:true}).click();
+ const countBefore=await rows.count(),versionBefore=(await read()).data.version;
+ for(const [kind,value] of [['telegram',''],['telegram','   '],['whatsapp','66667666'],['telegram','https://vk.com/id12345'],['telegram','https://t.me/otzovik_test']]){
+  await rows.last().locator('select').selectOption(kind);await rows.last().locator('input').fill(value);await root.getByRole('button',{name:'Добавить контакт',exact:true}).click();assert.equal(await rows.count(),countBefore);await button.click();assert.equal((await read()).data.version,versionBefore);
+ }
+ assert.equal(await root.getByRole('button',{name:'Добавить контакт',exact:true}).evaluate(e=>getComputedStyle(e).backgroundColor),await button.evaluate(e=>getComputedStyle(e).backgroundColor));
+ pass('Add and Save block empty/whitespace/wrong-service/invalid WhatsApp/duplicate rows; Add is black');
+ await rows.last().locator('input').fill('@Otzovik_second_test');await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,8);
  await page.reload();await ready();assert.equal(await rows.count(),8);pass('compact Add contact creates and persists row through browser save/reopen');
  await rows.last().getByRole('button',{name:/Удалить контакт/}).click();await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;
  const retained=payload(stored.channels);retained[0].label='<img src=x onerror=alert(1)>';stored=await successfulSave(retained);await page.reload();await ready();

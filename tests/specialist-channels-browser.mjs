@@ -31,6 +31,10 @@ let count=0;const test=async(name,fn)=>{await fn();console.log('PASS COMPACT CHA
 try{
  await test('one input/select/remove per row; all seven kinds create/save/reopen',async()=>{
   await ready();assert.equal(await rows.count(),1);
+  assert.equal(await add.evaluate(e=>getComputedStyle(e).backgroundColor),await save.evaluate(e=>getComputedStyle(e).backgroundColor));
+  for(const [kind,value] of [['telegram',''],['telegram','   '],['whatsapp','66667666'],['telegram','https://vk.com/id123']]){
+   await rows.first().locator('select').selectOption(kind);await rows.first().locator('input').fill(value);await add.click();assert.equal(await rows.count(),1);assert.equal(await rows.first().locator('input').getAttribute('aria-invalid'),'true');await save.click();assert.equal((await read()).version,0);assert.equal((await read()).channels.length,0);
+  }
   const values={telegram:'@Yumis_test',max:'https://max.ru/u/Example',vk:'https://vk.com/id123',whatsapp:'+79991234567',ok:'https://ok.ru/profile/123',website:'https://example.ru',portfolio:'https://portfolio.ru/work'};
   for(const [kind,value] of Object.entries(values)){if(kind!=='telegram')await add.click();await rows.last().locator('select').selectOption(kind);await rows.last().locator('input').fill(value);}
   for(const row of await rows.all()){assert.equal(await row.locator('input').count(),1);assert.equal(await row.locator('select').count(),1);assert.equal(await row.locator('button').count(),1);assert.equal(await row.locator('fieldset,legend,a').count(),0);}
