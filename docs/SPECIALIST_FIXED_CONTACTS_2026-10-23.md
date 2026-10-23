@@ -1,0 +1,11 @@
+# Fixed specialist contacts — 23 October 2026
+
+Owner decision e34f04d4: ordinary optional labels and inputs beside phone/email, no select/add/remove controls, one black Save button. This supersedes the dynamic compact list documented earlier.
+
+One existing form now holds phone, email, Telegram, WhatsApp, MAX, VK, OK, portfolio and the existing website once, followed by work settings. Blank channel fields are excluded from the RPC payload; clearing a saved field removes that channel. Existing multiple contacts of a kind remain as additional labelled inputs. Existing website channels remain explicitly labelled additional sites rather than being silently lost. IDs, labels, preferred/inquiries flags and original order survive edits; all contacts remain private.
+
+All inputs validate before writes. HTTPS scheme case and edge spaces normalize without changing opaque paths/query case. The legacy site accepts ordinary HTTPS URLs including Cyrillic domains; channel rules retain the current server contract. Two existing RPCs remain separate transactions: unchanged legacy settings are skipped; a successful legacy write followed by a failed channel write is explicitly reported. Inputs remain available for retry and versions update only after confirmed replies. A missing channels RPC disables those inputs while allowing legacy settings to save with an explicit limited-success message. No SQL/schema changes.
+
+Validation: 9 disposable SQL/model/security groups; 6 SQL-backed fixed-form browser groups (optional blanks, all fields save/reopen, invalid blocks both writes, removal, multiple old contacts/metadata, partial failure/retry/stale/double submit/missing RPC), mobile 320/390/1440; Pages allowlist 60 files. Actual preview acceptance is run separately using tests/fixed-contacts-hosted.mjs with private environment config and version-checked restoration. Earlier dynamic UI hosted runner is historical and requires the old UI commit.
+
+Company files, navigation, main and production must remain unchanged. Draft PR32 remains stacked on PR31; no merge or working-site publication.

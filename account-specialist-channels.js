@@ -1,55 +1,54 @@
 import {rpc,message} from './account-specialist-api.js';
-import {kinds,normalizeChannel,validateChannels} from './account-specialist-channel-rules.js';
-const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
+import {validateChannels} from './account-specialist-channel-rules.js';
+const names={telegram:'Telegram',whatsapp:'WhatsApp',max:'MAX',vk:'ВКонтакте',ok:'Одноклассники',portfolio:'Внешнее портфолио'};
+const hints={telegram:'@username или https://t.me/username',whatsapp:'+79991234567',max:'https://max.ru/…',vk:'https://vk.com/…',ok:'https://ok.ru/profile/…',portfolio:'https://…',website:'https://…'};
 export async function initChannels(id){
  const root=document.getElementById('specialist-channels');
- const form=el('form'),fields=el('fieldset'),legend=el('legend','Мессенджеры, соцсети и ссылки'),notice=el('p','Контакты видны только вам.');
- const state=el('p','Загрузка контактов…');state.setAttribute('role','status');state.setAttribute('aria-live','polite');
- const list=el('div'),actions=el('div'),add=el('button','Добавить контакт'),save=el('button','Сохранить контакты');
- fields.disabled=true;add.type='button';save.type='submit';list.className='channel-list';actions.className='channel-form-actions';
- actions.append(add,save);fields.append(legend,notice,list,actions);form.append(fields);root.append(state,form);
- let rows=[],version=0,busy=false;
- const blankChannel=()=>({id:crypto.randomUUID(),kind:'telegram',value_raw:'',label:'',is_preferred:false,accepts_inquiries:false,is_public:false});
- const placeholders={telegram:'@username или https://t.me/username',max:'Ссылка на профиль MAX',vk:'https://vk.com/…',whatsapp:'+79991234567',ok:'https://ok.ru/profile/…',website:'https://example.ru',portfolio:'Ссылка на портфолио (https://…)'};
+ const note=document.createElement('p');note.className='hint';note.setAttribute('role','status');note.setAttribute('aria-live','polite');root.append(note);
+ let rows=[],version=0,entries=[],available=false;
+ const blank=kind=>({id:crypto.randomUUID(),kind,value_raw:'',label:'',is_preferred:false,accepts_inquiries:false,is_public:false});
  function render(){
-  list.replaceChildren();
-  rows.forEach((row,index)=>{
-   const box=el('div');box.className='channel-row';box.setAttribute('role','group');box.setAttribute('aria-label','Контакт '+(index+1));
-   const type=el('select');type.setAttribute('aria-label','Канал '+(index+1));
-   for(const [heading,keys] of [['Мессенджеры',['telegram','max','whatsapp']],['Социальные сети',['vk','ok']],['Сайт и портфолио',['website','portfolio']]]){
-    const group=el('optgroup');group.label=heading;for(const key of keys){const option=el('option',kinds[key]);option.value=key;group.append(option);}type.append(group);
-   }
-   type.value=row.kind;
-   const value=el('input');value.value=row.value_raw;value.required=true;value.maxLength=500;value.autocomplete='off';value.spellcheck=false;value.placeholder=placeholders[row.kind];value.setAttribute('aria-label',kinds[row.kind]+': контакт');value.className='channel-value';
-   type.onchange=()=>{state.textContent='';row.kind=type.value;row.value_raw='';row.href=null;render();list.children[index].querySelector('select').focus();};
-   value.oninput=()=>{row.value_raw=value.value;row.href=null;value.setCustomValidity('');value.removeAttribute('aria-invalid');state.textContent='';};
-   value.onchange=()=>{try{normalizeChannel(row.kind,row.value_raw);value.setCustomValidity('');}catch(e){value.setCustomValidity(e.message);}};
-   const remove=el('button','×');remove.type='button';remove.className='channel-remove';remove.setAttribute('aria-label','Удалить контакт '+(index+1));remove.title='Удалить контакт';
-   remove.onclick=()=>{rows.splice(index,1);render();(list.children[Math.min(index,rows.length-1)]?.querySelector('select')||add).focus();};
-   box.append(type,value,remove);list.append(box);
-  });add.disabled=rows.length>=20;
- }
- function validateRows(){
-  const inputs=[...list.querySelectorAll('input')];for(const input of inputs){input.setCustomValidity('');input.removeAttribute('aria-invalid');}
-  const seen=new Set();
-  for(let i=0;i<rows.length;i++){
-   const row=rows[i],input=inputs[i];let error='';
-   if(!row.value_raw.trim())error='Заполните контакт или удалите пустую строку.';
-   else try{const key=row.kind+'|'+normalizeChannel(row.kind,row.value_raw);if(seen.has(key))error='Этот контакт уже добавлен.';seen.add(key);}
-   catch(e){error=row.kind==='whatsapp'?'Укажите номер с «+» и кодом страны или ссылку https://wa.me/номер.':e.message;}
-   if(error){input.setCustomValidity(error);input.setAttribute('aria-invalid','true');state.textContent=kinds[row.kind]+': '+error;input.focus();input.reportValidity();return false;}
+  for(const entry of entries)entry.label.remove();entries=[];
+  // Keep all existing contacts, IDs and metadata, including additional contacts of one kind.
+  for(const kind of Object.keys(names).concat('website')){
+   const existing=rows.filter(r=>r.kind===kind);
+   const group=existing.length?existing:kind==='website'?[]:[blank(kind)];
+   group.forEach((row,index)=>{
+    const label=document.createElement('label');const input=document.createElement('input');
+    const title=kind==='website'?'Дополнительный сайт (ранее сохранён)':names[kind]+(index?' — дополнительный '+(index+1):'');
+    label.textContent=title;input.id='channel-'+row.id;input.type='text';input.maxLength=500;input.value=row.value_raw;input.placeholder=hints[kind];input.autocomplete='off';input.spellcheck=false;input.dataset.kind=kind;
+    input.oninput=()=>{input.setCustomValidity('');input.removeAttribute('aria-invalid');note.textContent='';};
+    label.append(input);root.append(label);entries.push({row,input,label,title});
+   });
   }
-  return true;
  }
- function fill(data){if(!Number.isInteger(data.version)||!Array.isArray(data.channels))throw Error('Не удалось прочитать контакты.');version=data.version;rows=data.channels;render();}
- add.onclick=()=>{if(busy||fields.disabled||rows.length>=20||!validateRows())return;state.textContent='';rows.push(blankChannel());render();list.lastElementChild.querySelector('input').focus();};
- form.onsubmit=async e=>{
-  e.preventDefault();if(busy||!validateRows()||!form.reportValidity())return;
-  let payload;try{payload=validateChannels(rows).map(({href,...row})=>row);}catch(e){state.textContent=e.message;return;}
-  busy=true;fields.disabled=true;state.textContent='Сохранение…';
-  try{fill(await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload}));state.textContent='Контакты сохранены. Доступны только вам.';}
-  catch(e){state.textContent=e.code==='23505'?'Этот контакт уже добавлен.':message(e);}finally{busy=false;fields.disabled=false;}
- };
- try{fill(await rpc('list_my_specialist_channels',{p_specialist_id:id}));fields.disabled=false;if(rows.length===0){rows.push(blankChannel());render();}state.textContent='';}
- catch(e){state.textContent=e.code==='PGRST202'||e.code==='42883'?'Мессенджеры и соцсети пока недоступны. Телефон, email и остальные поля выше можно сохранить.':message(e);}
+ function prepare(){
+  if(!available)return null;
+  const selected=[];const seen=new Set();
+  for(const {row,input,title} of entries){
+   input.setCustomValidity('');input.removeAttribute('aria-invalid');
+   if(!input.value.trim())continue;
+   try{
+    const candidate=validateChannels([{...row,value_raw:input.value}])[0];
+    const key=candidate.kind+'|'+candidate.href;if(seen.has(key))throw Error('Этот контакт уже указан.');seen.add(key);
+    selected.push(candidate);
+   }catch(e){input.setCustomValidity(e.message);input.setAttribute('aria-invalid','true');note.textContent=title+': '+e.message;input.focus();input.reportValidity();return false;}
+  }
+  selected.sort((a,b)=>{const ia=rows.findIndex(r=>r.id===a.id),ib=rows.findIndex(r=>r.id===b.id);return (ia<0?rows.length:ia)-(ib<0?rows.length:ib);});
+  try{return validateChannels(selected).map(({href,...row})=>row);}catch(e){note.textContent=e.message;return false;}
+ }
+ try{
+  const data=await rpc('list_my_specialist_channels',{p_specialist_id:id});
+  if(!Number.isInteger(data.version)||!Array.isArray(data.channels))throw Error('Не удалось прочитать контакты.');
+  version=data.version;rows=data.channels;available=true;render();note.textContent='';
+ }catch(e){
+  render();for(const {input} of entries)input.disabled=true;
+  note.textContent='Мессенджеры и соцсети пока недоступны. Остальные поля можно сохранить. '+message(e);
+ }
+ return {available,prepare,async save(payload){
+  if(!available)return;
+  const data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});
+  version=data.version;rows=data.channels;
+  for(const entry of entries){const stored=rows.find(r=>r.id===entry.row.id);if(stored){entry.row=stored;entry.input.value=stored.value_raw;}else entry.row={...entry.row,value_raw:''};}
+ }};
 }

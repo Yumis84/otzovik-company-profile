@@ -20,52 +20,50 @@ await ctx.exposeBinding('testRPC',async(_,name,args={})=>{
  try{return {data:await db.call(A,name,keys.map(k=>k==='p_channels'?JSON.stringify(args[k]):args[k])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}
 });
 const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));
-const url='https://cabinet.test/account-specialist-contacts.html?id='+a.id,root=page.locator('#specialist-channels'),rows=root.locator('.channel-row');
-const save=root.getByRole('button',{name:'Сохранить контакты',exact:true}),note=root.locator('[role=status]'),add=root.getByRole('button',{name:'Добавить контакт',exact:true});
+const url='https://cabinet.test/account-specialist-contacts.html?id='+a.id,root=page.locator('#specialist-channels');
+const input=kind=>root.locator('input[data-kind='+kind+']').first(),save=page.locator('#save'),note=page.locator('#status');
 const read=()=>db.call(A,'list_my_specialist_channels',[a.id]);
 const payload=rows=>rows.map(({id,kind,value_raw,label,is_preferred,accepts_inquiries,is_public})=>({id,kind,value_raw,label,is_preferred,accepts_inquiries,is_public}));
-const wait=()=>page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();
-async function ready(){await page.goto(url);await wait();}
+async function ready(){await page.goto(url);await page.locator('#fields:not([disabled])').waitFor();}
 async function saved(){await save.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();}
-let count=0;const test=async(name,fn)=>{await fn();console.log('PASS COMPACT CHANNEL BROWSER',++count,name);};
+let count=0;const test=async(name,fn)=>{await fn();console.log('PASS FIXED CONTACTS BROWSER',++count,name);};
 try{
- await test('one input/select/remove per row; all seven kinds create/save/reopen',async()=>{
-  await ready();assert.equal(await rows.count(),1);
-  assert.equal(await add.evaluate(e=>getComputedStyle(e).backgroundColor),await save.evaluate(e=>getComputedStyle(e).backgroundColor));
-  for(const [kind,value] of [['telegram',''],['telegram','   '],['whatsapp','66667666'],['telegram','https://vk.com/id123']]){
-   await rows.first().locator('select').selectOption(kind);await rows.first().locator('input').fill(value);await add.click();assert.equal(await rows.count(),1);assert.equal(await rows.first().locator('input').getAttribute('aria-invalid'),'true');await save.click();assert.equal((await read()).version,0);assert.equal((await read()).channels.length,0);
-  }
-  const values={telegram:'@Yumis_test',max:'https://max.ru/u/Example',vk:'  Https://VK.com/id123  ',whatsapp:'+79991234567',ok:'https://ok.ru/profile/123',website:'https://example.ru',portfolio:'https://portfolio.ru/work'};
-  for(const [kind,value] of Object.entries(values)){if(kind!=='telegram')await add.click();await rows.last().locator('select').selectOption(kind);await rows.last().locator('input').fill(value);}
-  for(const row of await rows.all()){assert.equal(await row.locator('input').count(),1);assert.equal(await row.locator('select').count(),1);assert.equal(await row.locator('button').count(),1);assert.equal(await row.locator('fieldset,legend,a').count(),0);}
-  assert.equal(await root.locator('input[type=checkbox]').count(),0);assert.equal(await rows.first().locator('optgroup').count(),3);
-  await saved();await ready();assert.equal(await rows.count(),7);assert.equal(await rows.first().locator('input').inputValue(),'@Yumis_test');assert.equal(await rows.nth(2).locator('input').inputValue(),'https://VK.com/id123');
-  for(const width of [320,390,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await rows.first().evaluate(e=>getComputedStyle(e).borderTopWidth),'0px');}
-  if(process.env.CHANNEL_SCREENSHOT_DIR){await root.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/contacts-desktop.png'});await page.setViewportSize({width:390,height:1000});await root.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/contacts-mobile.png'});}
- });
- await test('editing visible input preserves hidden labels, preferred, inquiries, IDs and order',async()=>{
-  let data=await read();const old=payload(data.channels);old[0].label='<img src=x onerror=alert(1)>';old[0].is_preferred=true;old[0].accepts_inquiries=true;
-  await db.call(A,'save_my_specialist_channels',[a.id,data.version,JSON.stringify(old)]);await ready();assert.equal(await root.locator('img').count(),0);assert.equal(await root.getByText(old[0].label,{exact:true}).count(),0);
-  await rows.first().locator('input').fill('@Updated_test');await saved();data=await read();
-  assert.deepEqual(data.channels.map(r=>r.id),old.map(r=>r.id));assert.equal(data.channels[0].label,old[0].label);assert(data.channels[0].is_preferred&&data.channels[0].accepts_inquiries);assert.equal(data.channels[0].value_raw,'@Updated_test');assert(data.channels.every(r=>r.is_public===false));
-  await page.locator('#phone').fill('+79990000000');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();assert.deepEqual(await read(),data);
- });
- await test('compact delete persists; duplicate and unsafe inputs rejected',async()=>{
-  const before=await read();await rows.nth(1).getByRole('button',{name:/Удалить контакт/}).click();await saved();await ready();
-  assert.equal(await rows.count(),6);assert.deepEqual((await read()).channels.map(r=>r.id),before.channels.filter((_,i)=>i!==1).map(r=>r.id));
-  await add.click();await rows.last().locator('input').fill('https://t.me/updated_test');await save.click();await note.filter({hasText:'уже добавлен'}).waitFor();
-  await rows.last().locator('select').selectOption('website');await rows.last().locator('input').fill('javascript:alert(1)');await rows.last().locator('input').blur();assert.equal(await rows.last().locator('input').evaluate(e=>e.checkValidity()),false);
-  await rows.last().getByRole('button',{name:/Удалить контакт/}).click();
- });
- await test('stale version, offline retention and disabled double submit remain correct',async()=>{
-  const current=await read();await db.call(A,'save_my_specialist_channels',[a.id,current.version,'[]']);await save.click();await note.filter({hasText:'Обновите'}).waitFor();assert.equal(await rows.count(),6);
-  await ready();await rows.first().locator('input').fill('@offline_test');offline=true;await save.click();await note.filter({hasText:'Не удалось'}).waitFor();assert.equal(await rows.first().locator('input').inputValue(),'@offline_test');offline=false;
-  hold=true;await save.click();assert.equal(await save.isEnabled(),false);await note.filter({hasText:'Контакты сохранены'}).waitFor();hold=false;
- });
- await test('missing RPC disables channels only; old settings and existing navigation work',async()=>{
-  missing=true;await page.reload();await note.filter({hasText:'пока недоступны'}).waitFor();assert.equal(await save.isEnabled(),false);assert.equal(await page.locator('#save').isEnabled(),true);
-  await page.locator('#phone').fill('+79991111111');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();
+ await test('one form, fixed optional labels, single black save; empty fields create no contacts',async()=>{
+  await ready();assert.equal(await page.locator('form').count(),1);assert.equal(await root.locator('select,button').count(),0);assert.equal(await root.locator('input').count(),6);assert.equal(await page.locator('#website').count(),1);
+  assert.equal(await save.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(16, 24, 40)');
+  await input('telegram').fill('   ');await saved();assert.equal((await read()).channels.length,0);
   assert.equal(await page.locator('.editor-nav a').count(),5);assert.equal(await page.getByText('Все разделы',{exact:true}).count(),0);
  });
- assert.deepEqual(errors,[]);console.log('COMPACT CHANNEL BROWSER RESULT',count,'groups PASS; disposable SQL adapter, not hosted');
+ await test('all optional kinds plus site/phone save and reopen; cosmetic URL normalization',async()=>{
+  const values={telegram:'@Yumis_test',whatsapp:'+79991234567',max:'https://max.ru/u/CaseToken',vk:' Https://VK.com/id123 ',ok:'https://ok.ru/profile/123',portfolio:'HtTpS://Example.com/CaseSensitive?A=B'};
+  for(const [kind,value] of Object.entries(values))await input(kind).fill(value);
+  await page.locator('#website').fill(' HtTpS://пример.рф/SiteCase?A=B ');await page.locator('#phone').fill('+79990000000');await saved();await ready();
+  assert.equal((await read()).channels.length,6);assert.equal(await input('vk').inputValue(),'https://VK.com/id123');assert.equal(await page.locator('#website').inputValue(),'https://пример.рф/SiteCase?A=B');
+  for(const width of [320,390,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+  if(process.env.CHANNEL_SCREENSHOT_DIR){await page.setViewportSize({width:390,height:1000});await page.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/fixed-mobile.png',fullPage:true});}
+ });
+ await test('invalid links block both RPCs; blank field deletes only that contact',async()=>{
+  const before=await read(),settings=await db.call(A,'get_my_specialist_settings',[a.id]);
+  await page.locator('#phone').fill('+79991111111');await input('whatsapp').fill('66667666');await save.click();assert.equal(await input('whatsapp').getAttribute('aria-invalid'),'true');assert.deepEqual(await read(),before);assert.deepEqual(await db.call(A,'get_my_specialist_settings',[a.id]),settings);
+  await input('whatsapp').fill('');await saved();await ready();assert.equal(await input('whatsapp').inputValue(),'');assert.equal((await read()).channels.length,5);
+  await page.locator('#website').fill('javascript:alert(1)');await save.click();assert.equal(await page.locator('#website').getAttribute('aria-invalid'),'true');assert.equal((await read()).channels.length,5);await ready();
+ });
+ await test('previous multiple contacts, website channels and hidden metadata survive',async()=>{
+  let data=await read();const old=payload(data.channels);old[0].label='<img src=x onerror=alert(1)>';old[0].is_preferred=true;old[0].accepts_inquiries=true;
+  old.push({...old[0],id:crypto.randomUUID(),value_raw:'@extra_test',label:'extra',is_preferred:false});old.push({...old[0],id:crypto.randomUUID(),kind:'website',value_raw:'https://oldsite.ru/Case',label:'old site',is_preferred:false});
+  await db.call(A,'save_my_specialist_channels',[a.id,data.version,JSON.stringify(old)]);await ready();
+  assert.equal(await root.locator('input[data-kind=telegram]').count(),2);assert.equal(await root.locator('input[data-kind=website]').count(),1);assert.equal(await root.locator('img').count(),0);
+  await input('telegram').fill('@updated_test');await saved();data=await read();assert.deepEqual(data.channels.map(r=>r.id),old.map(r=>r.id));assert.equal(data.channels[0].label,old[0].label);assert(data.channels[0].is_preferred&&data.channels[0].accepts_inquiries);
+  assert.equal(data.channels.at(-1).value_raw,'https://oldsite.ru/Case');
+  await root.locator('input[data-kind=telegram]').last().fill('https://t.me/updated_test');await save.click();assert.equal(await root.locator('input[data-kind=telegram]').last().getAttribute('aria-invalid'),'true');await ready();
+ });
+ await test('partial failure is explicit; retry retains input, versions and prevents double submit',async()=>{
+  await page.locator('#phone').fill('+79992222222');await input('telegram').fill('@retry_test');offline=true;await save.click();await note.filter({hasText:'Основные поля сохранены, но'}).waitFor();assert.equal(await input('telegram').inputValue(),'@retry_test');
+  const version=(await db.call(A,'get_my_specialist_settings',[a.id])).version;offline=false;hold=true;await save.click();assert.equal(await save.isEnabled(),false);await note.filter({hasText:'Контакты сохранены'}).waitFor();hold=false;assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).version,version);
+  const current=await read();await db.call(A,'save_my_specialist_channels',[a.id,current.version,'[]']);await save.click();await note.filter({hasText:'Обновите'}).waitFor();assert.equal(await input('telegram').inputValue(),'@retry_test');
+ });
+ await test('missing channels RPC leaves old settings usable without false all-saved message',async()=>{
+  missing=true;await ready();assert.equal(await input('telegram').isEnabled(),false);assert.equal(await save.isEnabled(),true);await page.locator('#phone').fill('+79993333333');await save.click();await note.filter({hasText:'недоступны и не изменены'}).waitFor();
+ });
+ assert.deepEqual(errors,[]);console.log('FIXED CONTACTS BROWSER RESULT',count,'groups PASS; disposable SQL adapter, not hosted');
 }finally{await browser.close();await db.close();}

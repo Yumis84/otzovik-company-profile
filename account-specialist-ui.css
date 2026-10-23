@@ -3,14 +3,5 @@ h1{font-size:clamp(26px,5vw,36px);margin:20px 0 8px}p{line-height:1.5;color:#667
 .specialist-editor{width:min(1000px,100%);margin:18px auto 22px}.specialist-context{margin:14px 0 4px;padding:10px 12px;border:1px solid #e4e7ec;border-radius:14px;background:#fff}.specialist-context small{display:block;color:#667085;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.specialist-context strong{display:block;overflow-wrap:anywhere;font-size:14px}.specialist-context[hidden]{display:none}nav.editor-nav{margin:0}input[type=file]{min-width:0;max-width:100%}
 
 /* Specialist contacts only. */
-#specialist-channels .channel-list{display:grid;gap:12px}
-#specialist-channels .channel-row{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr) 40px;align-items:center;gap:10px;min-width:0}
-#specialist-channels .channel-row input,#specialist-channels .channel-row select{width:100%;min-width:0;margin:0;padding:10px 12px;font:inherit}
-#specialist-channels .channel-remove{width:40px;min-height:42px;margin:0;padding:0;border:0;background:transparent;color:#667085;font-size:24px;font-weight:400}
-#specialist-channels .channel-remove:hover{background:#fef3f2;color:#b42318}
-#specialist-channels .channel-form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 #specialist-channels [role=status]:empty{display:none}
-#specialist-channels legend{font-weight:700}
-@media(max-width:540px){#specialist-channels .channel-row{grid-template-columns:minmax(0,1fr) 40px;gap:6px 8px}#specialist-channels .channel-row select{grid-column:1;grid-row:1}#specialist-channels .channel-value{grid-column:1/-1;grid-row:2}#specialist-channels .channel-remove{grid-column:2;grid-row:1}#specialist-channels .channel-form-actions button{flex:1;min-width:0}}
-
-#specialist-channels .channel-row input[aria-invalid=true]{border-color:#d92d20}
+#contacts-form input[aria-invalid=true]{border-color:#d92d20}
