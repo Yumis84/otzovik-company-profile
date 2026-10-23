@@ -34,3 +34,30 @@ export function validateForm(form){
  const first=form.querySelector(':invalid:not(fieldset)');
  if(first){first.focus();first.reportValidity();}return false;
 }
+
+/** Saved-data overview only. It never changes publication or writes profile data. */
+export function createSavedSummary(root,rpc){
+ let revision=0;
+ const heading=text('summary','Заполнение профиля'),list=text('ul','');
+ const footer=text('p','Профиль остаётся приватным. Условия публикации будут определены отдельно.','hint');
+ list.setAttribute('aria-live','polite');root.replaceChildren(heading,list,footer);
+ list.append(text('li','Сначала сохраните профиль, затем здесь появится сводка сохранённых сведений.'));
+ return {async load(id,profile){
+  const current=++revision;list.replaceChildren(text('li','Проверяем сохранённые сведения…'));
+  const result=await Promise.allSettled([
+   rpc('get_my_specialist_services',{p_specialist_id:id}).then(x=>{if(!Array.isArray(x))throw Error();return x;}),
+   rpc('get_my_specialist_media',{p_specialist_id:id}).then(x=>{if(!Array.isArray(x))throw Error();return x;}),
+   rpc('get_my_specialist_settings',{p_specialist_id:id}).then(x=>{if(!x||!Number.isInteger(x.version))throw Error();return x;}),
+   rpc('list_my_specialist_channels',{p_specialist_id:id}).then(x=>{if(!x||!Array.isArray(x.channels)||!Number.isInteger(x.version))throw Error();return x;})
+  ]);
+  if(current!==revision)return;
+  const rows=['Основные сведения: сохранены.','Описание: '+(String(profile.description??'').trim()?'заполнено.':'пока не заполнено.')];
+  rows.push('Услуги: '+(result[0].status==='fulfilled'?result[0].value.length:'не удалось проверить')+'.');
+  rows.push('Фотографии: '+(result[1].status==='fulfilled'?result[1].value.length:'не удалось проверить')+'.');
+  if(result[2].status==='fulfilled'&&result[3].status==='fulfilled'){
+   const s=result[2].value,filled=!!(s.phone||s.email||s.website||result[3].value.channels.length);
+   rows.push('Контакты: '+(filled?'сохранены приватно.':'пока не заполнены.'));
+  }else rows.push('Контакты: не удалось проверить.');
+  list.replaceChildren(...rows.map(value=>text('li',value)));
+ }};
+}

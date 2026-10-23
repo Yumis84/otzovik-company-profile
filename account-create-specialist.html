@@ -27,12 +27,13 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 <p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Услуги, фотографии и контакты можно заполнить после сохранения. Публикация и отзывы пока не подключены.</p>
 <button type="submit" id="save" disabled>Сохранить черновик</button>
 </fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
-</form><p><a href="account-home.html">К списку профилей</a></p></section></div></main>
+</form><details id="profile-readiness" class="saved-summary"></details><p><a href="account-home.html">К списку профилей</a></p></section></div></main>
 <script type="module">
-import {navigation,installValidation,validateForm,fieldError} from './account-specialist-ui.js';
+import {navigation,installValidation,validateForm,fieldError,createSavedSummary} from './account-specialist-ui.js';
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
 const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');
 const form=document.getElementById('preview'),save=document.getElementById('save'),note=document.getElementById('save-note'),fields=document.getElementById('fields');
+const summary=createSavedSummary(document.getElementById('profile-readiness'),async(name,args)=>{const r=await s.rpc(name,args);if(r.error)throw r.error;return r.data;});
 const params=new URLSearchParams(location.search);
 let editing=params.has('id');
 let editId=params.get('id');
@@ -57,7 +58,7 @@ async function initialize(){
    if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
    for(const key of ['display_name','slug','profession','specialization','city','description'])form.elements.namedItem(key).value=item[key]||'';
    form.elements.namedItem('slug').readOnly=true;updateUrlPreview();
-   save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',item.display_name);
+   save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',item.display_name);void summary.load(editId,item);
   }
   ready=true;fields.disabled=false;save.disabled=false;note.textContent='Изменения сохранятся только после нажатия кнопки.';
  }catch{failLoad('Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');}
@@ -79,7 +80,7 @@ form.addEventListener('submit',async event=>{
    note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
   }
   if(!data?.id||data.profile_status!=='draft')throw new Error('Unexpected response');
-  editing=true;editId=data.id;history.replaceState(null,'',location.pathname+'?id='+encodeURIComponent(editId));slugInput.value=slug;slugInput.readOnly=true;updateUrlPreview();save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',name);note.textContent='Сохранено. Изменения видны только вам.';
+  editing=true;editId=data.id;history.replaceState(null,'',location.pathname+'?id='+encodeURIComponent(editId));slugInput.value=slug;slugInput.readOnly=true;updateUrlPreview();save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',name);note.textContent='Сохранено. Изменения видны только вам.';void summary.load(editId,{description:String(fd.get('description')||'').trim()});
  }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
  finally{busy=false;save.disabled=false;fields.disabled=false;}
 });

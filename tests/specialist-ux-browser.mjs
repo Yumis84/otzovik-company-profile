@@ -34,7 +34,7 @@ const note=page.locator('#save-note');let id,count=0;
 const test=async(name,fn)=>{await fn();console.log('PASS UX',++count,name);};
 try{
  await test('create validates exact fields, stays as editable saved id, no duplicate create',async()=>{
-  await open('account-create-specialist.html');await ready();await page.locator('#save').click();assert.equal(await page.locator('[name=display_name]').getAttribute('aria-invalid'),'true');assert.equal(await page.evaluate(()=>document.activeElement.name),'display_name');
+  await open('account-create-specialist.html');await ready();assert.equal(calls.length,0);assert((await page.locator('#profile-readiness').textContent()).includes('Сначала сохраните профиль'));await page.locator('#save').click();assert.equal(await page.locator('[name=display_name]').getAttribute('aria-invalid'),'true');assert.equal(await page.evaluate(()=>document.activeElement.name),'display_name');
   await page.locator('[name=display_name]').fill('UX специалист');await page.locator('[name=profession]').fill('Фотограф');await page.locator('[name=slug]').fill('admin');await page.locator('#save').click();assert.equal(await page.evaluate(()=>document.activeElement.name),'slug');
   await page.locator('[name=slug]').fill('ux-specialist');await page.locator('[name=city]').fill('Калининград');await page.locator('#save').click();await note.filter({hasText:'Сохранено.'}).waitFor();
   id=new URL(page.url()).searchParams.get('id');assert(id);assert(await page.locator('[name=slug]').isEditable()===false);assert.equal(await page.locator('.editor-nav a').count(),5);
@@ -64,6 +64,17 @@ try{
  await test('media empty and HEIC errors focus file without upload; guidance is present',async()=>{
   await open('account-specialist-media.html?id='+id);await ready();await page.locator('#save').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'file');assert.equal(await page.locator('#file').getAttribute('aria-invalid'),'true');
   await page.locator('#file').setInputFiles({name:'photo.heic',mimeType:'image/heic',buffer:Buffer.from('not a photo')});await page.locator('#save').click();await page.locator('#status').filter({hasText:'Проверьте формат'}).waitFor();assert.equal(await page.evaluate(()=>document.activeElement.id),'file');assert.equal((await db.call(A,'get_my_specialist_media',[id])).length,0);assert.equal(await page.getByText(/HEIC с телефона/).count(),1);
+ });
+ await test('saved overview is collapsed, uses saved facts and reveals no contact values',async()=>{
+  await open('account-create-specialist.html?id='+id);await ready();const panel=page.locator('#profile-readiness');await panel.getByText('Услуги: 1.',{exact:true}).waitFor({state:'attached'});assert.equal(await panel.getAttribute('open'),null);
+  await panel.locator('summary').click();await panel.getByText('Фотографии: 0.',{exact:true}).waitFor();await panel.getByText('Контакты: сохранены приватно.',{exact:true}).waitFor();
+  assert(!((await panel.textContent()).includes('name@mail.ru')));assert.equal(await panel.locator('button,input,a').count(),0);
+  await page.locator('[name=description]').fill('');assert((await panel.textContent()).includes('Описание: заполнено.'));await page.locator('#save').click();await note.filter({hasText:'Сохранено.'}).waitFor();await panel.getByText('Описание: пока не заполнено.',{exact:true}).waitFor();
+  for(const width of [390,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ });
+ await test('read failures remain unknown, do not block editor and never write settings',async()=>{
+  calls=[];fail='get_my_specialist_services';await page.reload();await ready();const panel=page.locator('#profile-readiness');await panel.getByText('Услуги: не удалось проверить.',{exact:true}).waitFor({state:'attached'});assert((await panel.textContent()).includes('Фотографии: 0.'));assert(await page.locator('#save').isEnabled());assert(!calls.some(c=>/^(save|create|update|delete)_/.test(c.name)));
+  fail='list_my_specialist_channels';await page.reload();await ready();await panel.getByText('Контакты: не удалось проверить.',{exact:true}).waitFor({state:'attached'});assert((await panel.textContent()).includes('Услуги: 1.'));fail=null;
  });
  await test('foreign draft and invalid id still fail closed',async()=>{
   user=B;await open('account-create-specialist.html?id='+id);await note.filter({hasText:'недоступен'}).waitFor();assert(await page.locator('#save').isDisabled());user=A;await open('account-create-specialist.html?id=invalid');await note.filter({hasText:'Некорректная'}).waitFor();assert(await page.locator('#save').isDisabled());
