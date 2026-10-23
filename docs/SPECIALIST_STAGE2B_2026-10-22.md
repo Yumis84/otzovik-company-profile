@@ -1,3 +1,5 @@
+> Status update 23.10.2026: approved candidate applied to STAGING ONLY; see [hosted activation report](SPECIALIST_STAGE2B_HOSTED_2026-10-23.md). Earlier blocked status below is historical.
+
 # Specialist contacts — stage 2B, 2026-10-22
 
 Scope: additive Contacts implementation on PR31 HEAD c0a97c00450da75f039837a938c76a671fcd775f. PR31 remains Draft/open, main 76b3fa7a99df04d320b022a5a777fdbdf897b826. Claude HANDOFF 03354f47-a50a-43b0-a5d1-8a68a0019275 reviewed.

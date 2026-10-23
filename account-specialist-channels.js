@@ -9,6 +9,7 @@ export async function initChannels(id){
  fields.disabled=true;add.type='button';save.type='submit';list.className='channel-list';
  fields.append(legend,notice,list,add,save);form.append(fields);root.append(state,form);
  let rows=[],version=0,busy=false;
+ const blankChannel=()=>({id:crypto.randomUUID(),kind:'telegram',value_raw:'',label:'',is_preferred:false,accepts_inquiries:false,is_public:false});
  function render(){
   list.replaceChildren();
   rows.forEach((row,index)=>{
@@ -33,7 +34,7 @@ export async function initChannels(id){
   });add.disabled=rows.length>=20;
  }
  function fill(data){if(!Number.isInteger(data.version)||!Array.isArray(data.channels))throw Error('Не удалось прочитать контакты.');version=data.version;rows=data.channels;render();}
- add.onclick=()=>{if(rows.length>=20)return;rows.push({id:crypto.randomUUID(),kind:'telegram',value_raw:'',label:'',is_preferred:false,accepts_inquiries:false,is_public:false});render();list.lastElementChild.querySelector('input').focus();};
+ add.onclick=()=>{if(rows.length>=20)return;rows.push(blankChannel());render();list.lastElementChild.querySelector('input').focus();};
  form.onsubmit=async e=>{
   e.preventDefault();if(busy||!form.reportValidity())return;
   let payload;try{payload=validateChannels(rows).map(({href,...row})=>row);}catch(e){state.textContent=e.message;return;}
@@ -41,6 +42,6 @@ export async function initChannels(id){
   try{fill(await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload}));state.textContent='Каналы сохранены. Доступны только вам.';}
   catch(e){state.textContent=e.code==='23505'?'Этот контакт уже добавлен.':message(e);}finally{busy=false;fields.disabled=false;}
  };
- try{fill(await rpc('list_my_specialist_channels',{p_specialist_id:id}));fields.disabled=false;state.textContent='Контакты доступны только вам. Можно добавить до 20 каналов.';}
+ try{fill(await rpc('list_my_specialist_channels',{p_specialist_id:id}));fields.disabled=false;if(rows.length===0){rows.push(blankChannel());render();}state.textContent='Контакты доступны только вам. Можно добавить до 20 каналов.';}
  catch(e){state.textContent=e.code==='PGRST202'||e.code==='42883'?'Мессенджеры и соцсети пока недоступны. Телефон, email и остальные поля выше можно сохранить.':message(e);}
 }

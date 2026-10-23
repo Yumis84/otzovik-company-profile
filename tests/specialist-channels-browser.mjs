@@ -36,8 +36,8 @@ let count=0;const test=async(name,fn)=>{await fn();console.log('PASS CHANNEL BRO
 async function ready(){await page.goto(url);await save.waitFor();await page.waitForFunction(()=>!document.querySelector('#specialist-channels form>fieldset').disabled);}
 try{
  await test('seven kinds; create/save/reload; settings independent',async()=>{
-  await ready();const values={telegram:'@Yumis_test',max:'https://max.ru/u/Example',vk:'https://vk.com/id123',whatsapp:'+79991234567',ok:'https://ok.ru/profile/123',website:'https://example.ru',portfolio:'https://portfolio.ru/work'};
-  for(const [kind,value] of Object.entries(values)){await add.click();const row=rows.last();await row.locator('select').selectOption(kind);await row.locator('input').nth(0).fill(value);await row.locator('input').nth(1).fill(kind);}
+  await ready();assert.equal(await rows.count(),1);assert.equal(await rows.first().locator('input').nth(0).inputValue(),'');const values={telegram:'@Yumis_test',max:'https://max.ru/u/Example',vk:'https://vk.com/id123',whatsapp:'+79991234567',ok:'https://ok.ru/profile/123',website:'https://example.ru',portfolio:'https://portfolio.ru/work'};
+  for(const [kind,value] of Object.entries(values)){if(kind!=='telegram')await add.click();const row=rows.last();await row.locator('select').selectOption(kind);await row.locator('input').nth(0).fill(value);await row.locator('input').nth(1).fill(kind);}
   await rows.first().getByLabel('Предпочтительный канал',{exact:true}).check();
   await rows.first().getByLabel('Принимаю обращения по этому каналу',{exact:true}).check();
   await save.click();await note.filter({hasText:'Каналы сохранены'}).waitFor();
@@ -64,7 +64,7 @@ try{
   const current=await db.call(A,'list_my_specialist_channels',[a.id]);
   await db.call(A,'save_my_specialist_channels',[a.id,current.version,JSON.stringify([])]);
   await save.click();await note.filter({hasText:'Обновите'}).waitFor();assert.equal(await rows.count(),6);
-  await ready();await add.click();await rows.first().locator('input').nth(0).fill('@offline_test');
+  await ready();await rows.first().locator('input').nth(0).fill('@offline_test');
   offline=true;await save.click();await note.filter({hasText:'Не удалось'}).waitFor();assert.equal(await rows.first().locator('input').nth(0).inputValue(),'@offline_test');offline=false;
   hold=true;await save.click();assert.equal(await save.isEnabled(),false);await note.filter({hasText:'Каналы сохранены'}).waitFor();hold=false;
  });
