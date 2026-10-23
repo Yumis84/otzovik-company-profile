@@ -44,3 +44,7 @@ export function validateChannels(rows){
   return {id:row.id,kind:row.kind,value_raw:value,label,is_preferred:!!row.is_preferred,accepts_inquiries:!!row.accepts_inquiries,is_public:false,href};
  });
 }
+
+// UI-only defaults: a country prefix alone is not a contact.
+export const phoneValue=value=>String(value??'').trim()==='+7'?'':String(value??'').trim();
+export const phoneDisplayValue=value=>phoneValue(value)||'+7';

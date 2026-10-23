@@ -1,10 +1,11 @@
 import {initChannels} from './account-specialist-channels.js';
-import {prepareChannelValue} from './account-specialist-channel-rules.js';
+import {prepareChannelValue,phoneValue,phoneDisplayValue} from './account-specialist-channel-rules.js';
 import {context,rpc,message,status} from './account-specialist-api.js';
 const form=document.getElementById('contacts-form'),fields=document.getElementById('fields');let id,version=0,busy=false,channels,baseline='';
 const mapping={phone:'phone',email:'email',website:'website',area:'service_area',qualifications:'qualifications'};
-function values(){const args={p_work_formats:[...form.querySelectorAll('[name=format]:checked')].map(x=>x.value)};for(const [key,prop] of Object.entries(mapping))args['p_'+prop]=document.getElementById(key).value.trim()||null;return args;}
-function fill(data){version=data.version;for(const [key,prop] of Object.entries(mapping))document.getElementById(key).value=data[prop]??'';for(const c of form.querySelectorAll('[name=format]'))c.checked=data.work_formats.includes(c.value);baseline=JSON.stringify(values());}
+function values(){const args={p_work_formats:[...form.querySelectorAll('[name=format]:checked')].map(x=>x.value)};for(const [key,prop] of Object.entries(mapping))args['p_'+prop]=(key==='phone'?phoneValue(document.getElementById(key).value):document.getElementById(key).value.trim())||null;return args;}
+function fill(data){version=data.version;for(const [key,prop] of Object.entries(mapping))document.getElementById(key).value=key==='phone'?phoneDisplayValue(data[prop]):data[prop]??'';for(const c of form.querySelectorAll('[name=format]'))c.checked=data.work_formats.includes(c.value);baseline=JSON.stringify(values());}
+const phone=document.getElementById('phone');phone.autocomplete='tel';phone.onblur=()=>{if(!phone.value.trim())phone.value='+7';};
 const website=document.getElementById('website');website.oninput=()=>{website.setCustomValidity('');website.removeAttribute('aria-invalid');};
 form.onsubmit=async e=>{
  e.preventDefault();if(busy||!id||!channels)return;

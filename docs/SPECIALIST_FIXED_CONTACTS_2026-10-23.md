@@ -9,3 +9,5 @@ All inputs validate before writes. HTTPS scheme case and edge spaces normalize w
 Validation: 9 disposable SQL/model/security groups; 6 SQL-backed fixed-form browser groups (optional blanks, all fields save/reopen, invalid blocks both writes, removal, multiple old contacts/metadata, partial failure/retry/stale/double submit/missing RPC), mobile 320/390/1440; Pages allowlist 60 files. Actual preview acceptance is run separately using tests/fixed-contacts-hosted.mjs with private environment config and version-checked restoration. Earlier dynamic UI hosted runner is historical and requires the old UI commit.
 
 Company files, navigation, main and production must remain unchanged. Draft PR32 remains stacked on PR31; no merge or working-site publication.
+
+Phone prefix refinement: empty phone and WhatsApp inputs show editable +7. Clearing and leaving a field restores the default. Bare +7 (also with edge spaces) maps to empty/null and never creates a contact. Existing foreign country codes and WhatsApp links are retained. Specialist-only UI helpers; no SQL/RPC changes. Browser regression includes foreign-number save/reopen and both blank/+7 payload behavior.

@@ -1,5 +1,5 @@
 import {rpc,message} from './account-specialist-api.js';
-import {validateChannels} from './account-specialist-channel-rules.js';
+import {validateChannels,phoneValue,phoneDisplayValue} from './account-specialist-channel-rules.js';
 const names={telegram:'Telegram',whatsapp:'WhatsApp',max:'MAX',vk:'ВКонтакте',ok:'Одноклассники',portfolio:'Внешнее портфолио'};
 const hints={telegram:'@username или https://t.me/username',whatsapp:'+79991234567',max:'https://max.ru/…',vk:'https://vk.com/…',ok:'https://ok.ru/profile/…',portfolio:'https://…',website:'https://…'};
 export async function initChannels(id){
@@ -16,7 +16,8 @@ export async function initChannels(id){
    group.forEach((row,index)=>{
     const label=document.createElement('label');const input=document.createElement('input');
     const title=kind==='website'?'Дополнительный сайт (ранее сохранён)':names[kind]+(index?' — дополнительный '+(index+1):'');
-    label.textContent=title;input.id='channel-'+row.id;input.type='text';input.maxLength=500;input.value=row.value_raw;input.placeholder=hints[kind];input.autocomplete='off';input.spellcheck=false;input.dataset.kind=kind;
+    label.textContent=title;input.id='channel-'+row.id;input.type='text';input.maxLength=500;input.value=kind==='whatsapp'?phoneDisplayValue(row.value_raw):row.value_raw;input.placeholder=hints[kind];input.autocomplete='off';input.spellcheck=false;input.dataset.kind=kind;
+    if(kind==='whatsapp'){input.inputMode='tel';input.onblur=()=>{if(!input.value.trim())input.value='+7';};}
     input.oninput=()=>{input.setCustomValidity('');input.removeAttribute('aria-invalid');note.textContent='';};
     label.append(input);root.append(label);entries.push({row,input,label,title});
    });
@@ -27,9 +28,10 @@ export async function initChannels(id){
   const selected=[];const seen=new Set();
   for(const {row,input,title} of entries){
    input.setCustomValidity('');input.removeAttribute('aria-invalid');
-   if(!input.value.trim())continue;
+   const value=row.kind==='whatsapp'?phoneValue(input.value):input.value.trim();
+   if(!value)continue;
    try{
-    const candidate=validateChannels([{...row,value_raw:input.value}])[0];
+    const candidate=validateChannels([{...row,value_raw:value}])[0];
     const key=candidate.kind+'|'+candidate.href;if(seen.has(key))throw Error('Этот контакт уже указан.');seen.add(key);
     selected.push(candidate);
    }catch(e){input.setCustomValidity(e.message);input.setAttribute('aria-invalid','true');note.textContent=title+': '+e.message;input.focus();input.reportValidity();return false;}
@@ -49,6 +51,6 @@ export async function initChannels(id){
   if(!available)return;
   const data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});
   version=data.version;rows=data.channels;
-  for(const entry of entries){const stored=rows.find(r=>r.id===entry.row.id);if(stored){entry.row=stored;entry.input.value=stored.value_raw;}else entry.row={...entry.row,value_raw:''};}
+  for(const entry of entries){const stored=rows.find(r=>r.id===entry.row.id);if(stored){entry.row=stored;entry.input.value=stored.kind==='whatsapp'?phoneDisplayValue(stored.value_raw):stored.value_raw;}else{entry.row={...entry.row,value_raw:''};if(entry.row.kind==='whatsapp')entry.input.value='+7';}}
  }};
 }

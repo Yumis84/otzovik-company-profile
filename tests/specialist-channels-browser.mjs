@@ -29,10 +29,18 @@ async function saved(){await save.click();await note.filter({hasText:'Конта
 let count=0;const test=async(name,fn)=>{await fn();console.log('PASS FIXED CONTACTS BROWSER',++count,name);};
 try{
  await test('one form, fixed optional labels, single black save; empty fields create no contacts',async()=>{
-  await ready();assert.equal(await page.locator('form').count(),1);assert.equal(await root.locator('select,button').count(),0);assert.equal(await root.locator('input').count(),6);assert.equal(await page.locator('#website').count(),1);
+  await ready();assert.equal(await page.locator('#phone').inputValue(),'+7');assert.equal(await input('whatsapp').inputValue(),'+7');assert.equal(await page.locator('form').count(),1);assert.equal(await root.locator('select,button').count(),0);assert.equal(await root.locator('input').count(),6);assert.equal(await page.locator('#website').count(),1);
   assert.equal(await save.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(16, 24, 40)');
-  await input('telegram').fill('   ');await saved();assert.equal((await read()).channels.length,0);
+  await input('telegram').fill('   ');await saved();assert.equal((await read()).channels.length,0);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).phone??null,null);
   assert.equal(await page.locator('.editor-nav a').count(),5);assert.equal(await page.getByText('Все разделы',{exact:true}).count(),0);
+ });
+ await test('editable prefixes; foreign numbers survive reopen; bare +7 stores no contact',async()=>{
+  await page.locator('#phone').fill('+491234567890');await input('whatsapp').fill('+491234567890');await saved();await ready();
+  assert.equal(await page.locator('#phone').inputValue(),'+491234567890');assert.equal(await input('whatsapp').inputValue(),'+491234567890');
+  await page.locator('#phone').fill('');await page.locator('#email').focus();assert.equal(await page.locator('#phone').inputValue(),'+7');
+  await input('whatsapp').fill('');await page.locator('#email').focus();assert.equal(await input('whatsapp').inputValue(),'+7');
+  await saved();await ready();assert.equal((await read()).channels.length,0);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).phone??null,null);
+  await page.locator('#phone').fill(' +7 ');await input('whatsapp').fill(' +7 ');await saved();assert.equal((await read()).channels.length,0);assert.equal((await db.call(A,'get_my_specialist_settings',[a.id])).phone??null,null);
  });
  await test('all optional kinds plus site/phone save and reopen; cosmetic URL normalization',async()=>{
   const values={telegram:'@Yumis_test',whatsapp:'+79991234567',max:'https://max.ru/u/CaseToken',vk:' Https://VK.com/id123 ',ok:'https://ok.ru/profile/123',portfolio:'HtTpS://Example.com/CaseSensitive?A=B'};
@@ -45,7 +53,7 @@ try{
  await test('invalid links block both RPCs; blank field deletes only that contact',async()=>{
   const before=await read(),settings=await db.call(A,'get_my_specialist_settings',[a.id]);
   await page.locator('#phone').fill('+79991111111');await input('whatsapp').fill('66667666');await save.click();assert.equal(await input('whatsapp').getAttribute('aria-invalid'),'true');assert.deepEqual(await read(),before);assert.deepEqual(await db.call(A,'get_my_specialist_settings',[a.id]),settings);
-  await input('whatsapp').fill('');await saved();await ready();assert.equal(await input('whatsapp').inputValue(),'');assert.equal((await read()).channels.length,5);
+  await input('whatsapp').fill('');await saved();await ready();assert.equal(await input('whatsapp').inputValue(),'+7');assert.equal((await read()).channels.length,5);
   await page.locator('#website').fill('javascript:alert(1)');await save.click();assert.equal(await page.locator('#website').getAttribute('aria-invalid'),'true');assert.equal((await read()).channels.length,5);await ready();
  });
  await test('previous multiple contacts, website channels and hidden metadata survive',async()=>{
