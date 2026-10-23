@@ -51,29 +51,34 @@ try{
  const race=await Promise.all([save(data,lastVersion),save(data,lastVersion)]);assert.equal(race.filter(r=>r.ok).length,1);assert.equal(race.find(r=>!r.ok).status,409);stored=race.find(r=>r.ok).data;lastVersion=stored.version;
  pass('actual overlapping HTTP saves: exactly one success, one HTTP409; stale save denied');
  ({ctx:context,pg:page}=await newContext());await login(page);await page.goto(contacts);
- const root=page.locator('#specialist-channels'),rows=root.locator('.channel-row'),button=root.getByRole('button',{name:'Сохранить каналы',exact:true}),note=root.locator('[role=status]');
- await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();assert.equal(await rows.count(),7);assert.equal(await rows.first().locator('optgroup').count(),3);assert.equal(await root.locator('a').count(),7);
- for(const a of await root.locator('a').all()){assert((await a.getAttribute('rel')).includes('noopener'));assert((await a.getAttribute('href')).startsWith('https://'));}
- pass('real browser form shows seven stored channels, grouped choices and named safe links');
- await root.getByRole('button',{name:'Добавить контакт',exact:true}).click();await rows.last().locator('input').nth(0).fill('@Otzovik_second_test');await button.click();await note.filter({hasText:'Каналы сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,8);await page.reload();await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();assert.equal(await rows.count(),8);pass('Add contact button creates a channel; browser save and reload preserve it');
- await rows.last().getByRole('button',{name:'Удалить',exact:true}).click();await button.click();await note.filter({hasText:'Каналы сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,7);
- await rows.first().getByRole('button',{name:'Ниже',exact:true}).click();await rows.first().locator('input').nth(1).fill('<img src=x onerror=alert(1)>');
- await button.click();await note.filter({hasText:'Каналы сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;
- await page.reload();await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();assert.equal(await rows.first().locator('select').inputValue(),'max');assert.equal(await rows.first().locator('input').nth(1).inputValue(),'<img src=x onerror=alert(1)>');assert.equal(await root.locator('img').count(),0);
- pass('browser edit/reorder persists on reload; XSS label stays inert');
- await rows.last().getByRole('button',{name:'Удалить',exact:true}).click();await button.click();await note.filter({hasText:'Каналы сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,6);
- pass('browser removal persists without changing remaining channel IDs');
+ const root=page.locator('#specialist-channels'),rows=root.locator('.channel-row'),button=root.getByRole('button',{name:'Сохранить контакты',exact:true}),note=root.locator('[role=status]');
+ const ready=()=>page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();
+ await ready();assert.equal(await rows.count(),7);assert.equal(await rows.first().locator('optgroup').count(),3);assert.equal(await root.locator('a').count(),0);
+ for(const r of await rows.all()){assert.equal(await r.locator('input').count(),1);assert.equal(await r.locator('select').count(),1);assert.equal(await r.locator('button').count(),1);}
+ assert.equal(await root.locator('input[type=checkbox]').count(),0);
+ pass('compact browser shows seven rows: service, one input and accessible delete only');
+ await root.getByRole('button',{name:'Добавить контакт',exact:true}).click();await rows.last().locator('input').fill('@Otzovik_second_test');await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,8);
+ await page.reload();await ready();assert.equal(await rows.count(),8);pass('compact Add contact creates and persists row through browser save/reopen');
+ await rows.last().getByRole('button',{name:/Удалить контакт/}).click();await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;
+ const retained=payload(stored.channels);retained[0].label='<img src=x onerror=alert(1)>';stored=await successfulSave(retained);await page.reload();await ready();
+ assert.equal(await root.locator('img').count(),0);assert.equal(await root.getByText(retained[0].label,{exact:true}).count(),0);
+ await rows.first().locator('input').fill('@Otzovik_edited');await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;
+ assert.deepEqual(stored.channels.map(r=>r.id),retained.map(r=>r.id));assert.equal(stored.channels[0].label,retained[0].label);assert(stored.channels[0].is_preferred&&stored.channels[0].accepts_inquiries);
+ await page.reload();await ready();assert.equal(await rows.first().locator('input').inputValue(),'@Otzovik_edited');
+ pass('compact edit/reload preserves hidden label/preferred/inquiries/IDs/order; XSS remains inert');
+ await rows.last().getByRole('button',{name:/Удалить контакт/}).click();await button.click();await note.filter({hasText:'Контакты сохранены'}).waitFor();stored=(await read()).data;lastVersion=stored.version;assert.equal(stored.channels.length,6);
+ pass('compact removal persists without changing remaining IDs');
  stored=await successfulSave(payload(stored.channels));await button.click();await note.filter({hasText:'Данные уже изменились'}).waitFor();assert.deepEqual((await read()).data,stored);
- pass('stale browser tab displays conflict and cannot overwrite saved channels');
- await page.reload();await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();
+ pass('stale compact form cannot overwrite concurrent save');
+ await page.reload();await ready();
  for(const width of [320,390,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
- await root.screenshot({path:output+'/contacts-desktop.png'});await page.setViewportSize({width:390,height:900});await root.screenshot({path:output+'/contacts-mobile.png'});
+ await root.screenshot({path:output+'/contacts-desktop.png'});await page.setViewportSize({width:390,height:1000});await root.screenshot({path:output+'/contacts-mobile.png'});
  assert.equal(await page.locator('.editor-nav a').count(),5);assert.equal(await page.getByRole('link',{name:/Выбор типа профиля/}).count(),0);
- pass('320/390/1440 responsive form; existing navigation and no redundant profile-type link');
- await context.close();({ctx:context,pg:page}=await newContext());await login(page);await page.goto(contacts);await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();assert.equal(await page.locator('.channel-row').count(),6);assert.equal(await page.locator('.channel-row').first().locator('input').nth(1).inputValue(),'<img src=x onerror=alert(1)>');
- pass('fresh authenticated browser session reopens saved channels');
+ pass('compact form fits320/390/1440 with existing navigation');
+ await context.close();({ctx:context,pg:page}=await newContext());await login(page);await page.goto(contacts);await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();assert.equal(await page.locator('.channel-row').count(),6);assert.equal(await page.locator('.channel-row input').first().inputValue(),'@Otzovik_edited');
+ pass('fresh actual Auth session reopens compact contacts');
  assert.deepEqual((await rpc(tokens[0],'get_my_specialist_settings',{p_specialist_id:id})).data,legacy);assert.deepEqual(errors,[]);assert(mutations.every(p=>p.endsWith('/save_my_specialist_channels')));
- pass('legacy contacts unchanged; zero browser errors/company/publication writes');
+ pass('legacy contacts unchanged; no page errors/company/publication writes');
 }finally{
  if(changed){const current=await read();assert(current.ok);assert.equal(current.data.version,lastVersion,'Concurrent external edit detected: do not overwrite');const restored=await save(original,lastVersion);assert(restored.ok);assert.deepEqual(payload(restored.data.channels),original);cleanup=true;console.log('PASS CLEANUP original channel values restored; no synthetic contact links retained');if(context&&original.length===0){await page.goto(contacts);await page.locator('#specialist-channels form>fieldset:not([disabled])').waitFor();assert.equal(await page.locator('.channel-row').count(),1);assert.equal(await page.locator('.channel-row input').first().inputValue(),'');assert.equal((await read()).data.channels.length,0);pass('empty section immediately shows one editable blank row; nothing auto-saved');}}
  if(context)await context.close();await browser.close();

@@ -1,0 +1,11 @@
+# Compact specialist contacts — 23 October 2026
+
+Owner decision: Hub9432a8eb-b2d7-4799-a9ec-8a377aa73acc. Replace large channel cards with a compact list. Each row has only a grouped service select, one contact input, and an accessible delete button. Remove numbered legends, separate label input, per-row preferred/inquiries controls, reorder buttons and saved-link CTA. Keep Add contact and one collection Save button. Desktop uses one row; narrow screens use service/delete on the first line and contact input below.
+
+Existing stored label/is_preferred/accepts_inquiries/order remain in the payload unchanged when editing visible values; hidden fields are not deleted/reset. New rows retain existing private defaults. The internal table/RPC/ACL contracts are unchanged. No migration or schema update is required. Whole collection remains private and version checked. Blank first row is still visible on a successfully loaded empty collection; missing RPC stays fail-closed.
+
+Scope: account-specialist-channels.js and specialist-only CSS rules scoped to #specialist-channels. Existing navigation and all company source untouched. Form controls have accessible labels, remove hit targets, keyboard focus, input validity messages. Links are edited as input values; no external href is rendered in this compact editor. Server URL normalization remains authoritative.
+
+Validation: five updated disposable SQL-backed browser groups PASS, including all seven kinds save/reopen, initial empty row, one input/select/delete per row, no redundant fields/frames, metadata preservation, deletion, duplicates/unsafe input, stale version/offline retention/double-submit, missing RPC and old settings independence. Public60-file artifact gate PASS. 320/390/1440 no overflow. Mobile screenshot visually reviewed.
+
+Manual hosted runner tests/stage2b-hosted.mjs updated for the compact UI and metadata preservation. It guards staging/preview origins, uses private synthetic credentials/output and restores original contact values after tests. Hosted final results and final preview/CI are recorded in PR32 description and Hub HANDOFF. Existing migration20261023093542 remains unchanged. No production/main/working-site publication, no merge.
