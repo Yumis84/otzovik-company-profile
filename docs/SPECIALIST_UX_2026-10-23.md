@@ -38,3 +38,17 @@ Local UI acceptance uses isolated SQL and simulated Auth/Storage, with all exter
 PR is stacked on PR32. Existing channel CI runs only for main/PR31 integration base; do not claim an absent PR32-base trigger ran. An integration run may be requested using the already-enabled PR31 base before retargeting the Draft PR to PR32, with source SHA and run/base recorded. Never trigger pages.yml (would publish the working site).
 
 No SQL applied. No education values moved. No readiness business rules or publication implemented.
+
+## Evidence and verified result
+
+- Local: 6 new UX groups, 9 contact browser groups, 12 existing browser groups, 9 editor security groups, 13 specialist acceptance groups, 9 channel security/model groups and Pages60 PASS. Single-session PGlite does not prove overlapping SQL transactions; existing PostgreSQL channel CI covers that separately.
+- Actual staging/Edge: 8 UX groups PASS, including actual create -> remain -> update -> reload, explicit return, focused invalid service/email/file fields, service/contact persistence, distinct city/territory and preserved qualifications. Temporary draft, service and settings were removed through the existing owner delete RPC after a no-op cleanup-endpoint preflight. Original account profiles unchanged.
+- Existing actual hosted contacts: 12 groups PASS, including named links, metadata/private roundtrip, invalid rejection, 320/390/1440 and CAS restoration of original settings/channels. No uploads or production requests from the new UX test.
+- 33 company/legacy account Git blobs and checkout bytes unchanged; no SQL or workflow files changed.
+- Screenshots below contain only synthetic test values, captured from source41eee63 previewd2efe9f5; the later service edit-validation reset does not change these profile/contact views. The temporary profile shown has been deleted, not published.
+
+![Profile 390](screenshots/specialist-ux-2026-10-23/ux-profile-390.png)
+![Profile 1440](screenshots/specialist-ux-2026-10-23/ux-profile-1440.png)
+![Contacts 390](screenshots/specialist-ux-2026-10-23/ux-contacts-390.png)
+
+The full disposable Docker Supabase stack was not rerun in this Windows session; its browser expectations were aligned with the new stay-in-editor behavior and syntax-checked. Actual hosted Auth/PostgREST checks and isolated SQL/browser tests are separate evidence; no claim of a new full Docker stack run.
