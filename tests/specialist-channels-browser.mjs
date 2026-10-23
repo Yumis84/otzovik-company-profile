@@ -35,11 +35,11 @@ try{
   for(const [kind,value] of [['telegram',''],['telegram','   '],['whatsapp','66667666'],['telegram','https://vk.com/id123']]){
    await rows.first().locator('select').selectOption(kind);await rows.first().locator('input').fill(value);await add.click();assert.equal(await rows.count(),1);assert.equal(await rows.first().locator('input').getAttribute('aria-invalid'),'true');await save.click();assert.equal((await read()).version,0);assert.equal((await read()).channels.length,0);
   }
-  const values={telegram:'@Yumis_test',max:'https://max.ru/u/Example',vk:'https://vk.com/id123',whatsapp:'+79991234567',ok:'https://ok.ru/profile/123',website:'https://example.ru',portfolio:'https://portfolio.ru/work'};
+  const values={telegram:'@Yumis_test',max:'https://max.ru/u/Example',vk:'  Https://VK.com/id123  ',whatsapp:'+79991234567',ok:'https://ok.ru/profile/123',website:'https://example.ru',portfolio:'https://portfolio.ru/work'};
   for(const [kind,value] of Object.entries(values)){if(kind!=='telegram')await add.click();await rows.last().locator('select').selectOption(kind);await rows.last().locator('input').fill(value);}
   for(const row of await rows.all()){assert.equal(await row.locator('input').count(),1);assert.equal(await row.locator('select').count(),1);assert.equal(await row.locator('button').count(),1);assert.equal(await row.locator('fieldset,legend,a').count(),0);}
   assert.equal(await root.locator('input[type=checkbox]').count(),0);assert.equal(await rows.first().locator('optgroup').count(),3);
-  await saved();await ready();assert.equal(await rows.count(),7);assert.equal(await rows.first().locator('input').inputValue(),'@Yumis_test');
+  await saved();await ready();assert.equal(await rows.count(),7);assert.equal(await rows.first().locator('input').inputValue(),'@Yumis_test');assert.equal(await rows.nth(2).locator('input').inputValue(),'https://VK.com/id123');
   for(const width of [320,390,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await rows.first().evaluate(e=>getComputedStyle(e).borderTopWidth),'0px');}
   if(process.env.CHANNEL_SCREENSHOT_DIR){await root.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/contacts-desktop.png'});await page.setViewportSize({width:390,height:1000});await root.screenshot({path:process.env.CHANNEL_SCREENSHOT_DIR+'/contacts-mobile.png'});}
  });

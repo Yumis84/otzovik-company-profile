@@ -83,5 +83,13 @@ try{
   assert.throws(()=>validateChannels([row('telegram','@valid'),row('telegram','https://t.me/valid')]));
   assert.throws(()=>validateChannels([row('website','https://one.ru',{is_public:true})]));
  });
+ await test('cosmetic HTTPS case and edge spaces normalize before server save; path case retained',async()=>{
+  const cases=[['telegram',' Https://T.ME/Yumis_test ','https://t.me/yumis_test'],['vk','Https://VK.com/Yumis','https://vk.com/yumis'],['max','HTTPS://MAX.ru/u/AbC123','https://max.ru/u/AbC123'],['whatsapp','HTTPS://WA.ME/79991234567','https://wa.me/79991234567'],['ok','HtTpS://OK.RU/profile/123','https://ok.ru/profile/123'],['website',' HtTpS://Example.ru/CaseSensitive?A=B ','https://example.ru/CaseSensitive?A=B'],['portfolio','https://Portfolio.ru/MyWork','https://portfolio.ru/MyWork']];
+  const payload=validateChannels(cases.map(([kind,value])=>row(kind,value))).map(({href,...r})=>r);
+  payload.forEach((r,i)=>{assert(r.value_raw.startsWith('https://'));assert.equal(normalizeChannel(r.kind,cases[i][1]),cases[i][2]);});
+  const current=await read(),saved=await save(payload,current.version);assert.equal(saved.channels.length,7);saved.channels.forEach((r,i)=>assert.equal(r.href,cases[i][2]));assert.deepEqual(await read(),saved);
+  assert.throws(()=>validateChannels([row('vk','Https://VK.com/Yumis'),row('vk','https://vk.com/yumis')]));
+  assert.throws(()=>normalizeChannel('website','JaVaScRiPt:alert(1)'));
+ });
  console.log('CHANNELS RESULT',count,'groups PASS; engine',db.concurrent?'PostgreSQL':'PGlite','HOSTED SQL NOT APPLIED');
 }finally{await db.close();}
