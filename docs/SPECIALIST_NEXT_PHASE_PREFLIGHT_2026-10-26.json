@@ -1,0 +1,1151 @@
+{
+  "checked_on": "2026-10-26",
+  "request": "611cb6fd-52b6-4308-801a-30631069d642",
+  "environment": "staging only salmcnhexlftrgtiryyo",
+  "collection": "SELECT metadata and aggregate counts only; no row payloads",
+  "tables": [
+    {
+      "relname": "specialist_channel_sets",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "specialist_contact_channels",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "specialist_profiles",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "specialist_services",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "specialist_settings",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "specialist_media",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    }
+  ],
+  "columns": [
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_channel_sets",
+      "column_name": "specialist_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "integer",
+      "table_name": "specialist_channel_sets",
+      "column_name": "version",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_channel_sets",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_contact_channels",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_contact_channels",
+      "column_name": "specialist_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_contact_channels",
+      "column_name": "kind",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_contact_channels",
+      "column_name": "value_raw",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_contact_channels",
+      "column_name": "href",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_contact_channels",
+      "column_name": "label",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "data_type": "integer",
+      "table_name": "specialist_contact_channels",
+      "column_name": "sort_order",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "boolean",
+      "table_name": "specialist_contact_channels",
+      "column_name": "is_preferred",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "data_type": "boolean",
+      "table_name": "specialist_contact_channels",
+      "column_name": "accepts_inquiries",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "data_type": "boolean",
+      "table_name": "specialist_contact_channels",
+      "column_name": "is_public",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_media",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_media",
+      "column_name": "specialist_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_media",
+      "column_name": "object_name",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_media",
+      "column_name": "kind",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_media",
+      "column_name": "caption",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_media",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_profiles",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_profiles",
+      "column_name": "owner_user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "slug",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "display_name",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "profession",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "specialization",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "city",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "description",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_profiles",
+      "column_name": "profile_status",
+      "is_nullable": "NO",
+      "column_default": "'draft'::text"
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_profiles",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_profiles",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_services",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_services",
+      "column_name": "specialist_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_services",
+      "column_name": "name",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_services",
+      "column_name": "description",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "numeric",
+      "table_name": "specialist_services",
+      "column_name": "price_from",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "numeric",
+      "table_name": "specialist_services",
+      "column_name": "price_to",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_services",
+      "column_name": "currency",
+      "is_nullable": "NO",
+      "column_default": "'RUB'::text"
+    },
+    {
+      "data_type": "integer",
+      "table_name": "specialist_services",
+      "column_name": "duration_minutes",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "boolean",
+      "table_name": "specialist_services",
+      "column_name": "is_active",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "data_type": "integer",
+      "table_name": "specialist_services",
+      "column_name": "version",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_services",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_services",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "specialist_settings",
+      "column_name": "specialist_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_settings",
+      "column_name": "phone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_settings",
+      "column_name": "email",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_settings",
+      "column_name": "website",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "ARRAY",
+      "table_name": "specialist_settings",
+      "column_name": "work_formats",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_settings",
+      "column_name": "service_area",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_settings",
+      "column_name": "qualifications",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "data_type": "text",
+      "table_name": "specialist_settings",
+      "column_name": "contact_visibility",
+      "is_nullable": "NO",
+      "column_default": "'private'::text"
+    },
+    {
+      "data_type": "integer",
+      "table_name": "specialist_settings",
+      "column_name": "version",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "specialist_settings",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "constraints": [
+    {
+      "conname": "specialist_profiles_slug_key",
+      "definition": "UNIQUE (slug)",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_owner_user_id_fkey",
+      "definition": "FOREIGN KEY (owner_user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_settings_email_check",
+      "definition": "CHECK ((char_length(email) <= 320))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_contact_channels_specialist_id_sort_order_key",
+      "definition": "UNIQUE (specialist_id, sort_order)",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_settings_phone_check",
+      "definition": "CHECK ((char_length(phone) <= 100))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_profiles_profession_check",
+      "definition": "CHECK (((char_length(btrim(profession)) >= 1) AND (char_length(btrim(profession)) <= 120)))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_specialization_check",
+      "definition": "CHECK ((char_length(specialization) <= 160))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_city_check",
+      "definition": "CHECK ((char_length(city) <= 120))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_description_check",
+      "definition": "CHECK ((char_length(description) <= 2000))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_slug_format",
+      "definition": "CHECK (((slug ~ '^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$'::text) AND (slug !~ '^xn--'::text) AND (slug <> ALL (ARRAY['www'::text, 'api'::text, 'admin'::text, 'test'::text, 'test2'::text, 'account'::text, 'login'::text, 'profiles'::text, 'specialists'::text]))))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_name_length",
+      "definition": "CHECK (((char_length(btrim(display_name)) >= 2) AND (char_length(btrim(display_name)) <= 150)))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_status_check",
+      "definition": "CHECK ((profile_status = 'draft'::text))",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_profiles_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "specialist_profiles"
+    },
+    {
+      "conname": "specialist_services_name_check",
+      "definition": "CHECK (((char_length(btrim(name)) >= 2) AND (char_length(btrim(name)) <= 150)))",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_description_check",
+      "definition": "CHECK ((char_length(description) <= 2000))",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_price_from_check",
+      "definition": "CHECK (((price_from >= (0)::numeric) AND (price_from <= (100000000)::numeric)))",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_check",
+      "definition": "CHECK ((((price_to >= (0)::numeric) AND (price_to <= (100000000)::numeric)) AND ((price_from IS NULL) OR (price_to >= price_from))))",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_currency_check",
+      "definition": "CHECK ((currency = ANY (ARRAY['RUB'::text, 'USD'::text, 'EUR'::text])))",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_duration_minutes_check",
+      "definition": "CHECK (((duration_minutes >= 1) AND (duration_minutes <= 1440)))",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_services_specialist_id_fkey",
+      "definition": "FOREIGN KEY (specialist_id) REFERENCES specialist_profiles(id) ON DELETE CASCADE",
+      "table_name": "specialist_services"
+    },
+    {
+      "conname": "specialist_settings_website_check",
+      "definition": "CHECK (((char_length(website) <= 500) AND (website ~ '^https://[^[:space:]]+$'::text)))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_settings_work_formats_check",
+      "definition": "CHECK (((work_formats <@ ARRAY['online'::text, 'studio'::text, 'onsite'::text]) AND (array_position(work_formats, NULL::text) IS NULL)))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_settings_service_area_check",
+      "definition": "CHECK ((char_length(service_area) <= 300))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_settings_qualifications_check",
+      "definition": "CHECK ((char_length(qualifications) <= 2000))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_settings_contact_visibility_check",
+      "definition": "CHECK ((contact_visibility = 'private'::text))",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_settings_pkey",
+      "definition": "PRIMARY KEY (specialist_id)",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_settings_specialist_id_fkey",
+      "definition": "FOREIGN KEY (specialist_id) REFERENCES specialist_profiles(id) ON DELETE CASCADE",
+      "table_name": "specialist_settings"
+    },
+    {
+      "conname": "specialist_media_kind_check",
+      "definition": "CHECK ((kind = ANY (ARRAY['avatar'::text, 'portfolio'::text])))",
+      "table_name": "specialist_media"
+    },
+    {
+      "conname": "specialist_media_caption_check",
+      "definition": "CHECK ((char_length(caption) <= 500))",
+      "table_name": "specialist_media"
+    },
+    {
+      "conname": "specialist_contact_channels_sort_order_check",
+      "definition": "CHECK (((sort_order >= 0) AND (sort_order <= 19)))",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_media_check",
+      "definition": "CHECK ((object_name ~~ ((((specialist_id)::text || '/'::text) || kind) || '/%'::text)))",
+      "table_name": "specialist_media"
+    },
+    {
+      "conname": "specialist_media_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "specialist_media"
+    },
+    {
+      "conname": "specialist_media_object_name_key",
+      "definition": "UNIQUE (object_name)",
+      "table_name": "specialist_media"
+    },
+    {
+      "conname": "specialist_media_specialist_id_fkey",
+      "definition": "FOREIGN KEY (specialist_id) REFERENCES specialist_profiles(id) ON DELETE CASCADE",
+      "table_name": "specialist_media"
+    },
+    {
+      "conname": "specialist_channel_sets_version_check",
+      "definition": "CHECK ((version > 0))",
+      "table_name": "specialist_channel_sets"
+    },
+    {
+      "conname": "specialist_channel_sets_pkey",
+      "definition": "PRIMARY KEY (specialist_id)",
+      "table_name": "specialist_channel_sets"
+    },
+    {
+      "conname": "specialist_channel_sets_specialist_id_fkey",
+      "definition": "FOREIGN KEY (specialist_id) REFERENCES specialist_profiles(id) ON DELETE CASCADE",
+      "table_name": "specialist_channel_sets"
+    },
+    {
+      "conname": "specialist_contact_channels_kind_check",
+      "definition": "CHECK ((kind = ANY (ARRAY['telegram'::text, 'max'::text, 'vk'::text, 'whatsapp'::text, 'ok'::text, 'website'::text, 'portfolio'::text])))",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_value_raw_check",
+      "definition": "CHECK ((char_length(value_raw) <= 500))",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_href_check",
+      "definition": "CHECK (((char_length(href) <= 500) AND (href ~~ 'https://%'::text)))",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_label_check",
+      "definition": "CHECK ((char_length(label) <= 40))",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_is_public_check",
+      "definition": "CHECK ((NOT is_public))",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_specialist_id_kind_href_key",
+      "definition": "UNIQUE (specialist_id, kind, href)",
+      "table_name": "specialist_contact_channels"
+    },
+    {
+      "conname": "specialist_contact_channels_specialist_id_fkey",
+      "definition": "FOREIGN KEY (specialist_id) REFERENCES specialist_channel_sets(specialist_id) ON DELETE CASCADE",
+      "table_name": "specialist_contact_channels"
+    }
+  ],
+  "functions": [
+    {
+      "returns": "boolean",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "can_manage_specialist_object(text)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "boolean",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "can_upload_specialist_object(text)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "get_my_specialist_media(uuid)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "delete_my_specialist_draft(uuid)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "delete_my_specialist_service(uuid,uuid,integer)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "get_my_specialist_settings(uuid)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "get_my_specialists()",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "get_my_specialist_services(uuid)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "save_my_specialist_settings(uuid,text,text,text,text[],text,text,integer)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "save_my_specialist_service(uuid,uuid,text,text,numeric,numeric,text,integer,boolean,integer)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "register_my_specialist_media(uuid,text,text,text)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "delete_my_specialist_media(uuid,uuid)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "text",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": false,
+      "signature": "specialist_channel_normalize(text,text)",
+      "anon_execute": false,
+      "auth_execute": false
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "list_my_specialist_channels(uuid)",
+      "anon_execute": false,
+      "auth_execute": true
+    },
+    {
+      "returns": "jsonb",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "signature": "save_my_specialist_channels(uuid,integer,jsonb)",
+      "anon_execute": false,
+      "auth_execute": true
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "policyname": "specialist_object_read",
+      "schemaname": "storage",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "policyname": "specialist_object_insert",
+      "schemaname": "storage",
+      "with_check": "((bucket_id = 'specialist-media'::text) AND can_upload_specialist_object(name))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "policyname": "specialist_object_delete",
+      "schemaname": "storage",
+      "with_check": null
+    }
+  ],
+  "grants": null,
+  "indexes": [
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_channel_sets_pkey ON public.specialist_channel_sets USING btree (specialist_id)",
+      "indexname": "specialist_channel_sets_pkey",
+      "tablename": "specialist_channel_sets"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_contact_channels_pkey ON public.specialist_contact_channels USING btree (id)",
+      "indexname": "specialist_contact_channels_pkey",
+      "tablename": "specialist_contact_channels"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_contact_channels_specialist_id_kind_href_key ON public.specialist_contact_channels USING btree (specialist_id, kind, href)",
+      "indexname": "specialist_contact_channels_specialist_id_kind_href_key",
+      "tablename": "specialist_contact_channels"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_contact_channels_specialist_id_sort_order_key ON public.specialist_contact_channels USING btree (specialist_id, sort_order)",
+      "indexname": "specialist_contact_channels_specialist_id_sort_order_key",
+      "tablename": "specialist_contact_channels"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_contact_one_preferred ON public.specialist_contact_channels USING btree (specialist_id) WHERE is_preferred",
+      "indexname": "specialist_contact_one_preferred",
+      "tablename": "specialist_contact_channels"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_profiles_pkey ON public.specialist_profiles USING btree (id)",
+      "indexname": "specialist_profiles_pkey",
+      "tablename": "specialist_profiles"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_profiles_slug_key ON public.specialist_profiles USING btree (slug)",
+      "indexname": "specialist_profiles_slug_key",
+      "tablename": "specialist_profiles"
+    },
+    {
+      "indexdef": "CREATE INDEX specialist_profiles_owner_idx ON public.specialist_profiles USING btree (owner_user_id)",
+      "indexname": "specialist_profiles_owner_idx",
+      "tablename": "specialist_profiles"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_services_pkey ON public.specialist_services USING btree (id)",
+      "indexname": "specialist_services_pkey",
+      "tablename": "specialist_services"
+    },
+    {
+      "indexdef": "CREATE INDEX specialist_services_specialist_id_idx ON public.specialist_services USING btree (specialist_id)",
+      "indexname": "specialist_services_specialist_id_idx",
+      "tablename": "specialist_services"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_settings_pkey ON public.specialist_settings USING btree (specialist_id)",
+      "indexname": "specialist_settings_pkey",
+      "tablename": "specialist_settings"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_media_pkey ON public.specialist_media USING btree (id)",
+      "indexname": "specialist_media_pkey",
+      "tablename": "specialist_media"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_media_object_name_key ON public.specialist_media USING btree (object_name)",
+      "indexname": "specialist_media_object_name_key",
+      "tablename": "specialist_media"
+    },
+    {
+      "indexdef": "CREATE INDEX specialist_media_specialist_id_idx ON public.specialist_media USING btree (specialist_id)",
+      "indexname": "specialist_media_specialist_id_idx",
+      "tablename": "specialist_media"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX specialist_one_avatar ON public.specialist_media USING btree (specialist_id) WHERE (kind = 'avatar'::text)",
+      "indexname": "specialist_one_avatar",
+      "tablename": "specialist_media"
+    }
+  ],
+  "triggers": [
+    {
+      "trigger_name": "profile_slug_registry_specialist",
+      "action_statement": "EXECUTE FUNCTION sync_profile_slug_registry('specialist')",
+      "event_object_table": "specialist_profiles"
+    },
+    {
+      "trigger_name": "profile_slug_registry_specialist",
+      "action_statement": "EXECUTE FUNCTION sync_profile_slug_registry('specialist')",
+      "event_object_table": "specialist_profiles"
+    },
+    {
+      "trigger_name": "profile_slug_registry_specialist",
+      "action_statement": "EXECUTE FUNCTION sync_profile_slug_registry('specialist')",
+      "event_object_table": "specialist_profiles"
+    }
+  ],
+  "old_price_shapes": {
+    "eur": 0,
+    "rub": 4,
+    "usd": 0,
+    "both": 4,
+    "total": 4,
+    "to_only": 0,
+    "both_null": 0,
+    "from_only": 0
+  },
+  "storage_policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'company-media'::text) AND storage.allow_any_operation(ARRAY['object.get_authenticated_info'::text, 'object.get_authenticated'::text]) AND media_internal.is_published_company_media_object(name))",
+      "roles": [
+        "anon"
+      ],
+      "policyname": "anon_read_published_company_media",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = ( SELECT auth.uid() AS uid)) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "company_media_owner_delete",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "company_media_owner_insert",
+      "with_check": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "company_media_owner_read",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "specialist_object_delete",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "specialist_object_insert",
+      "with_check": "((bucket_id = 'specialist-media'::text) AND can_upload_specialist_object(name))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "specialist_object_read",
+      "with_check": null
+    }
+  ],
+  "dependency_note": "pg_depend catalog inspected; PL/pgSQL textual dependencies additionally reviewed manually; catalog is not a complete call graph",
+  "prs": [
+    {
+      "number": 30,
+      "head": "b382174a12c4cb6cbed35ded3cf66e6657483f6a",
+      "base": "main",
+      "base_sha": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39775765433,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 57,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775765433/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775765433/logs",
+            "workflow_id": 387727830
+          },
+          {
+            "id": 39775761046,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 115,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775761046/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775761046/logs",
+            "workflow_id": 387185765
+          }
+        ]
+      }
+    },
+    {
+      "number": 31,
+      "head": "c0a97c00450da75f039837a938c76a671fcd775f",
+      "base": "main",
+      "base_sha": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39815318297,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 59,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318297/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318297/logs",
+            "workflow_id": 387727830
+          },
+          {
+            "id": 39815318277,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 117,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318277/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318277/logs",
+            "workflow_id": 387185765
+          }
+        ]
+      }
+    },
+    {
+      "number": 32,
+      "head": "9b3d2d829e30a00852a6773a0cff8e2684deaa42",
+      "base": "work/specialist-stage2a-20261022",
+      "base_sha": "c0a97c00450da75f039837a938c76a671fcd775f",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39963536654,
+            "name": "Specialist contact channels",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 12,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39963536654/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39963536654/logs",
+            "workflow_id": 393164606
+          }
+        ]
+      }
+    },
+    {
+      "number": 33,
+      "head": "2fd81f07bf30aced6d47c1e84a9182ef3232c2e7",
+      "base": "work/specialist-contact-channels-20261022",
+      "base_sha": "9b3d2d829e30a00852a6773a0cff8e2684deaa42",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39974927824,
+            "name": "Specialist contact channels",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 15,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39974927824/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39974927824/logs",
+            "workflow_id": 393164606
+          }
+        ]
+      }
+    },
+    {
+      "number": 34,
+      "head": "693446dff47bb1335c43104cb37ed47931134700",
+      "base": "work/specialist-ux-polish-20261023",
+      "base_sha": "2fd81f07bf30aced6d47c1e84a9182ef3232c2e7",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39984915671,
+            "name": "Specialist contact channels",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 17,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39984915671/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39984915671/logs",
+            "workflow_id": 393164606
+          }
+        ]
+      }
+    }
+  ]
+}
