@@ -1,0 +1,181 @@
+{
+  "target": "salmcnhexlftrgtiryyo",
+  "method": "Read-only function definitions and aclexplode; full definitions stored privately. Recheck exact hashes before apply.",
+  "price_columns": "numeric(12,2); read-only information_schema confirmation",
+  "functions": [
+    {
+      "proname": "can_manage_specialist_object",
+      "signature": "can_manage_specialist_object(text)",
+      "definition_md5": "4a26383f268562526e8b350c9e3e324e",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ]
+    },
+    {
+      "proname": "can_upload_specialist_object",
+      "signature": "can_upload_specialist_object(text)",
+      "definition_md5": "64fc6618ce80ea5e625a761bf6fd475b",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ]
+    },
+    {
+      "proname": "delete_my_specialist_media",
+      "signature": "delete_my_specialist_media(uuid,uuid)",
+      "definition_md5": "0e39d67da32a302a8258d01f39e048d1",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ]
+    },
+    {
+      "proname": "get_my_specialist_services",
+      "signature": "get_my_specialist_services(uuid)",
+      "definition_md5": "9d2986dfc249fe119c4391bc9c76a18a",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ]
+    },
+    {
+      "proname": "register_my_specialist_media",
+      "signature": "register_my_specialist_media(uuid,text,text,text)",
+      "definition_md5": "5318e6da6a1c7fe0646e948b2bf1eb22",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ]
+    },
+    {
+      "proname": "save_my_specialist_service",
+      "signature": "save_my_specialist_service(uuid,uuid,text,text,numeric,numeric,text,integer,boolean,integer)",
+      "definition_md5": "bc5be914c0269f826387fc38057d5005",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "prosecdef": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ]
+    }
+  ]
+}
