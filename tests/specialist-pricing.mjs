@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import fs from 'node:fs/promises';import crypto from 'node:crypto';import {database,A,B} from './database.mjs';
-export const migrationURL=new URL('../supabase/migrations/20261026040132_specialist_service_pricing_candidate.sql',import.meta.url);
+export const migrationURL=new URL('../sql/20261026_specialist_service_pricing_CANDIDATE.sql',import.meta.url);
 const db=await database({editor:true});let count=0;
 const test=async(name,fn)=>{await fn();console.log('PASS PRICING',++count,name);};
 const reject=(fn,code)=>assert.rejects(fn,e=>e.code===code);

@@ -11,9 +11,11 @@
   "full_supabase_stack": "BLOCKED: missing C:/tmp/otzovik-local-status.json; Auth/PostgREST/Storage simulated in SQL-backed browser",
   "hosted_writes": false,
   "sha256": {
-    "supabase/migrations/20261026040132_specialist_service_pricing_candidate.sql": "a0346bebf0666bc6735f568138bcabb0c0e2099e00c50ae55e3b4ea7c3d88a12",
+    "sql/20261026_specialist_service_pricing_CANDIDATE.sql": "a0346bebf0666bc6735f568138bcabb0c0e2099e00c50ae55e3b4ea7c3d88a12",
     "sql/specialist-service-pricing-rollback-CANDIDATE.sql": "d0105530bdab88fd2be2a7f846aa7301f9f5745613b90b7209d821d152242b8b",
     "account-specialist-services.html": "01c2546f4b0c1a1df5858a869200a91fb0acb10b974b32255ebbb6ed289a00ca",
-    "account-specialist-services.js": "fbd6c459177b04d764a1201fa87063b030e49ff584abbe55e420bcd3ffff8867"
-  }
+    "account-specialist-services.js": "4f57f46400d365a06c8c377804c1d676bd7bc20158a97977a4fd2b146f615187"
+  },
+  "review": "Claude72e77473 corrections; PG17 suite repeated",
+  "screenshots": "os.tmpdir() by default, PRICING_SCREENSHOT_DIR optional"
 }

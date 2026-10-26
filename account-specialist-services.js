@@ -9,7 +9,7 @@ function priceMode(row){return row.price_mode??(row.price_from!=null||row.price_
 function priceText(row){
  const mode=priceMode(row);let s=mode==='negotiated'?'По договорённости':'Цена не указана';
  if(mode==='priced'){s=row.price_from!=null&&row.price_to!=null&&row.price_from===row.price_to?String(row.price_from):[row.price_from!=null?'от '+row.price_from:'',row.price_to!=null?'до '+row.price_to:''].filter(Boolean).join(' ');s+=' '+row.currency;}
- return s+(row.price_unit&&units[row.price_unit]?' · '+units[row.price_unit]:'');
+ return s+(mode!=='unspecified'&&row.price_unit&&units[row.price_unit]?' · '+units[row.price_unit]:'');
 }
 function clearErrors(){for(const input of form.querySelectorAll('input,textarea,select')){input.setCustomValidity('');input.removeAttribute('aria-invalid');}}
 function modeUI(){const priced=!pricing||val('price-mode')==='priced';for(const k of ['price-from','price-to']){el(k).step=pricing?'0.01':'any';el(k).disabled=!priced;el(k).closest('label').hidden=!priced;el(k).setCustomValidity('');el(k).removeAttribute('aria-invalid');}el('price-mode').disabled=!pricing;el('price-unit').disabled=!pricing;}

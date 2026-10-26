@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';import crypto from 'node:crypto';import fs from 'node:fs/promises';import {database,A} from './database.mjs';
 const db=await database({editor:true});assert(db.concurrent,'Real loopback PostgreSQL required');
 try{
- await db.exec(await fs.readFile(new URL('../supabase/migrations/20261026040132_specialist_service_pricing_candidate.sql',import.meta.url),'utf8'));
+ await db.exec(await fs.readFile(new URL('../sql/20261026_specialist_service_pricing_CANDIDATE.sql',import.meta.url),'utf8'));
  const a=await db.call(A,'create_my_specialist_draft',['Race profile','pricing-races','Master']);
  const path=a.id+'/portfolio/'+crypto.randomUUID()+'.webp',meta=JSON.stringify({size:100,mimetype:'image/webp'});
  let inserted,release;const hasInserted=new Promise(r=>inserted=r),hold=new Promise(r=>release=r);

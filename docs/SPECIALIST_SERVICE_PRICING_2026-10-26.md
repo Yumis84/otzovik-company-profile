@@ -13,8 +13,8 @@ No company, contacts, profile creation/year, media UI, publication, public outpu
 
 ## Exact migration package and dependency order
 
-UP: supabase/migrations/20261026040132_specialist_service_pricing_candidate.sql.
-Created with the already installed Supabase CLI migration new, never applied by CLI.
+UP: sql/20261026_specialist_service_pricing_CANDIDATE.sql.
+Generated originally by CLI, now moved deliberately to sql/. The auto-discoverable supabase/migrations directory is absent. Not applied to hosted databases.
 Prerequisite: existing PR31 profile/services/editor schema; PR32–35 unchanged. Migration contains its own transaction, 5s lock timeout and30s statement timeout.
 
 1. Add nullable price_mode/price_unit to specialist_services, no defaults/backfill.
@@ -43,7 +43,7 @@ GO for isolated B, NO-GO hosted migration remains:
 - P1-7/G4: native PostgreSQL17.11 actual multiconnection SQL plus SQL-backed Edge browser; v1/v2 conflict and upload/price/profile-delete interleavings. Not PGlite concurrency claims.
 - P1-8/G1: read-only hosted pg_get_functiondef+aclexplode snapshot for six named service/media functions stored privately at C:/Users/Yumis/otzovik-stage2b-private/pricing-hosted-definitions-2026-10-26.json. Public hash/ACL inventory: SPECIALIST_PRICING_HOSTED_HASHES_2026-10-26.json. Recheck hashes before apply; abort on drift. No hosted CRUD/DDL executed.
 - P2-4: new v2 values >2 decimal places reject; existing values/currencies unchanged.
-- G2: no workflow changes/retarget used. Existing automatic CI does not cover PR35 base. Full tests/local-stack.mjs requires unavailable disposable Supabase Auth/PostgREST/Storage config and Docker stack; this remains a staging-approval gate. Isolated SQL-backed browser fixtures simulate Auth/Storage and do NOT substitute a real Supabase stack run.
+- G2 updated with explicit owner authorization: independent specialist-pricing.yml runs PostgreSQL17 for pull requests on any base, without retargeting or hosted credentials. Full real Supabase Auth/PostgREST/Storage acceptance remains unavailable and required before hosted release.
 - G3: production shape/scale aggregate audit is still required before production release. Production not queried for B.
 - G5: exact hosted staging apply requires separate explicit approval; production another decision.
 P1 portfolio findings (link reorder constraint, universal media lock ordering, server reconciliation, retry semantics, rights retention, global quota) are recorded as required corrections for FUTURE PR D; no project/card SQL added now. Year/save proposals remain PR C.
@@ -69,3 +69,9 @@ Media race regression: upload vs profile delete; new price save vs upload vs pro
 Requested next: independent review of this exact UP, DOWN and source HEAD; decide permission for a single controlled staging migration on salmcnhexlftrgtiryyo ONLY after remaining full local Supabase stack/CI gate and drift checks.
 Include migration SHA256/commit, before definitions+ACL snapshot, backup/rollback and post-apply catalog diff + owner/foreign/anon smoke in that explicit release decision.
 This PR and HANDOFF do not grant apply permission. No deploy, merge, public profile or production release is requested here.
+
+## Review72e77473 corrections
+
+Candidate moved to sql/20261026_specialist_service_pricing_CANDIDATE.sql; no supabase/migrations directory. SQL content/hash unchanged. Dedicated read-only CI uses PostgreSQL17 and three independent suites on all PR bases. See PR checks and HANDOFF for exact HEAD/run. Portable screenshots use os.tmpdir() or PRICING_SCREENSHOT_DIR. Unspecified price hides unit; negotiated mode retains chosen unit. Browser assertion covers this.
+
+V1 invalid input may return22023 rather than table CHECK23514; UI handles both. Text-only editing can stamp NULL mode, preventing DOWN: use UI rollback, never clear data to bypass the guard. Real default privilege ACL inspection, real Auth/PostgREST smoke and production aggregate audit remain release gates. No hosted apply or merge.
