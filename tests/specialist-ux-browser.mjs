@@ -24,6 +24,7 @@ await ctx.route('**/*',async route=>{
 });
 await ctx.exposeBinding('testSession',()=>user?{user:{id:user}}:null);
 await ctx.exposeBinding('testRPC',async(_,name,args={})=>{
+ if(name==='get_my_specialist_service_pricing')return {data:null,error:{code:'PGRST202',message:'Legacy fixture'}};
  calls.push({name,args});assert(keys[name],'Unexpected RPC '+name);
  if(fail===name)throw Error('offline');if(slow===name)await new Promise(r=>setTimeout(r,200));
  try{return {data:await db.call(user,name,keys[name].map(k=>k==='p_channels'?JSON.stringify(args[k]):args[k])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}

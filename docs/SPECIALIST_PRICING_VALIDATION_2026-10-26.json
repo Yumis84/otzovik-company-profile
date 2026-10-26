@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-26",
+  "base": "18b974d1aac3aa1bb4030308f53fd91184653256",
+  "engine": "PostgreSQL17.11; isolated loopback clusters",
+  "sql_groups": 9,
+  "pricing_browser_groups": 7,
+  "media_races": 3,
+  "ux_regression": 8,
+  "pages": 60,
+  "company_byte_identical": 33,
+  "full_supabase_stack": "BLOCKED: missing C:/tmp/otzovik-local-status.json; Auth/PostgREST/Storage simulated in SQL-backed browser",
+  "hosted_writes": false,
+  "sha256": {
+    "sql/20261026_specialist_service_pricing_CANDIDATE.sql": "a0346bebf0666bc6735f568138bcabb0c0e2099e00c50ae55e3b4ea7c3d88a12",
+    "sql/specialist-service-pricing-rollback-CANDIDATE.sql": "d0105530bdab88fd2be2a7f846aa7301f9f5745613b90b7209d821d152242b8b",
+    "account-specialist-services.html": "01c2546f4b0c1a1df5858a869200a91fb0acb10b974b32255ebbb6ed289a00ca",
+    "account-specialist-services.js": "4f57f46400d365a06c8c377804c1d676bd7bc20158a97977a4fd2b146f615187"
+  },
+  "review": "Claude72e77473 corrections; PG17 suite repeated",
+  "screenshots": "os.tmpdir() by default, PRICING_SCREENSHOT_DIR optional"
+}

@@ -9,7 +9,10 @@
     "test:pages": "node tests/pages-artifact.mjs",
     "test:editor": "node tests/specialist-editor.mjs",
     "test:channels": "node tests/specialist-channels.mjs",
-    "test:channels:browser": "node tests/specialist-channels-browser.mjs"
+    "test:channels:browser": "node tests/specialist-channels-browser.mjs",
+    "test:pricing": "node tests/specialist-pricing.mjs",
+    "test:pricing:browser": "node tests/specialist-pricing-browser.mjs",
+    "test:pricing:local": "node scripts/test-pricing-local.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

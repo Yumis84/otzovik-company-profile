@@ -1,0 +1,24 @@
+ENGINE postgres (PostgreSQL) 17.11 TEST tests/specialist-pricing.mjs
+PASS PRICING 1 up migration preserves 15 historical price shapes/currencies/versions exactly
+PASS PRICING 2 owner capability is read-only; foreign/anon/internal/direct tables fail closed
+PASS PRICING 3 all six units, zero, both one-sided prices, exact and range roundtrip
+PASS PRICING 4 incompatible and non-finite values reject atomically
+PASS PRICING 5 v1 preserves extended metadata; changed prices map mode and CAS increments once
+PASS PRICING 6 service theft, deleted record and invalid update do not partially write
+PASS PRICING 7 real overlapping v1/v2 saves have one winner and no extra version increment
+PASS PRICING 8 quota remains50 and parent draft-only security survives
+PASS PRICING 9 rollback refuses data loss; UI-off v1 still works; guarded down preserves legacy values
+PASS pricing SQL groups 9 engine PostgreSQL multiconnection
+ENGINE postgres (PostgreSQL) 17.11 TEST tests/specialist-pricing-browser.mjs
+PASS PRICING UI 1 legacy edit preserves USD, missing unit and historical amount
+PASS PRICING UI 2 mode toggle retains unsaved amounts, range/blank errors focus exact fields
+PASS PRICING UI 3 negotiated/unit save and reopen, zero/exact, unspecified remain distinct
+PASS PRICING UI 4 missing v2 write never falls back; offline retains form and choice
+PASS PRICING UI 5 stale CAS gives error; explicit reload recovers without overwrite
+PASS PRICING UI 6 320/390/1440 existing navigation, no overflow, screenshots
+PASS PRICING UI 7 capability absent keeps legacy form; owner context fail closed
+PASS pricing browser groups 7
+ENGINE postgres (PostgreSQL) 17.11 TEST tests/specialist-pricing-media-races.mjs
+PASS MEDIA RACE1 upload vs profile-delete: deletion refuses while object remains
+PASS MEDIA RACE2 price-save vs upload vs profile-delete: no deadlock, price commits once
+PASS MEDIA RACE3 existing Storage-first removal and metadata delete still work
