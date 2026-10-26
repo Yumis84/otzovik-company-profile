@@ -36,7 +36,7 @@ jobs:
           --health-retries 10
     env:
       TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
-      PRICING_SCREENSHOT_DIR: ${{ runner.temp }}/pricing-screenshots
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,6 +54,8 @@ jobs:
       - if: matrix.browser
         run: npx playwright install --with-deps chromium
       - name: Run isolated acceptance
+        env:
+          PRICING_SCREENSHOT_DIR: ${{ runner.temp }}/pricing-screenshots
         run: node ${{ matrix.test }}
       - name: Company byte gate and safe candidate location
         run: |
