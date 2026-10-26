@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-26",
+  "scope": "Reference semantics only; not future SQL/runtime/security/concurrency proof",
+  "reference_assertions": 58,
+  "company_files_byte_identical": 33,
+  "tracked_runtime_diff": [],
+  "baseline_ci": "39984915671 SUCCESS; same HEAD693446d verified via GitHub",
+  "hosted_scope": "SELECT catalog+aggregate only; no hosted mutation tests",
+  "pages": "PASS60 separately executed 2026-10-26",
+  "limits": "No new model implemented; Docker/concurrency and mobile tests are acceptance requirements for future PRs"
+}
