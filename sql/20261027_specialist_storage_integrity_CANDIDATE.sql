@@ -15,7 +15,7 @@ DECLARE v_id uuid;
 BEGIN
  IF NEW.bucket_id IS DISTINCT FROM 'specialist-media' THEN RETURN NEW; END IF;
  IF NEW.name !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/(avatar|portfolio)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[.](webp|png|jpg|jpeg)$' THEN
-  RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid specialist object path';
+  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Invalid specialist object path';
  END IF;
  v_id:=split_part(NEW.name,'/',1)::uuid;
  PERFORM pg_advisory_xact_lock(hashtextextended('specialist-media:'||v_id::text,0));

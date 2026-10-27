@@ -36,7 +36,8 @@ export async function editorChecks({a,b,anonymous,ok,company,test}){
   }
  });
  await test('competing real Storage uploads at 19 objects cannot exceed quota',async()=>{
-  const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Quota Race',p_slug:'quota-race-editor',p_profession:'Master'}));
+  for(let attempt=0;attempt<3;attempt++){
+  const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Quota Race',p_slug:'quota-race-editor-'+attempt,p_profession:'Master'}));
   const storage=a.storage.from('specialist-media'),blob=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
   const paths=Array.from({length:21},()=>profile.id+'/portfolio/'+crypto.randomUUID()+'.png');
   for(const path of paths.slice(0,19))ok(await storage.upload(path,blob,{contentType:'image/png'}));
@@ -49,6 +50,7 @@ export async function editorChecks({a,b,anonymous,ok,company,test}){
   }
   ok(await storage.remove(objects.map(x=>profile.id+'/portfolio/'+x.name)));
   ok(await a.rpc('delete_my_specialist_draft',{p_specialist_id:profile.id}));
+  }
  });
  await test('separate real specialist Storage MIME/size/owner/cross-kind policies',async()=>{
   const blob=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64'),name=id+'/avatar/'+crypto.randomUUID()+'.png';

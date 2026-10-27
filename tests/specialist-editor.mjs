@@ -54,7 +54,7 @@ try{
   for(const meta of [{size:5242881,mimetype:'image/png'},{size:100,mimetype:'image/svg+xml'}]){const path=a.id+'/portfolio/'+crypto.randomUUID()+'.png';await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,meta]);await denied(()=>db.call(A,'register_my_specialist_media',[a.id,path,'portfolio']),'22023');}
   const path=a.id+'/avatar/'+crypto.randomUUID()+'.png';await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,{size:100,mimetype:'image/png'}]);await denied(()=>db.call(A,'register_my_specialist_media',[a.id,path,'avatar']),'23505');
   await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) SELECT 'specialist-media',$1||'/portfolio/'||gen_random_uuid()||'.png','{}' FROM generate_series(1,greatest(0,20-(SELECT count(*)::int FROM storage.objects WHERE bucket_id='specialist-media' AND split_part(name,'/',1)=$1)))",[a.id]);
-  await denied(()=>db.session(A,c=>c.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,'{}')",[a.id+'/portfolio/'+crypto.randomUUID()+'.png'])));
+  await denied(()=>db.session(A,c=>c.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,'{}')",[a.id+'/portfolio/'+crypto.randomUUID()+'.png'])),'54000');
   await denied(()=>db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,'{}')",[a.id+'/portfolio/'+crypto.randomUUID()+'.png']),'54000');
   for(const role of ['anon','authenticated'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.enforce_specialist_object_integrity()','EXECUTE') allowed",[role])).rows[0].allowed,false);
  });
