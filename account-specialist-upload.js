@@ -9,3 +9,6 @@ export async function gatewayUpload(id,requestId,kind,image,caption){
  return gateway({action:'upload',specialist_id:id,request_id:requestId,kind,mime:image.type,data,caption});
 }
 export const gatewayDelete=(id,path)=>gateway({action:'delete',specialist_id:id,object_name:path});
+
+export const gatewayReconcile=id=>gateway({action:'reconcile',specialist_id:id});
+export const gatewayRecover=(id,requestId)=>gateway({action:'recover',specialist_id:id,request_id:requestId});

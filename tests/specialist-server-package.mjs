@@ -31,5 +31,13 @@ try{
   for(const m of ['SERVICES','SETTINGS','CHANNELS'])await db.exec(await file('sql/release/DISABLE_'+m+'_CANDIDATE.sql'));await db.exec(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));
   assert((await db.call(A,'get_my_specialists')).some(x=>x.id===p.id));
  });
+ await test('pinned core rollback and core switch preserve all data',async()=>{
+  const before=(await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n;
+  await db.exec(await file('sql/release/RESTORE_CORE_CREATE_CANDIDATE.sql'));
+  assert.equal((await db.query("SELECT md5(pg_get_functiondef('public.create_my_specialist_draft(text,text,text,text,text,text)'::regprocedure)) h")).rows[0].h,pins.functions.find(f=>f.signature.startsWith('create_')).md5);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
+  await db.exec(await file('sql/release/DISABLE_CORE_CREATE_CANDIDATE.sql'));await assert.rejects(()=>db.call(A,'create_my_specialist_draft',['Disabled','disabled-core','Master']));
+  await db.exec(await file('sql/release/ENABLE_CORE_CREATE_CANDIDATE.sql'));assert((await db.call(A,'create_my_specialist_draft',['Restored','restored-core','Master'])).id);
+ });
  console.log('PACKAGE RESULT',n,'PASS; actual production baseline read-only result is separate');
 }finally{await db.close();}
