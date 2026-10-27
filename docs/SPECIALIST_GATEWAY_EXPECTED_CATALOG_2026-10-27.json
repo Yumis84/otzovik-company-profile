@@ -268,7 +268,7 @@
     },
     {
       "signature": "specialist_gateway_force_retire(uuid,uuid,uuid,text,text,text,jsonb)",
-      "definition_md5": "67ad9016777f27fbdf7cc25e34a44e90",
+      "definition_md5": "c84009d7cc02a661ac9335bcef7a2cb4",
       "prosecdef": true,
       "proconfig": [
         "search_path=\"\""

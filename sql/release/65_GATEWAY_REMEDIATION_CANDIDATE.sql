@@ -53,10 +53,10 @@ BEGIN
  END IF;
  SELECT * INTO r FROM public.specialist_upload_reservations WHERE id=p_request_id AND profile_id=p_specialist_id FOR UPDATE;
  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Upload unavailable'; END IF;
- IF r.state='deleted' THEN RETURN jsonb_build_object('retired',true,'object_name',r.object_name); END IF;
+ IF r.state='deleted' AND NOT EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name) THEN RETURN jsonb_build_object('retired',true,'object_name',r.object_name); END IF;
  IF p_phase='begin' THEN
   INSERT INTO public.specialist_upload_audit(request_id,profile_id,action,actor,reason,evidence) VALUES(r.id,p_specialist_id,'operator_begin',p_actor,p_reason,p_proof);
-  UPDATE public.specialist_upload_reservations SET state='deleting' WHERE id=r.id;
+  UPDATE public.specialist_upload_reservations SET state='deleting',specialist_id=p_specialist_id WHERE id=r.id;
   RETURN jsonb_build_object('retired',false,'object_name',r.object_name);
  END IF;
  IF r.state<>'deleting' OR NOT EXISTS(SELECT FROM public.specialist_upload_audit WHERE request_id=r.id AND action='operator_begin' AND evidence=p_proof) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Audited begin with same proof required'; END IF;

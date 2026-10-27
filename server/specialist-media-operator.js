@@ -13,7 +13,7 @@ export async function prepareSpecialistErasure({admin,owner,profile,actor,reason
    inventory.reservations.push({id:r.id,object_name:name,state:r.state});
   }
  }
- // Validate every supplied proof before mutating any reservation. No TTL or boolean-only bypass.
+ // Validate every supplied proof before retiring any reservation. No TTL or boolean-only bypass.
  for(const r of inventory.reservations){
   const p=proofs[r.id];
   if(!p||p.request_id!==r.id||p.all_writers_stopped!==true||!['provider_terminal_no_late_writer','credentials_revoked_all_writers_drained'].includes(p.kind)||typeof p.evidence_ref!=='string'||p.evidence_ref.length<8)throw Error('External reviewed no-late-writer evidence required for '+r.id);

@@ -114,6 +114,9 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   const path=inventory.objects[0];ok(await c.storage.from('specialist-media').download(path));
   const proofs=Object.fromEntries(inventory.reservations.map(r=>[r.id,{kind:'provider_terminal_no_late_writer',request_id:r.id,evidence_ref:'isolated-test:all-requests-awaited:'+r.id,all_writers_stopped:true}]));
   await assert.rejects(()=>prepareSpecialistErasure({admin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs:{}}),/evidence/);
+  const failingAdmin={rpc:admin.rpc.bind(admin),storage:{from:()=>({remove:async()=>({data:null,error:Error('Injected operator Storage failure')})})}};
+  await assert.rejects(()=>prepareSpecialistErasure({admin:failingAdmin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs}),/Injected operator/);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,4);
   const erased=await prepareSpecialistErasure({admin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs});assert(erased.media_erased&&!erased.account_deleted);
   assert((await c.storage.from('specialist-media').download(path)).error);
   assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,0);

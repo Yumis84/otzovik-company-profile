@@ -75,7 +75,7 @@
     },
     {
       "file": "sql/release/70_POSTCHECK_CANDIDATE.sql",
-      "sha256": "aa9b1052f51e7909ea60baea7ef20cc209ad3bb6800d361545d9700a60f5a4ae"
+      "sha256": "b6a4c8793c58039d7059ffb1a33850f5932dba2041d7b6457b67b147e1a38836"
     },
     {
       "file": "sql/release/80_ENABLE_MEDIA_CANDIDATE.sql",
@@ -135,7 +135,7 @@
     },
     {
       "file": "server/specialist-media-gateway.js",
-      "sha256": "73df5558e1f8388b5bef6c33143a59fd6030dc38250340e2af81c0589484a903"
+      "sha256": "bca701dd898e07043f6128203c8ce1f7ec8b601d6cfe8ba78d2bd1f55c4f57d4"
     },
     {
       "file": "edge/specialist-media-gateway/index.ts",
@@ -159,15 +159,15 @@
     },
     {
       "file": "server/specialist-media-operator.js",
-      "sha256": "5d1eb4b98722b62148500b241c115da3628691919846a273a6eb9a940501e318"
+      "sha256": "20fc56adaaaac9745514e513dd40e708b4ca16a8361886edb168cfa0f3f0859f"
     },
     {
       "file": "sql/release/65_GATEWAY_REMEDIATION_CANDIDATE.sql",
-      "sha256": "905189c9e1d5f9026cb976c7bfae98be201da7f051f4202d9d75ce9bf817a700"
+      "sha256": "04a9bc2c46dc6dd4a09d56391db0b9ca0128198e3ba597d1e59f98a23316fa83"
     },
     {
       "file": "tests/specialist-gateway-remediation.mjs",
-      "sha256": "34c2952c4c47cda2b24235b297fc7315ecc5ab22bd117f76ed7c293aa583aae7"
+      "sha256": "3705bf1155a731d4b50ca4dab1548ec3565f769799464591a95ab1d301e3935d"
     },
     {
       "file": "tests/specialist-gateway-http.mjs",
@@ -175,7 +175,7 @@
     },
     {
       "file": "tests/gateway-local-checks.mjs",
-      "sha256": "cfbe0aca00f87c61f090f38e3fc6322d7a17e9a36fa74e13c4c4fe25b931ea0b"
+      "sha256": "9aae3d9c77c0f82c7895890627dcbfd203b5ccb40b95f9f441bc7aa37d5765ae"
     },
     {
       "file": "tests/gateway-integrity.mjs",
@@ -187,7 +187,7 @@
     },
     {
       "file": "docs/SPECIALIST_GATEWAY_EXPECTED_CATALOG_2026-10-27.json",
-      "sha256": "c3ea0f0bb095284bdfb6559181a5e1de408e847b9ae857683bd460769aa7dd7c"
+      "sha256": "108dc070a8735ee617518d809c04f73beafbe577f70971fa523f6c77719f7feb"
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",

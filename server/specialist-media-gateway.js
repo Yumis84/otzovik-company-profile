@@ -48,14 +48,14 @@ export function createMediaGateway({url,anonKey,serviceKey,origins=[],fetcher=fe
     if(!uuid.test(body.request_id||'')||!['avatar','portfolio'].includes(body.kind)||body.caption!==null&&typeof body.caption!=='string'||(body.caption||'').length>500)return response(400,{error:'Invalid upload'});
     const bytes=image(body),digest=await crypto.subtle.digest('SHA-256',bytes),fingerprint=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
     const r=await rpc('specialist_gateway_reserve',{...owner,p_request_id:body.request_id,p_kind:body.kind,p_fingerprint:fingerprint,p_mime:body.mime,p_size:bytes.length,p_caption:body.caption});
-    if(r.state==='deleted'||r.state==='deleting')return response(409,{error:'Request retired'});
+    if(r.state==='deleted'||r.state==='deleting')return response(409,{error:'Запрос завершён. Выберите файл ещё раз.',reservation_released:r.state==='deleted'});
     if(r.upload_allowed){
      // Exactly one attempt per reservation. An uncertain result MUST retain the slot.
      const upload=await fetcher(endpoint+'/storage/v1/object/specialist-media/'+r.object_name,{method:'POST',headers:{apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':body.mime,'x-upsert':'false'},body:bytes,signal:AbortSignal.timeout(25000)});
      if(!upload.ok){
       if(await isDefiniteStorageRejection(upload)){
        await rpc('specialist_gateway_reject',{...owner,p_request_id:body.request_id,p_http_status:upload.status});
-       return response(422,{error:'Storage rejected upload; choose the file again',request_id:body.request_id,reservation_released:true});
+       return response(422,{error:'Storage отклонил загрузку. Выберите файл ещё раз.',request_id:body.request_id,reservation_released:true});
       }
       return response(409,{error:'Upload not confirmed; reservation retained',request_id:body.request_id});
      }

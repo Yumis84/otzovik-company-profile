@@ -50,7 +50,11 @@ try{
   await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[r.object_name,{size:10,mimetype:'image/png'}]); // deliberately violates trusted terminal-response guarantee
   assert.equal((await q('specialist_gateway_metrics',[])).late_orphan_objects,1);assert((await q('specialist_gateway_metrics',[])).alert);
   for(let i=0;i<19;i++)await reserve(crypto.randomUUID());await denied(()=>reserve(crypto.randomUUID()),'54000');
-  await db.query("DELETE FROM storage.objects WHERE name=$1",[r.object_name]); // synthetic teardown
+  await db.exec(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));
+  await retire(rid,'begin');assert.equal((await db.query('SELECT specialist_id FROM specialist_upload_reservations WHERE id=$1',[rid])).rows[0].specialist_id,id);
+  await denied(()=>retire(rid,'finish'),'PT409');
+  await db.query("DELETE FROM storage.objects WHERE name=$1",[r.object_name]); // synthetic teardown only
+  assert((await retire(rid,'finish')).retired);assert.equal((await q('specialist_gateway_metrics',[])).late_orphan_objects,0);
  });
  await test('operator retirement permits Auth cascade without bypassing FK or deleting audit',async()=>{
   await db.exec(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));
