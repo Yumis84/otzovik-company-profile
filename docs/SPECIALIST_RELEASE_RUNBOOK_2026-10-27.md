@@ -1,7 +1,7 @@
 # Specialist private editor release candidate
 
 Task 6e1cf1f6-693c-4b71-97ef-3eed1a9ba43c. Date2026-10-27.
-Status: NO-GO for production release until the explicit gates below; candidate preparation in progress.
+Status: NO-GO for production release until the explicit gates below; candidate assembled; exact final CI and independent audit status recorded in Hub.
 No main merge, hosted SQL/CRUD, DNS/Worker change or publication is authorized by this document.
 
 ## Verified source map
@@ -65,8 +65,9 @@ Dependency: existing production PR20 profile/slug registry and3RPCs, verified re
 1. sql/20261017_specialist_editor_CANDIDATE.sql: services/settings, owner APIs, FORCE RLS/private grants.
 2. sql/20261017_specialist_media_CANDIDATE.sql: privatebucket/media/Storage ownership helpers and policies.
 3. sql/20261017_specialist_lifecycle_CANDIDATE.sql: quota/lifecycle/create/delete and media lock hardening.
-4. docs/specialist-contact-channels-candidate.sql: channel set/version + rows, normalization/private-only APIs.
-scripts/specialist-editor-migration.mjs emits steps1–3 as a transaction for isolated tests only. No executable auto-migration directory. Apply ONLY the exact reviewed hashes after fresh preflight and explicit approval.
+4. sql/20261027_specialist_storage_integrity_CANDIDATE.sql: separately reviewed actual-INSERT guard for quota/deletion races (managed Storage trigger; extra deployment gate).
+5. docs/specialist-contact-channels-candidate.sql: channel set/version + rows, normalization/private-only APIs.
+scripts/specialist-editor-migration.mjs emits steps 1 through 4 as a transaction for ISOLATED TESTS ONLY. No auto-migration directory. Hosted application requires separate review and explicit permission.
 The source candidates use legacy40001 conflict codes in places, staging definitions usePT409; UI handles both. Do not overwrite hosted definitions blindly to make hashes match. A future apply package must reconcile this documented drift and be independently reviewed.
 The lifecycle candidate replaces existing create RPC body; this is a real production server change, not merely new tables. No PR36 price-mode/unit/v2 API is a prerequisite.
 
@@ -93,5 +94,55 @@ There is no automatically safe destructive DOWN once real data exist. Restoring 
 
 GO for isolated candidate testing only.
 CONDITIONAL GO for a future private-editor frontend rollout only after backend prerequisites, exact-HEAD CI, real local-stack results, independent audit, artifact/routing checks and explicit owner release permissions.
-NO-GO now for production merge/deploy/SQL/publication: backend missing, release audit pending, real-stack result pending, Auth/domain deployment choices unresolved. Public profile publication is a different feature and remains excluded.
+NO-GO now for production merge/deploy/SQL/publication: backend missing, new Storage guard approval/audit pending, Auth/domain deployment choices unresolved. Public profile publication is a different feature and remains excluded.
 Final exact HEAD/CI/run URLs, preview equivalence and audit response are in the final Hub HANDOFF; no pending test is claimed PASS here.
+
+## Real-stack finding and additional server gate
+
+CI40457929239 on bde46714 reproduced a P1: two real Storage API uploads at19objects both succeeded (21total). A lock in the RLS permission helper did not enforce the final insertion boundary. The original SQL package MUST NOT be released as a hard20-object quota.
+The new integrity CANDIDATE enforces quota/path/draft existence on actual INSERT under the same per-profile advisory lock as draft deletion. It returns immediately for other buckets, keeps all company policies/grants untouched and exposes no callable browser helper. Isolated unit checks include privileged insertion denial; real Storage race is repeated three times at19objects. No hosted trigger or function was installed.
+IMPORTANT: this candidate requires managed storage.objects TRIGGER privilege and must fail rather than changing ownership/grants. Supabase recommends treating its managed schema as read-only (https://supabase.com/docs/guides/storage/schema/design). This is an ARCHITECTURE/DEPLOYMENT BLOCKER until independent review and explicit owner approval; evaluate an app-owned reservation/upload gateway if managed triggers are rejected. A green disposable superuser test does not prove hosted deployment privilege or long-term managed-schema compatibility.
+Production baseline lacks14functions relative to staging; the new guard adds one further function and trigger absent from BOTH hosted environments. Do not describe the five-file package as a copy of staging or a previously approved migration.
+UI rollback leaves this guard/data in place. Removing it is a separate reviewed action because it reopens the quota race; do not DROP/CASCADE metadata or objects. The existing DISABLE/ENABLE tests cover their original subset, not complete channel revocation.
+
+## Verification and preview evidence
+
+Local native PostgreSQL17.11:15draft/concurrency groups,9editor/security groups,9channel groups PASS; SQL fixtures do not simulate real Auth. Local UX10groups PASS includes all menu destinations/home Edit/disabled missing-RPC Save at320/390/768/1440. Pages60 manifest/byte/traversal/symlink checks PASS.
+All33 company/account source blobs and on-disk bytes equal main76b3fa7. All60 public manifest source files equal PR34 693446df. No PR35/36 source or auto-migration directory.
+Existing PR34 preview53545278:60public routes/assets returned HTTP200 using clean HTML routes; no production Supabase reference detected. Deployment intentionally rewrites endpoints/public keys to staging, bundles SDK into supabase-client.js (HTTP200) and injects CSP. It is NOT a byte-identical deployment of this PR; source runtime matches PR34, but new SQL guard is NOT applied to staging and cannot be demonstrated there. No hosted write tests or new deployment were performed. Canonical dev URL still points to PR29.
+Independent Claude review requested through Hub eventfd38a605, updated by47723dad with new storage finding. Until a new Claude HANDOFF exists, audit status is PENDING, never PASS.
+
+## Exact missing production components
+
+Tables: `specialist_channel_sets`, `specialist_contact_channels`, `specialist_services`, `specialist_settings`, `specialist_media`.
+
+Functions absent relative to the staging catalog (identity arguments are in the preflight JSON):
+
+- `can_manage_specialist_object`
+- `can_upload_specialist_object`
+- `delete_my_specialist_draft`
+- `delete_my_specialist_media`
+- `delete_my_specialist_service`
+- `get_my_specialist_media`
+- `get_my_specialist_services`
+- `get_my_specialist_settings`
+- `list_my_specialist_channels`
+- `register_my_specialist_media`
+- `save_my_specialist_channels`
+- `save_my_specialist_service`
+- `save_my_specialist_settings`
+- `specialist_channel_normalize`
+
+Additional release-only candidate: `enforce_specialist_object_integrity()` + `storage.objects` INSERT trigger. No hosted environment has this guard.
+
+## Completed disposable full-stack acceptance
+
+Source HEAD b931431d6458cacdcb6f46bc28140c6c7da18437: all four CI workflows PASS. Real Supabase run https://github.com/Yumis84/otzovik-company-profile/actions/runs/40458581239 completed SUCCESS:18groups, real Auth/Mailpit confirmation/JWT/PostgREST/Storage/browser; three repetitions of final-slot upload race; company create/edit/branch/service/photo regression; private specialist absent from publisher sentinel; original partial disable/enable checks. SQL/fixture browser runs40458581242,40458581241,40458581228 SUCCESS.
+The final evidence/documentation commit also asserts actual server_version_num17 in the full stack. Its exact final HEAD/CI URLs are recorded in Hub after completion; source-SHA results above are not silently relabeled as final-SHA CI.
+Hosted email deliverability, real production publisher/CDN/Worker routes and hosted signed-in writes were NOT tested; production remained read-only. Private profile publisher in the local harness is a SQL sentinel, not the production publisher.
+
+## Remaining priorities and release decision
+
+P0 rollout blocker: production prerequisites absent. P1 rollout blocker: new actual-INSERT quota guard needs managed-schema/deployability/independent review (or a separately designed app-owned reservation gateway); it has never been approved/applied hosted. P1 release gate: independent Claude HANDOFF pending (REQUEST fd38a605, FYI47723dad).
+P2: profile core last-write-wins without CAS, Auth redirects/domain routing decision, source-vs-staging40001/PT409 drift, real hosted mail/CDN/Worker smoke. Treat these explicitly in owner acceptance; no silent schema/RPC/Auth changes.
+GO: isolated candidate and repeatable tests. NO-GO: production release now. Completion of preparation documents these blockers; it does not grant deployment permission.

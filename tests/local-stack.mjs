@@ -16,6 +16,7 @@ for(const url of [api,cfg.DB_URL])assert(['127.0.0.1','localhost'].includes(new 
 assert.equal(new URL(api).port,'54321');assert.equal(new URL(cfg.DB_URL).port,'54322');
 assert(anon&&service,'Local legacy keys required');
 const db=new pg.Client({connectionString:cfg.DB_URL});await db.connect();
+const serverVersion=(await db.query("SELECT current_setting('server_version_num')::int n")).rows[0].n;assert.equal(Math.floor(serverVersion/10000),17,'Actual disposable database must be PostgreSQL17');console.log('LOCAL PostgreSQL server_version_num='+serverVersion);
 const ok=r=>{assert(!r.error,r.error?.message);return r.data;};
 const client=()=>createClient(api,anon,{auth:{persistSession:false,autoRefreshToken:false}});
 const admin=createClient(api,service,{auth:{persistSession:false,autoRefreshToken:false}});

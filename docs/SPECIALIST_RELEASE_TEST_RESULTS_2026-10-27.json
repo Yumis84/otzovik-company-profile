@@ -1,0 +1,48 @@
+{
+  "testedSource": "b931431d6458cacdcb6f46bc28140c6c7da18437",
+  "workflows": [
+    {
+      "run": 40458581239,
+      "kind": "real disposable Supabase",
+      "groups": 18,
+      "result": "PASS"
+    },
+    {
+      "run": 40458581242,
+      "kind": "draft/editor SQL + browser",
+      "result": "PASS"
+    },
+    {
+      "run": 40458581241,
+      "kind": "channel SQL + browser",
+      "result": "PASS"
+    },
+    {
+      "run": 40458581228,
+      "kind": "release browser actual PostgreSQL17 fixtures; simulated Auth/Storage",
+      "groups": 10,
+      "result": "PASS"
+    }
+  ],
+  "local": {
+    "engine": "PostgreSQL17.11 native Windows, isolated loopback",
+    "draft": 15,
+    "editor": 9,
+    "channels": 9,
+    "ux": 10,
+    "pages": 60,
+    "company": 33
+  },
+  "failedPredecessor": {
+    "run": 40457929239,
+    "finding": "Real Storage quota race allowed21objects; fixed only in new isolated candidate; not applied hosted"
+  },
+  "notRun": [
+    "hosted email delivery",
+    "production publisher/CDN/Worker integration",
+    "hosted signed-in mutation smoke",
+    "independent Claude review"
+  ],
+  "release": "NO-GO production",
+  "finalHeadCIEvidence": "See final Hub HANDOFF; not inferred from source-head runs"
+}

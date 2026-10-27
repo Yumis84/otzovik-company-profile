@@ -1,0 +1,30 @@
+{
+  "purpose": "Review only; no hosted apply authorized. sha256_git_lf hashes canonical UTF-8 LF content; checkout byte hash may differ on Windows.",
+  "files": [
+    {
+      "file": "sql/20261017_specialist_editor_CANDIDATE.sql",
+      "sha256_git_lf": "d3af1fec99471fd610f645a78e8f403df61c108a70d5461a3c0efc8baf19dc5c",
+      "sha256_checkout_bytes": "c0f1f3ce9fedc6b20d27235eb99d708cbbe02c163fcabf5550bf4790a191b953"
+    },
+    {
+      "file": "sql/20261017_specialist_media_CANDIDATE.sql",
+      "sha256_git_lf": "85419ae3a6abae978a2c73f9ba43824fbaef507fcec17a92ad8a9080c5e02079",
+      "sha256_checkout_bytes": "42b20c68ae80ea5ddf193285d3ac03b1e3c10da22cfb5dfa196142c1c7ed8e38"
+    },
+    {
+      "file": "sql/20261017_specialist_lifecycle_CANDIDATE.sql",
+      "sha256_git_lf": "d277d03bd87d951255ba4047a408c5dfdd86e2405f2bfc9083c5e038aff70360",
+      "sha256_checkout_bytes": "7d212aae27a064f3ce293eccaeec49470fd6a7ada4f3e5e8e788851ac191bfd2"
+    },
+    {
+      "file": "sql/20261027_specialist_storage_integrity_CANDIDATE.sql",
+      "sha256_git_lf": "4605b9566261fbaafba78c6c9843f594714b3ea074fabe109c160accdafd892f",
+      "sha256_checkout_bytes": "4605b9566261fbaafba78c6c9843f594714b3ea074fabe109c160accdafd892f"
+    },
+    {
+      "file": "docs/specialist-contact-channels-candidate.sql",
+      "sha256_git_lf": "2606f4ae0e75a5b46fdc06fa129ea2a34c98819b8ca592e0735da0a7aef8cdb6",
+      "sha256_checkout_bytes": "8a45d6bf343fcf37a66e8b50c2e611ca573785d9289e13f867fd6986c6203c48"
+    }
+  ]
+}
