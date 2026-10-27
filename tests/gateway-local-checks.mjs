@@ -1,3 +1,4 @@
+import {prepareSpecialistErasure} from '../server/specialist-media-operator.js';
 import {createClient} from '@supabase/supabase-js';
 import assert from 'node:assert/strict';import fs from 'node:fs/promises';import crypto from 'node:crypto';import {createMediaGateway} from '../server/specialist-media-gateway.js';
 export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company}){
@@ -42,7 +43,7 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
  });
  await test('real owner/foreign/anon editor ACL, settings/channel CAS and direct tables closed',async()=>{
   for(const c of [b,anonymous])for(const name of ['get_my_specialist_services','get_my_specialist_settings','get_my_specialist_media','list_my_specialist_channels'])assert.equal((await c.rpc(name,{p_specialist_id:id})).error?.code,'42501');
-  for(const c of [a,b,anonymous])for(const table of ['specialist_profiles','specialist_services','specialist_settings','specialist_media','specialist_channel_sets','specialist_contact_channels','specialist_upload_reservations','specialist_upload_control'])assert((await c.from(table).select('*')).error);
+  for(const c of [a,b,anonymous])for(const table of ['specialist_profiles','specialist_services','specialist_settings','specialist_media','specialist_channel_sets','specialist_contact_channels','specialist_upload_reservations','specialist_upload_control','specialist_upload_audit'])assert((await c.from(table).select('*')).error);
   const setting=ok(await a.rpc('save_my_specialist_settings',{p_specialist_id:id,p_phone:'+79991234567',p_version:0}));assert.equal(setting.contact_visibility,'private');assert((await a.rpc('save_my_specialist_settings',{p_specialist_id:id,p_version:0})).error);
   const initial=ok(await a.rpc('list_my_specialist_channels',{p_specialist_id:id}));const make=value=>({p_specialist_id:id,p_version:initial.version,p_channels:[{id:crypto.randomUUID(),kind:'telegram',value_raw:value,label:'',is_public:false,is_preferred:false,accepts_inquiries:false}]});
   const outcomes=await Promise.all([a.rpc('save_my_specialist_channels',make('@gateway_one')),a.rpc('save_my_specialist_channels',make('@gateway_two'))]);assert.equal(outcomes.filter(r=>!r.error).length,1);assert.equal(outcomes.filter(r=>r.error).length,1);assert(ok(await a.rpc('list_my_specialist_channels',{p_specialist_id:id})).channels.every(r=>!r.is_public));
@@ -77,23 +78,61 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
    assert.equal((await db.query("SELECT count(*)::int n FROM storage.objects WHERE bucket_id='specialist-media' AND split_part(name,'/',1)=$1",[p.id])).rows[0].n,0);
   }
  });
- await test('real Auth user deletion cannot cascade away a pending reservation',async()=>{
-  const email='cascade-'+crypto.randomUUID()+'@example.test',password='Gateway-'+crypto.randomUUID()+'!';
+ await test('20 definite Storage rejections release real reservations; replay cannot issue a late writer',async()=>{
+  const token=ok(await a.auth.getSession()).session.access_token;let writes=0;
+  const handler=createMediaGateway({url:api,anonKey:anon,serviceKey:service,fetcher:(url,options)=>{
+   if(url.includes('/storage/v1/object/')&&options?.method==='POST'){writes++;return Promise.resolve(new Response(JSON.stringify({statusCode:'413',error:'EntityTooLarge'}),{status:413}));}return fetch(url,options);
+  }});
+  const invoke=async body=>handler(new Request('http://isolated.test',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)}));
+  for(let i=0;i<20;i++){const body=payload();const rejected=await invoke(body);assert.equal(rejected.status,422);assert((await rejected.json()).reservation_released);assert.equal((await invoke(body)).status,409);}
+  assert.equal(writes,20,'Retired ticket replay must never send another Storage POST');
+  assert.equal(ok(await admin.rpc('specialist_gateway_metrics')).definite_rejections,20);
+  const saved=await gw(a,payload());assert.equal(saved.status,200);assert((await gw(a,{action:'delete',specialist_id:id,object_name:saved.media.object_name})).deleted);
+ });
+ await test('unknown 408/409/500 retain slots; late real Storage write, audited cleanup and Auth hard-delete',async()=>{
+  const email='erasure-'+crypto.randomUUID()+'@example.test',password='Gateway-'+crypto.randomUUID()+'!';
   const user=ok(await admin.auth.admin.createUser({email,password,email_confirm:true})).user;
   const c=createClient(api,anon,{auth:{persistSession:false,autoRefreshToken:false}});ok(await c.auth.signInWithPassword({email,password}));
-  const p=ok(await c.rpc('create_my_specialist_draft',{p_display_name:'Cascade test',p_slug:'cascade-'+crypto.randomUUID().slice(0,12),p_profession:'Master'}));
-  ok(await admin.rpc('specialist_gateway_reserve',{p_owner:user.id,p_specialist_id:p.id,p_request_id:crypto.randomUUID(),p_kind:'portfolio',p_fingerprint:'c'.repeat(64),p_mime:'image/png',p_size:68,p_caption:null}));
-  assert((await admin.auth.admin.deleteUser(user.id)).error,'Pending FK must block Auth cascade');assert.equal(ok(await c.auth.getUser()).user.id,user.id);
-  // Fixture teardown ONLY: this test never issued a Storage request, so no late writer exists.
-  // This is NOT an application GC recipe for unknown operations.
-  await db.query('DELETE FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id]);
+  const p=ok(await c.rpc('create_my_specialist_draft',{p_display_name:'Erasure test',p_slug:'erasure-'+crypto.randomUUID().slice(0,12),p_profession:'Master'}));
+  const token=ok(await c.auth.getSession()).session.access_token,scope={p_owner:user.id,p_specialist_id:p.id};
+  const invoke=(handler,body)=>handler(new Request('http://isolated.test',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)}));
+  for(const status of [408,409,500]){
+   const body=payload(p.id),handler=createMediaGateway({url:api,anonKey:anon,serviceKey:service,fetcher:(url,options)=>url.includes('/storage/v1/object/')&&options?.method==='POST'?Promise.resolve(new Response(JSON.stringify({statusCode:status}),{status})):fetch(url,options)});
+   assert.equal((await invoke(handler,body)).status,409);
+  }
+  let signalStarted,release;const started=new Promise(r=>signalStarted=r),resume=new Promise(r=>release=r);
+  const late=payload(p.id),handler=createMediaGateway({url:api,anonKey:anon,serviceKey:service,fetcher:async(url,options)=>{
+   if(url.includes('/storage/v1/object/')&&options?.method==='POST'){signalStarted();await resume;return fetch(url,options);}return fetch(url,options);
+  }});
+  const inflight=invoke(handler,late);await started;
+  await db.query(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));
+  assert((await admin.rpc('specialist_gateway_force_retire',{...scope,p_request_id:late.request_id,p_phase:'begin',p_actor:'isolated-operator',p_reason:'Attempt without proof',p_proof:{}})).error);
+  assert((await admin.auth.admin.deleteUser(user.id)).error,'Quarantine FK 23503 must be reproduced before operator remediation');
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,4);
+  release();assert.equal((await inflight).status,200,'Admitted writer completes despite upload switch');
+  const inventory=ok(await admin.rpc('specialist_gateway_erasure_inventory',scope));assert.equal(inventory.objects.length,1);
+  const path=inventory.objects[0];ok(await c.storage.from('specialist-media').download(path));
+  const proofs=Object.fromEntries(inventory.reservations.map(r=>[r.id,{kind:'provider_terminal_no_late_writer',request_id:r.id,evidence_ref:'isolated-test:all-requests-awaited:'+r.id,all_writers_stopped:true}]));
+  await assert.rejects(()=>prepareSpecialistErasure({admin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs:{}}),/evidence/);
+  const failingAdmin={rpc:admin.rpc.bind(admin),storage:{from:()=>({remove:async()=>({data:null,error:Error('Injected operator Storage failure')})})}};
+  await assert.rejects(()=>prepareSpecialistErasure({admin:failingAdmin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs}),/Injected operator/);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,4);
+  const erased=await prepareSpecialistErasure({admin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs});assert(erased.media_erased&&!erased.account_deleted);
+  assert((await c.storage.from('specialist-media').download(path)).error);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,0);
+  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE profile_id=$1 AND action='operator_finish'",[p.id])).rows[0].n,4);
   ok(await admin.auth.admin.deleteUser(user.id));
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles WHERE id=$1',[p.id])).rows[0].n,0);
+  assert.equal((await gw(c,payload(p.id))).status,401,'Deleted user old JWT is checked against real Auth');
+  await db.query(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
  });
  await test('unknown expired operation and Auth cascade stay safe; disable/enable and company unaffected',async()=>{
   const request=crypto.randomUUID();await db.query("SELECT specialist_gateway_reserve($1,$2,$3,'portfolio',$4,'image/png',68,null)",[A,id,request,'a'.repeat(64)]);
   await db.query("UPDATE specialist_upload_reservations SET expires_at=now()-interval '1 day' WHERE id=$1",[request]);
   const dry=await gw(a,{action:'reconcile',specialist_id:id});assert(dry.reservations.some(r=>r.id===request&&r.expired&&r.state==='uploading'));
+  const removable=await gw(a,payload());assert.equal(removable.status,200);
   await db.query(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));assert.equal((await gw(a,payload())).status,503);
+  assert((await gw(a,{action:'delete',specialist_id:id,object_name:removable.media.object_name})).deleted,'Deletion remains available when uploads disabled');
   ok(await a.storage.from('company-media').upload(company.id+'/logo/gateway-regression.png',bytes,{contentType:'image/png'}));
   await db.query(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));assert.equal(ok(await a.rpc('get_my_specialist_upload_capability',{p_specialist_id:id})).enabled,true);
  });
@@ -105,7 +144,9 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   const validPng=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=4;return c.toDataURL('image/png').split(',')[1];}),'base64');await page.locator('#file').setInputFiles({name:'private.png',mimeType:'image/png',buffer:validPng});await page.locator('#kind').selectOption('portfolio');await page.locator('#caption').fill('Gateway private portfolio');await page.locator('#save').click();await page.locator('#items').getByText('Gateway private portfolio',{exact:true}).waitFor().catch(async e=>{throw Error('Gateway browser photo save: '+await page.locator('#status').innerText(),{cause:e});});await page.reload();await page.locator('#items img').waitFor();assert.equal(await page.locator('#items img').count(),1);
   for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));for(const link of await page.locator('.editor-nav a').evaluateAll(els=>els.map(e=>e.getAttribute('href'))))assert(link==='account-home.html'||link.endsWith('?id='+p.id));}
   await page.locator('#fields:not([disabled])').waitFor();await page.locator('#caption').focus();await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.id),'save');
-  page.once('dialog',d=>d.accept());await page.locator('#items button').click();await page.locator('#status').filter({hasText:'Фотография удалена'}).waitFor();assert.equal(await page.locator('#items img').count(),0);
+  await db.query(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));await page.reload();await page.locator('#status').filter({hasText:'Новые загрузки отключены'}).waitFor();
+  assert(await page.locator('#save').isDisabled());assert(await page.locator('#items button').isEnabled());
+  page.once('dialog',d=>d.accept());await page.locator('#items button').click();await page.locator('#status').filter({hasText:'Фотография удалена'}).waitFor();assert.equal(await page.locator('#items img').count(),0);assert(await page.locator('#save').isDisabled());await db.query(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
  });
  for(const [module,rpc,args]of [['SERVICES','get_my_specialist_services',{p_specialist_id:id}],['SETTINGS','get_my_specialist_settings',{p_specialist_id:id}],['CHANNELS','list_my_specialist_channels',{p_specialist_id:id}]]){
   await test('server capability disable/re-enable '+module,async()=>{await db.query(await file('sql/release/DISABLE_'+module+'_CANDIDATE.sql'));assert((await a.rpc(rpc,args)).error);await db.query(await file('sql/release/ENABLE_'+module+'_CANDIDATE.sql'));ok(await a.rpc(rpc,args));ok(await a.rpc('get_my_companies'));});

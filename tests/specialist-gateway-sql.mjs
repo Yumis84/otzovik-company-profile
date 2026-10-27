@@ -6,6 +6,7 @@ try{
  // Only a historical isolated fixture has the rejected managed trigger. Never install it hosted.
  await db.exec('DROP TRIGGER specialist_object_integrity ON storage.objects');
  await db.exec(await file('sql/20261027_specialist_upload_gateway_CANDIDATE.sql'));
+ await db.exec(await file('sql/release/65_GATEWAY_REMEDIATION_CANDIDATE.sql'));
  const id=(await db.call(A,'create_my_specialist_draft',['Gateway','gateway-sql','Master'])).id;
  const reserve=(rid,profile=id,owner=A)=>db.query("SELECT public.specialist_gateway_reserve($1,$2,$3,'portfolio',$4,'image/png',10,null) data",[owner,profile,rid,'a'.repeat(64)]).then(x=>x.rows[0].data);
  await test('disabled by default and private service-only ACL',async()=>{
