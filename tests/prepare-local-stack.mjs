@@ -6,6 +6,7 @@ await fs.mkdir(dir,{recursive:true});
 try{await fs.access(dir+'/supabase/config.toml');}catch{execFileSync('npx',['supabase','init','--workdir',dir],{stdio:'inherit'});}
 let config=await fs.readFile(dir+'/supabase/config.toml','utf8');
 config=config.replace(/^project_id = .*$/m,'project_id = "otzovik-local-acceptance"')
+ .replace(/^major_version = .*$/m,'major_version = 17')
  .replace(/^site_url = .*$/m,'site_url = "http://127.0.0.1:4173/account-login.html"')
  .replace(/^additional_redirect_urls = .*$/m,'additional_redirect_urls = ["http://127.0.0.1:4173/**"]')
  .replace(/(\[auth.email\][\s\S]*?)enable_confirmations = false/,'$1enable_confirmations = true');

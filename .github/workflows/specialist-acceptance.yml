@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_PASSWORD: acceptance-only
           POSTGRES_DB: otzovik_acceptance
@@ -31,6 +31,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Public artifact allowlist and local references
         run: npm run test:pages
+      - name: Specialist editor security contracts
+        run: npm run test:editor
       - name: Real PostgreSQL roles, RPCs and overlapping transactions
         run: npm test
         env:
