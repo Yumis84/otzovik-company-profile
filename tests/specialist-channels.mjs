@@ -10,7 +10,7 @@ const row=(kind,value_raw,extra={})=>({id:crypto.randomUUID(),kind,value_raw,lab
 try{
  const before=(await db.query("SELECT oid,pg_get_functiondef(oid) def FROM pg_proc WHERE pronamespace='public'::regnamespace ORDER BY oid")).rows;
  const company=(await db.query('SELECT row_to_json(c) data FROM companies c')).rows;
- await db.exec(await fs.readFile(new URL('../docs/specialist-contact-channels-candidate.sql',import.meta.url),'utf8'));
+ await db.exec(await fs.readFile(new URL('../sql/20261027_specialist_channels_CANDIDATE.sql',import.meta.url),'utf8'));
  const a=await db.call(A,'create_my_specialist_draft',['Channels A','channels-a','Master']);
  const b=await db.call(B,'create_my_specialist_draft',['Channels B','channels-b','Master']);
  const read=()=>db.call(A,'list_my_specialist_channels',[a.id]);

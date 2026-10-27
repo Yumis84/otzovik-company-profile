@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';import fs from 'node:fs/promises';import {chromium} from 'playwright';
 import {database,A} from './database.mjs';import {buildPages} from '../scripts/build-pages.mjs';
 await buildPages();const db=await database({editor:true});
-await db.exec(await fs.readFile(new URL('../docs/specialist-contact-channels-candidate.sql',import.meta.url),'utf8'));
+await db.exec(await fs.readFile(new URL('../sql/20261027_specialist_channels_CANDIDATE.sql',import.meta.url),'utf8'));
 const a=await db.call(A,'create_my_specialist_draft',['Compact contacts','compact-channels','Master']);
 const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})});
 const ctx=await browser.newContext();let missing=false,offline=false,hold=false;const errors=[];

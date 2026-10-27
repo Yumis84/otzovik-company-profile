@@ -1,0 +1,259 @@
+{
+  "engine": "PostgreSQL17 isolated fixture",
+  "phase": "all enabled before disable tests",
+  "functions": [
+    {
+      "signature": "can_manage_specialist_object(text)",
+      "definition_md5": "4a26383f268562526e8b350c9e3e324e",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "can_upload_specialist_object(text)",
+      "definition_md5": "64fc6618ce80ea5e625a761bf6fd475b",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+      "definition_md5": "e455f988848cfdbb2d4f2552aaea679e",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "delete_my_specialist_draft(uuid)",
+      "definition_md5": "0e19307109d1fa40e665e885c8caab08",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "delete_my_specialist_media(uuid,uuid)",
+      "definition_md5": "0e39d67da32a302a8258d01f39e048d1",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "delete_my_specialist_service(uuid,uuid,integer)",
+      "definition_md5": "5502d6f4b8a8e07ab06999e59b4640e5",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "get_my_specialist_media(uuid)",
+      "definition_md5": "34e280735b4053b284c316f5661bc6d1",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "get_my_specialist_services(uuid)",
+      "definition_md5": "9d2986dfc249fe119c4391bc9c76a18a",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "get_my_specialist_settings(uuid)",
+      "definition_md5": "5cfdb4c1404bfc6f7900eae748f749cb",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "get_my_specialist_upload_capability(uuid)",
+      "definition_md5": "67a5d0c9760eaf16765b1756b1cc3a29",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "get_my_specialists()",
+      "definition_md5": "82a3057d27c450b18cbb00edc393db78",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "list_my_specialist_channels(uuid)",
+      "definition_md5": "060ed06c01de5ec0cea876eff3c7ac6a",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "register_my_specialist_media(uuid,text,text,text)",
+      "definition_md5": "5318e6da6a1c7fe0646e948b2bf1eb22",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "save_my_specialist_channels(uuid,integer,jsonb)",
+      "definition_md5": "c9e9df3b542956aaeb9e6e507ced21ac",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "save_my_specialist_service(uuid,uuid,text,text,numeric,numeric,text,integer,boolean,integer)",
+      "definition_md5": "b1bc4fd7e901da7a062f573b5252b1cf",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "save_my_specialist_settings(uuid,text,text,text,text[],text,text,integer)",
+      "definition_md5": "59e9fba134dc014eba1892f7ccf0f884",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_channel_normalize(text,text)",
+      "definition_md5": "ac2aed671db0e05d5872311e018b9fe7",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_begin_delete(uuid,uuid,text)",
+      "definition_md5": "d9978d621b1059d23dfb655fe0cf84a6",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_finish(uuid,uuid,uuid)",
+      "definition_md5": "b4c2ca556d22b146255f37e865aa1f4a",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_finish_delete(uuid,uuid,uuid)",
+      "definition_md5": "2581ba35511cdff3a46fd7b93a0fb558",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_reconcile(uuid,uuid)",
+      "definition_md5": "d886d63a2d18e8b3728c6be6adcb824f",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_reserve(uuid,uuid,uuid,text,text,text,integer,text)",
+      "definition_md5": "caf5693aea79aeca35aed91c9440113b",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+      "definition_md5": "630a01e05cb0f65cbef110ef4a695e79",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": true
+    }
+  ]
+}

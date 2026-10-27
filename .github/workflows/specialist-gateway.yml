@@ -1,0 +1,71 @@
+name: Specialist gateway acceptance
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sql-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: acceptance-only
+          POSTGRES_DB: otzovik_acceptance
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d otzovik_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/${{ matrix.file }}
+        env:
+          TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
+      - run: node tests/pages-artifact.mjs
+      - name: Company source and auto-migration gate
+        run: |
+          git diff --exit-code 76b3fa7a99df04d320b022a5a777fdbdf897b826 HEAD -- 'account*.html' 'account*.js' 'account*.css' ':!account-specialist*' ':!account-create-specialist.html'
+          test ! -d supabase/migrations
+  real-edge-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node tests/prepare-gateway-stack.mjs
+      - name: Start disposable Supabase including Edge runtime
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,logflare,vector,supavisor > /tmp/otzovik-stack-start.log 2>&1
+      - name: Inspect local CLI and start real Edge adapter
+        run: |
+          npx supabase functions serve --help
+          npx supabase functions serve --workdir /tmp/otzovik-supabase --env-file /tmp/otzovik-gateway.env --no-verify-jwt > /tmp/otzovik-edge.log 2>&1 &
+          node tests/wait-gateway.mjs
+      - name: Read disposable endpoints privately
+        run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+      - run: npx playwright install --with-deps chromium
+      - name: Real Auth, PostgREST, Storage, Edge, browser and company regression
+        run: node tests/local-stack.mjs
+      - name: Stop disposable stack
+        if: always()
+        run: npx supabase stop --workdir /tmp/otzovik-supabase --no-backup

@@ -6,6 +6,7 @@ export const createClient=()=>({
   signUp:args=>window.testAuth('signup',args),
   signOut:()=>window.testAuth('logout',{})
  },
+ functions:{invoke:async()=>({data:{dry_run:true,reservations:[]},error:null})},
  rpc:(name,args)=>window.testRPC(name,args),
  from:table=>{
   const query={table,filters:[],single:false};
