@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "2b4e50d7fee486dc74b0126ea09c771de465064563565568a0578cee67bd609c"
+      "sha256": "bd1af86186a17e163a1dca9d0fcc71415212fb5efcc5b96330dc54d0eec127f4"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
