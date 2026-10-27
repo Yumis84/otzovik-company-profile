@@ -14,6 +14,17 @@ export async function editorChecks({a,b,anonymous,ok,company,test}){
   assert.equal((await a.rpc('create_my_company_service',{p_company_id:id,p_name:'Wrong plane'})).error?.code,'42501');
   for(const c of [a,b,anonymous])for(const table of ['specialist_services','specialist_settings','specialist_media'])assert.equal((await c.from(table).select('*')).error?.code,'42501');
  });
+ await test('real channel PostgREST private roundtrip, owner ACL, stale version and competing saves',async()=>{
+  const row={id:crypto.randomUUID(),kind:'telegram',value_raw:'@local_master',label:'',is_public:false,is_preferred:false,accepts_inquiries:false};
+  const read=()=>a.rpc('list_my_specialist_channels',{p_specialist_id:id});
+  const save=(v,rows)=>a.rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:v,p_channels:rows});
+  const initial=ok(await read());const saved=ok(await save(initial.version,[row]));assert.deepEqual(ok(await read()),saved);assert.equal(saved.channels[0].is_public,false);
+  for(const c of [b,anonymous]){assert.equal((await c.rpc('list_my_specialist_channels',{p_specialist_id:id})).error?.code,'42501');assert.equal((await c.rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:saved.version,p_channels:[]})).error?.code,'42501');}
+  for(const table of ['specialist_channel_sets','specialist_contact_channels'])for(const c of [a,b,anonymous])assert.equal((await c.from(table).select('*')).error?.code,'42501');
+  assert.equal((await save(saved.version,[{...row,is_public:true}])).error?.code,'22023');
+  const outcomes=await Promise.all(['One','Two'].map(label=>save(saved.version,[{...row,label}])));assert.equal(outcomes.filter(r=>!r.error).length,1);assert.equal(outcomes.filter(r=>r.error).length,1);
+  assert((await save(initial.version,[])).error);const latest=ok(await read());assert.equal(latest.channels.length,1);assert.equal(latest.version,saved.version+1);
+ });
  await test('concurrent specialist upload/delete cannot create an orphan',async()=>{
   for(let i=0;i<3;i++){
    const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Race Cleanup',p_slug:'cleanup-race-'+i,p_profession:'Master'}));
@@ -61,7 +72,7 @@ export async function editorBrowser({page,open,a,ok,test}){
   await page.reload();await page.locator('#items').getByText('<img src=x onerror=alert(1)> Service',{exact:true}).waitFor();assert.equal(await page.locator('#items img').count(),0);
   await page.locator('#items').getByRole('button',{name:'Изменить',exact:true}).click();await page.locator('#price-to').fill('1800');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Услуга сохранена'}).waitFor();
   await page.getByRole('link',{name:'Контакты и работа',exact:true}).click();await page.locator('#fields:not([disabled])').waitFor();await page.locator('#phone').fill('+79991234567');await page.locator('[name=format][value=online]').check();await page.locator('#area').fill('City only');await page.locator('input[data-kind=telegram]').fill('@local_master');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Контакты сохранены'}).waitFor();
-  await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+79991234567');
+  await page.reload();await page.locator('#fields:not([disabled])').waitFor();assert.equal(await page.locator('#phone').inputValue(),'+79991234567');assert.equal(await page.locator('input[data-kind=telegram]').inputValue(),'@local_master');const channels=ok(await a.rpc('list_my_specialist_channels',{p_specialist_id:draft.id}));assert(channels.channels.some(r=>r.kind==='telegram'&&r.href==='https://t.me/local_master'&&r.is_public===false));
   await page.getByRole('link',{name:'Фото и портфолио',exact:true}).click();await page.locator('#fields:not([disabled])').waitFor();await page.locator('#kind').selectOption('portfolio');
   const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=4;return c.toDataURL('image/png').split(',')[1];});
   await page.locator('#file').setInputFiles({name:'private.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#caption').fill('Private portfolio');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Фотография сохранена'}).waitFor();
