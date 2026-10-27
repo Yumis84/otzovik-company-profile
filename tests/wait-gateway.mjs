@@ -1,0 +1,1 @@
+for(let i=0;i<60;i++){try{const r=await fetch('http://127.0.0.1:54321/functions/v1/specialist-media-gateway',{signal:AbortSignal.timeout(2000)});if(r.status===405){console.log('Real isolated Edge gateway ready');process.exit(0);}}catch{}await new Promise(r=>setTimeout(r,1000));}throw Error('Isolated Edge runtime not ready');

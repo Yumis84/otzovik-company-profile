@@ -1,0 +1,31 @@
+{
+  "capturedAt": "2026-10-27",
+  "project": "rzhlcszqtuhkhfibygnk",
+  "readOnly": true,
+  "functions": [
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+      "md5": "64f33fb6fd83f891363c2035f39ca73c",
+      "owner": "postgres",
+      "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.create_my_specialist_draft(p_display_name text, p_slug text, p_profession text DEFAULT NULL::text, p_specialization text DEFAULT NULL::text, p_city text DEFAULT NULL::text, p_description text DEFAULT NULL::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_user_id uuid := auth.uid();\n  v_name text := btrim(coalesce(p_display_name,''));\n  v_slug text := lower(btrim(coalesce(p_slug,'')));\n  v_id uuid;\nBEGIN\n  IF v_user_id IS NULL THEN\n    RAISE EXCEPTION USING ERRCODE='42501', MESSAGE='Authentication required';\n  END IF;\n  IF char_length(v_name) NOT BETWEEN 2 AND 150 THEN\n    RAISE EXCEPTION USING ERRCODE='22023', MESSAGE='Invalid specialist name';\n  END IF;\n  IF char_length(btrim(coalesce(p_profession,''))) NOT BETWEEN 1 AND 120 OR char_length(coalesce(p_specialization,'')) > 160 OR char_length(coalesce(p_city,'')) > 120 OR char_length(coalesce(p_description,'')) > 2000 THEN\n    RAISE EXCEPTION USING ERRCODE='22023', MESSAGE='Specialist field too long';\n  END IF;\n  IF v_slug !~ '^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$'\n     OR v_slug ~ '^xn--'\n     OR v_slug IN ('www','api','admin','test','test2','account','login','profiles','specialists')\n  THEN\n    RAISE EXCEPTION USING ERRCODE='22023', MESSAGE='Invalid or reserved slug';\n  END IF;\n  INSERT INTO public.specialist_profiles(owner_user_id,slug,display_name,profession,specialization,city,description)\n  VALUES (v_user_id,v_slug,v_name,\n          nullif(btrim(coalesce(p_profession,'')),''),\n          nullif(btrim(coalesce(p_specialization,'')),''),\n          nullif(btrim(coalesce(p_city,'')),''),nullif(btrim(coalesce(p_description,'')),''))\n  RETURNING id INTO v_id;\n  RETURN jsonb_build_object('id',v_id,'slug',v_slug,'profile_status','draft');\nEND\n$function$\n"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+      "md5": "82a3057d27c450b18cbb00edc393db78",
+      "owner": "postgres",
+      "signature": "get_my_specialists()",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_my_specialists()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE v_user_id uuid := auth.uid();\nBEGIN\n  IF v_user_id IS NULL THEN\n    RAISE EXCEPTION USING ERRCODE='42501', MESSAGE='Authentication required';\n  END IF;\n  RETURN coalesce((\n    SELECT jsonb_agg(jsonb_build_object(\n      'id',s.id,'slug',s.slug,'display_name',s.display_name,\n      'profession',s.profession,'specialization',s.specialization,\n      'city',s.city,'description',s.description,'profile_status',s.profile_status\n    ) ORDER BY s.created_at DESC)\n    FROM public.specialist_profiles s WHERE s.owner_user_id = v_user_id\n  ),'[]'::jsonb);\nEND\n$function$\n"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+      "md5": "630a01e05cb0f65cbef110ef4a695e79",
+      "owner": "postgres",
+      "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.update_my_specialist_draft(p_id uuid, p_display_name text, p_profession text, p_specialization text DEFAULT NULL::text, p_city text DEFAULT NULL::text, p_description text DEFAULT NULL::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE v_uid uuid := auth.uid(); v_id uuid;\nBEGIN\n IF v_uid IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;\n IF char_length(btrim(coalesce(p_display_name,''))) NOT BETWEEN 2 AND 150 OR char_length(btrim(coalesce(p_profession,''))) NOT BETWEEN 1 AND 120 OR char_length(coalesce(p_specialization,'')) > 160 OR char_length(coalesce(p_city,'')) > 120 OR char_length(coalesce(p_description,'')) > 2000 THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid fields'; END IF;\n UPDATE public.specialist_profiles SET display_name=btrim(p_display_name),profession=nullif(btrim(coalesce(p_profession,'')),''),specialization=nullif(btrim(coalesce(p_specialization,'')),''),city=nullif(btrim(coalesce(p_city,'')),''),description=nullif(btrim(coalesce(p_description,'')),''),updated_at=now() WHERE id=p_id AND owner_user_id=v_uid AND profile_status='draft' RETURNING id INTO v_id;\n IF v_id IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Draft not found or access denied'; END IF;\n RETURN jsonb_build_object('id',v_id,'profile_status','draft');\nEND\n$function$\n"
+    }
+  ],
+  "profile_columns_md5": "c23c3734b1e68f6a85376709caf424c4",
+  "storage_policies_md5": "e4457759b69f625549d7c6b73787125f",
+  "profile_constraints_md5": "7d5e75a8d743b97ff126103a499b78ab"
+}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import fs from 'node:fs/promises';import {chromium} from 'playwright';
 import {database,A,B} from './database.mjs';import {buildPages} from '../scripts/build-pages.mjs';
-await buildPages();const db=await database({editor:true});await db.exec(await fs.readFile(new URL('../docs/specialist-contact-channels-candidate.sql',import.meta.url),'utf8'));
+await buildPages();const db=await database({editor:true});await db.exec(await fs.readFile(new URL('../sql/20261027_specialist_channels_CANDIDATE.sql',import.meta.url),'utf8'));
 const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})});
 const ctx=await browser.newContext();let user=A,fail=null,slow=null,missingEditor=false,calls=[];const errors=[];
 const keys={
@@ -24,7 +24,8 @@ await ctx.route('**/*',async route=>{
 });
 await ctx.exposeBinding('testSession',()=>user?{user:{id:user}}:null);
 await ctx.exposeBinding('testRPC',async(_,name,args={})=>{
- calls.push({name,args});if(name==='get_my_companies'||name==='get_my_pending_company_invitations')return {data:[],error:null};if(missingEditor&&/^(get_my_specialist_(services|settings|media)|list_my_specialist_channels)$/.test(name))return {data:null,error:{code:'PGRST202',message:'Not installed'}};assert(keys[name],'Unexpected RPC '+name);
+ calls.push({name,args});if(name==='get_my_specialist_upload_capability')return {data:{protocol:1,enabled:true},error:null};
+  if(name==='get_my_companies'||name==='get_my_pending_company_invitations')return {data:[],error:null};if(missingEditor&&/^(get_my_specialist_(services|settings|media)|list_my_specialist_channels)$/.test(name))return {data:null,error:{code:'PGRST202',message:'Not installed'}};assert(keys[name],'Unexpected RPC '+name);
  if(fail===name)throw Error('offline');if(slow===name)await new Promise(r=>setTimeout(r,200));
  try{return {data:await db.call(user,name,keys[name].map(k=>k==='p_channels'?JSON.stringify(args[k]):args[k])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}
 });
