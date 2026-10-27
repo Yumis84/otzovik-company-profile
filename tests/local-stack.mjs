@@ -172,6 +172,7 @@ try{
   await page.locator('#media-file').setInputFiles({name:'browser.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('#media-state').filter({hasText:/Фотография (загружена|заменена) и опубликована/}).waitFor({timeout:30000}).catch(async e=>{throw Error('Browser media upload failed: '+await page.locator('#media-state').innerText()+'; page errors: '+errors.join('; '),{cause:e});});
   assert(ok(await a.from('company_media').select('*')).some(x=>x.storage_object_name.endsWith('.webp')));
  });
+ ok(await a.auth.signInWithPassword({email:emails[0],password}));ok(await b.auth.signInWithPassword({email:emails[1],password}));
  await gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company});
  assert.deepEqual(errors,[]);
  await test('private drafts remain absent from publisher and rollback preserves data',async()=>{

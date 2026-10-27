@@ -117,6 +117,6 @@ BEGIN
  FROM jsonb_to_recordset(allrows) AS x(id uuid,kind text,value_raw text,href text,label text,sort_order integer,is_preferred boolean,accepts_inquiries boolean,is_public boolean);
  RETURN public.list_my_specialist_channels(p_specialist_id);
 END $fn$;
-REVOKE ALL ON FUNCTION public.list_my_specialist_channels(uuid),public.save_my_specialist_channels(uuid,integer,jsonb) FROM PUBLIC,anon;
+REVOKE ALL ON FUNCTION public.list_my_specialist_channels(uuid),public.save_my_specialist_channels(uuid,integer,jsonb) FROM PUBLIC,anon,authenticated;
 
 COMMIT;

@@ -1,5 +1,5 @@
 -- CANDIDATE ONLY. One explicit reviewed phase, no auto apply.
-BEGIN;
+BEGIN READ ONLY;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='60s';
 DO $preflight$ DECLARE f record; h text; BEGIN
@@ -14,6 +14,8 @@ DO $preflight$ DECLARE f record; h text; BEGIN
  SELECT md5(string_agg(conname||':'||pg_get_constraintdef(oid),'|' ORDER BY conname)) INTO h FROM pg_constraint WHERE conrelid='public.specialist_profiles'::regclass; IF h IS DISTINCT FROM '7d5e75a8d743b97ff126103a499b78ab' THEN RAISE EXCEPTION 'Profile constraints drift'; END IF;
  SELECT md5(coalesce(string_agg(row_to_json(p)::text,'|' ORDER BY schemaname,tablename,policyname),'')) INTO h FROM pg_policies p WHERE schemaname='storage'; IF h IS DISTINCT FROM 'e4457759b69f625549d7c6b73787125f' THEN RAISE EXCEPTION 'Storage policies drift'; END IF;
  IF EXISTS(SELECT FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN ('specialist_services','specialist_settings','specialist_media','specialist_channel_sets','specialist_contact_channels','specialist_upload_reservations','specialist_upload_control')) OR EXISTS(SELECT FROM storage.buckets WHERE id='specialist-media') THEN RAISE EXCEPTION 'Not pristine production baseline; do not retry/overwrite'; END IF;
+ SELECT string_agg(pg_get_userbyid(x.grantee)||':'||x.privilege_type||':'||x.is_grantable::text,'|' ORDER BY pg_get_userbyid(x.grantee),x.privilege_type) INTO h FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) x WHERE p.oid='public.create_my_specialist_draft(text,text,text,text,text,text)'::regprocedure; IF h IS DISTINCT FROM 'authenticated:EXECUTE:false|postgres:EXECUTE:false|service_role:EXECUTE:false' THEN RAISE EXCEPTION 'Exact core ACL drift'; END IF;
+ SELECT string_agg(pg_get_userbyid(x.grantee)||':'||x.privilege_type||':'||x.is_grantable::text,'|' ORDER BY pg_get_userbyid(x.grantee),x.privilege_type) INTO h FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) x WHERE p.oid='public.get_my_specialists()'::regprocedure; IF h IS DISTINCT FROM 'authenticated:EXECUTE:false|postgres:EXECUTE:false|service_role:EXECUTE:false' THEN RAISE EXCEPTION 'Exact core ACL drift'; END IF;
+ SELECT string_agg(pg_get_userbyid(x.grantee)||':'||x.privilege_type||':'||x.is_grantable::text,'|' ORDER BY pg_get_userbyid(x.grantee),x.privilege_type) INTO h FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) x WHERE p.oid='public.update_my_specialist_draft(uuid,text,text,text,text,text)'::regprocedure; IF h IS DISTINCT FROM 'authenticated:EXECUTE:false|postgres:EXECUTE:false|service_role:EXECUTE:false' THEN RAISE EXCEPTION 'Exact core ACL drift'; END IF;
 END $preflight$;
-NOTIFY pgrst,'reload schema';
 COMMIT;
