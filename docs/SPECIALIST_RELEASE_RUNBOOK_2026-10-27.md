@@ -1,3 +1,5 @@
+> Historical PR37 report. Superseded for server deployment by SPECIALIST_GATEWAY_RUNBOOK_2026-10-27.md in PR38. Do not apply the old managed-trigger package.
+
 # Specialist private editor release candidate
 
 Task 6e1cf1f6-693c-4b71-97ef-3eed1a9ba43c. Date2026-10-27.

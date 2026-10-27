@@ -1,0 +1,528 @@
+{
+  "date": "2026-10-27",
+  "readOnly": true,
+  "production": {
+    "bucket": null,
+    "tables": [
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_profiles",
+        "force": true
+      }
+    ],
+    "policies": null,
+    "functions": [
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "md5": "2e8023658b2415c88fb84e22f12605ff",
+        "anon": false,
+        "name": "create_my_company",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "create_my_company(text,text,text,text,text,text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "md5": "68ee70685d1711095eeac125cb62fd3f",
+        "anon": false,
+        "name": "get_my_companies",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_companies()",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "64f33fb6fd83f891363c2035f39ca73c",
+        "anon": false,
+        "name": "create_my_specialist_draft",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "82a3057d27c450b18cbb00edc393db78",
+        "anon": false,
+        "name": "get_my_specialists",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_specialists()",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "630a01e05cb0f65cbef110ef4a695e79",
+        "anon": false,
+        "name": "update_my_specialist_draft",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+        "authenticated": true
+      }
+    ]
+  },
+  "staging": {
+    "bucket": [
+      {
+        "id": "specialist-media",
+        "mime": [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ],
+        "size": 5242880,
+        "public": false
+      }
+    ],
+    "tables": [
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_channel_sets",
+        "force": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_contact_channels",
+        "force": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_media",
+        "force": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_profiles",
+        "force": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_services",
+        "force": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+        "rls": true,
+        "name": "specialist_settings",
+        "force": true
+      }
+    ],
+    "policies": [
+      {
+        "cmd": "SELECT",
+        "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+        "roles": [
+          "authenticated"
+        ],
+        "tablename": "objects",
+        "permissive": "PERMISSIVE",
+        "policyname": "specialist_object_read",
+        "schemaname": "storage",
+        "with_check": null
+      },
+      {
+        "cmd": "INSERT",
+        "qual": null,
+        "roles": [
+          "authenticated"
+        ],
+        "tablename": "objects",
+        "permissive": "PERMISSIVE",
+        "policyname": "specialist_object_insert",
+        "schemaname": "storage",
+        "with_check": "((bucket_id = 'specialist-media'::text) AND can_upload_specialist_object(name))"
+      },
+      {
+        "cmd": "DELETE",
+        "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+        "roles": [
+          "authenticated"
+        ],
+        "tablename": "objects",
+        "permissive": "PERMISSIVE",
+        "policyname": "specialist_object_delete",
+        "schemaname": "storage",
+        "with_check": null
+      }
+    ],
+    "functions": [
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "4a26383f268562526e8b350c9e3e324e",
+        "anon": false,
+        "name": "can_manage_specialist_object",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "can_manage_specialist_object(text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "64fc6618ce80ea5e625a761bf6fd475b",
+        "anon": false,
+        "name": "can_upload_specialist_object",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "can_upload_specialist_object(text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "34e280735b4053b284c316f5661bc6d1",
+        "anon": false,
+        "name": "get_my_specialist_media",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_specialist_media(uuid)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "e455f988848cfdbb2d4f2552aaea679e",
+        "anon": false,
+        "name": "create_my_specialist_draft",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "59af56430be774dd03a78b785bc2fe72",
+        "anon": false,
+        "name": "delete_my_specialist_draft",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "delete_my_specialist_draft(uuid)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "5502d6f4b8a8e07ab06999e59b4640e5",
+        "anon": false,
+        "name": "delete_my_specialist_service",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "delete_my_specialist_service(uuid,uuid,integer)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "5cfdb4c1404bfc6f7900eae748f749cb",
+        "anon": false,
+        "name": "get_my_specialist_settings",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_specialist_settings(uuid)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "82a3057d27c450b18cbb00edc393db78",
+        "anon": false,
+        "name": "get_my_specialists",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_specialists()",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "md5": "2e8023658b2415c88fb84e22f12605ff",
+        "anon": false,
+        "name": "create_my_company",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "create_my_company(text,text,text,text,text,text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "md5": "68ee70685d1711095eeac125cb62fd3f",
+        "anon": false,
+        "name": "get_my_companies",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_companies()",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "9d2986dfc249fe119c4391bc9c76a18a",
+        "anon": false,
+        "name": "get_my_specialist_services",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "get_my_specialist_services(uuid)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "630a01e05cb0f65cbef110ef4a695e79",
+        "anon": false,
+        "name": "update_my_specialist_draft",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "59e9fba134dc014eba1892f7ccf0f884",
+        "anon": false,
+        "name": "save_my_specialist_settings",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "save_my_specialist_settings(uuid,text,text,text,text[],text,text,integer)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "bc5be914c0269f826387fc38057d5005",
+        "anon": false,
+        "name": "save_my_specialist_service",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "save_my_specialist_service(uuid,uuid,text,text,numeric,numeric,text,integer,boolean,integer)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "5318e6da6a1c7fe0646e948b2bf1eb22",
+        "anon": false,
+        "name": "register_my_specialist_media",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "register_my_specialist_media(uuid,text,text,text)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}",
+        "md5": "0e39d67da32a302a8258d01f39e048d1",
+        "anon": false,
+        "name": "delete_my_specialist_media",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "delete_my_specialist_media(uuid,uuid)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "md5": "ac2aed671db0e05d5872311e018b9fe7",
+        "anon": false,
+        "name": "specialist_channel_normalize",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": false,
+        "signature": "specialist_channel_normalize(text,text)",
+        "authenticated": false
+      },
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "md5": "060ed06c01de5ec0cea876eff3c7ac6a",
+        "anon": false,
+        "name": "list_my_specialist_channels",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "list_my_specialist_channels(uuid)",
+        "authenticated": true
+      },
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "md5": "c9e9df3b542956aaeb9e6e507ced21ac",
+        "anon": false,
+        "name": "save_my_specialist_channels",
+        "owner": "postgres",
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "save_my_specialist_channels(uuid,integer,jsonb)",
+        "authenticated": true
+      }
+    ]
+  },
+  "auth": [
+    {
+      "project": "rzhlcszqtuhkhfibygnk",
+      "site_url": "http://localhost:3000",
+      "uri_allow_list": "",
+      "mailer_autoconfirm": true,
+      "disable_signup": false,
+      "external_email_enabled": true,
+      "jwt_exp": 3600,
+      "password_min_length": 6,
+      "external_anonymous_users_enabled": false
+    },
+    {
+      "project": "salmcnhexlftrgtiryyo",
+      "site_url": "http://localhost:3000",
+      "uri_allow_list": "",
+      "mailer_autoconfirm": false,
+      "disable_signup": true,
+      "external_email_enabled": true,
+      "jwt_exp": 3600,
+      "password_min_length": 6,
+      "external_anonymous_users_enabled": false
+    }
+  ],
+  "originalPreflight": {
+    "result": "PASS actual production metadata-only transaction",
+    "mode": "BEGIN READ ONLY; no NOTIFY/DDL/CRUD",
+    "file": "sql/release/00_PREFLIGHT_CANDIDATE.sql"
+  },
+  "privileges": {
+    "role": "postgres",
+    "superuser": false,
+    "bypassrls": true,
+    "storageOwner": "supabase_storage_admin",
+    "triggerPrivilege": true,
+    "delegatedPolicyGrant": true,
+    "ddlTestedHosted": false
+  },
+  "dns": {
+    "nameservers": [
+      "gail.ns.cloudflare.com",
+      "memphis.ns.cloudflare.com"
+    ],
+    "probe": "gateway-audit-20261027.xn--b1ajuq0c.com",
+    "a": [
+      "104.21.49.136",
+      "172.67.163.128"
+    ],
+    "https": 404,
+    "jinoVerified": false,
+    "reservedFutureCollisionsProfiles": 0,
+    "reservedFutureCollisionsRegistry": 0
+  },
+  "successfulSourceCI": {
+    "head": "6d9f2a04839add54de291d158a7dd680f490456e",
+    "run": 40469093644,
+    "jobs": [
+      {
+        "id": 122071552143,
+        "name": "real-edge-supabase",
+        "result": "success"
+      },
+      {
+        "id": 122071552272,
+        "name": "sql-and-browser (specialist-ux-browser.mjs)",
+        "result": "success"
+      },
+      {
+        "id": 122071552310,
+        "name": "sql-and-browser (specialist-server-package.mjs)",
+        "result": "success"
+      },
+      {
+        "id": 122071552325,
+        "name": "sql-and-browser (specialist-channels.mjs)",
+        "result": "success"
+      },
+      {
+        "id": 122071552413,
+        "name": "sql-and-browser (specialist-gateway-sql.mjs)",
+        "result": "success"
+      },
+      {
+        "id": 122071552421,
+        "name": "sql-and-browser (specialist-editor.mjs)",
+        "result": "success"
+      },
+      {
+        "id": 122071552466,
+        "name": "sql-and-browser (specialist-acceptance.mjs)",
+        "result": "success"
+      }
+    ],
+    "realGroups": 22,
+    "postgresVersion": 170011
+  },
+  "notVerified": [
+    "hosted Edge deployment/env",
+    "hosted email/recovery delivery",
+    "old signed/TUS capability staging cutover",
+    "Jino DNS/SSL/router",
+    "independent audit of PR38",
+    "safe automatic reclamation of unknown in-flight operations",
+    "production publisher/CDN"
+  ],
+  "finalHeadCI": "Final Hub HANDOFF records actual exact-HEAD run; prior-source results are not relabeled"
+}

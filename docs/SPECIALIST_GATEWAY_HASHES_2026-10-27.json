@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-27",
+  "basis": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+  "companySource": {
+    "files": [
+      "account-access.html",
+      "account-ai-assistant.css",
+      "account-ai-assistant.html",
+      "account-analytics.css",
+      "account-analytics.html",
+      "account-billing.css",
+      "account-billing.html",
+      "account-branches.css",
+      "account-branches.html",
+      "account-claim.html",
+      "account-company-context.js",
+      "account-create-company.html",
+      "account-create-profile.html",
+      "account-home.html",
+      "account-login.html",
+      "account-media.css",
+      "account-media.html",
+      "account-menu.html",
+      "account-mobile-swipe.js",
+      "account-notifications.css",
+      "account-notifications.html",
+      "account-preview.css",
+      "account-preview.html",
+      "account-profile-live.html",
+      "account-profile.css",
+      "account-profile.html",
+      "account-qna.html",
+      "account-reviews.css",
+      "account-reviews.html",
+      "account-services.css",
+      "account-services.html",
+      "account-sources.css",
+      "account-sources.html"
+    ],
+    "committedAndWorkingBytes": "PASS33"
+  },
+  "canonical": "SHA256 of UTF-8 LF committed content; verify before future approved apply",
+  "files": [
+    {
+      "file": "sql/release/00_PREFLIGHT_CANDIDATE.sql",
+      "sha256": "2e37f565b9a332d1e8c74c05dd72145744b6bdc1975b002d04b2af76c4161f7a"
+    },
+    {
+      "file": "sql/release/05_STORAGE_BARRIER_CANDIDATE.sql",
+      "sha256": "684ceca33f7b4d78fcf316bc904d88c7ef1514b41727bc22d5e81c251515f3c6"
+    },
+    {
+      "file": "sql/release/10_SERVICES_CANDIDATE.sql",
+      "sha256": "e4472875bc6811bb1520119a3e312a2fb1ae55a93b6c0762e92ecb826a4e45be"
+    },
+    {
+      "file": "sql/release/20_SETTINGS_CANDIDATE.sql",
+      "sha256": "d6077a16b62c988eedc4f6be89a8638208b5a8e5869ddbd0a7143f4daf719c0b"
+    },
+    {
+      "file": "sql/release/30_MEDIA_CANDIDATE.sql",
+      "sha256": "fb6c2c9f8c02d6724000a2e4189b6c8bedf6b4c24c601dbf6c03ec13d007db03"
+    },
+    {
+      "file": "sql/release/40_CORE_LIFECYCLE_CANDIDATE.sql",
+      "sha256": "2d7b44b5214096a08b4c3839f920919fcfdb8158dd00ef967cc113ad887239fc"
+    },
+    {
+      "file": "sql/release/50_CHANNELS_CANDIDATE.sql",
+      "sha256": "6224343bba093a5b953f9cbb9c0e2352c3e71fdfb0efd0f7940e7d3615db99d0"
+    },
+    {
+      "file": "sql/release/60_GATEWAY_CANDIDATE.sql",
+      "sha256": "0319c7425227a432ea963d9f0f241888752dc404b3a2fee43c5d68bb8e0afadf"
+    },
+    {
+      "file": "sql/release/70_POSTCHECK_CANDIDATE.sql",
+      "sha256": "04809fc14e94e0f0b6cde0391de68149ccbfba230d703bddd8c9b5aa5d2ea822"
+    },
+    {
+      "file": "sql/release/80_ENABLE_MEDIA_CANDIDATE.sql",
+      "sha256": "22c989801d6460b0ed820b1c436aecaffcd53d2dd3d405a81fe0f94c6acac573"
+    },
+    {
+      "file": "sql/release/DISABLE_CHANNELS_CANDIDATE.sql",
+      "sha256": "ab0fa7caa7a63855bd5bff9fe9ea6d663276591c3cb3f0241c2388a5d137ac1b"
+    },
+    {
+      "file": "sql/release/DISABLE_CORE_CREATE_CANDIDATE.sql",
+      "sha256": "c5e36fe997e3e12b5431b45f849ce3414b05449c8f9aab7c5f1f3308521c5c24"
+    },
+    {
+      "file": "sql/release/DISABLE_LEGACY_GUARD_CANDIDATE.sql",
+      "sha256": "1289ed510cf655a3577ad89b925847684c975eff47a5653ab84eedaf4dd5d7db"
+    },
+    {
+      "file": "sql/release/DISABLE_MEDIA_CANDIDATE.sql",
+      "sha256": "c3cb6807847aa7c28817865c0f316a909a8bb7a87169cad25a339422fa1f5825"
+    },
+    {
+      "file": "sql/release/DISABLE_SERVICES_CANDIDATE.sql",
+      "sha256": "772721775d39c1817a4a5521887756f062aa148b746a6502047053eeb18c2c23"
+    },
+    {
+      "file": "sql/release/DISABLE_SETTINGS_CANDIDATE.sql",
+      "sha256": "50ef355da731e3f8c1a73fa5c658d157bc2f8110b166d89abfd89686016bd3e0"
+    },
+    {
+      "file": "sql/release/ENABLE_CHANNELS_CANDIDATE.sql",
+      "sha256": "9fb6605ea5b0513b3b2136fcc5da25af42cb68a156a98f4b05d35b229ca0a484"
+    },
+    {
+      "file": "sql/release/ENABLE_CORE_CREATE_CANDIDATE.sql",
+      "sha256": "0a6cba33ede4fe6f593bdbba270d203adde5b36693438d1324344d8648889059"
+    },
+    {
+      "file": "sql/release/ENABLE_SERVICES_CANDIDATE.sql",
+      "sha256": "7726ec4f36ec19cbd223d8e28d7894e618d5ab68353932aaf102d4676a8cf212"
+    },
+    {
+      "file": "sql/release/ENABLE_SETTINGS_CANDIDATE.sql",
+      "sha256": "50ec9ba3fd0b5f688cabaeb1772ccae4075caabd8ff14a0231e01d36c639fe3d"
+    },
+    {
+      "file": "sql/release/RESTORE_CORE_CREATE_CANDIDATE.sql",
+      "sha256": "f8d097591a03ec2af3993a67390126c43c270e4b9fe4c2262fbb133bee350ae4"
+    },
+    {
+      "file": "sql/20261027_specialist_upload_gateway_CANDIDATE.sql",
+      "sha256": "0319c7425227a432ea963d9f0f241888752dc404b3a2fee43c5d68bb8e0afadf"
+    },
+    {
+      "file": "sql/20261027_specialist_channels_CANDIDATE.sql",
+      "sha256": "2606f4ae0e75a5b46fdc06fa129ea2a34c98819b8ca592e0735da0a7aef8cdb6"
+    },
+    {
+      "file": "server/specialist-media-gateway.js",
+      "sha256": "fc31d735d71275f1ee8f6dbebe4651badfaf8aeceb5092e2caadcf762fad5c69"
+    },
+    {
+      "file": "edge/specialist-media-gateway/index.ts",
+      "sha256": "1607d6aa87fce99e0c07c1a1441603242cd8b162d95e92aa37566b5cd9fd3ad2"
+    },
+    {
+      "file": "account-specialist-upload.js",
+      "sha256": "cadffc67710f0658a1467d5b4442b002dc9f7be027daa3073fb6b79807cae034"
+    },
+    {
+      "file": "account-specialist-media.js",
+      "sha256": "4e7f46a35331a69c95aa51b0e825615d4b1632bf146b9e4195507606c55d9623"
+    },
+    {
+      "file": "scripts/specialist-server-package.mjs",
+      "sha256": "9cf94e420da4085c25a460efd050b4d91a2677fb3ab4c5473f527393c017db69"
+    }
+  ],
+  "hostedApplyAuthorized": false
+}

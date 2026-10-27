@@ -1,12 +1,9 @@
+import {createClient} from '@supabase/supabase-js';
 import assert from 'node:assert/strict';import fs from 'node:fs/promises';import crypto from 'node:crypto';import {createMediaGateway} from '../server/specialist-media-gateway.js';
 export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company}){
  const file=f=>fs.readFile(new URL('../'+f,import.meta.url),'utf8'),A=ok(await a.auth.getUser()).user.id;
  const id=ok(await a.rpc('get_my_specialists')).find(r=>r.slug==='local-specialist').id;
- // Migration from historical isolated fixture only. No hosted trigger was installed or removed.
- await db.query('DROP TRIGGER specialist_object_integrity ON storage.objects');
- await db.query(await file('sql/20261027_specialist_upload_gateway_CANDIDATE.sql'));
- await db.query(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
- await db.query("NOTIFY pgrst,'reload schema'");await new Promise(r=>setTimeout(r,1500));
+ assert.equal((await db.query("SELECT count(*)::int n FROM pg_trigger WHERE tgname='specialist_object_integrity'")).rows[0].n,0);
  const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
  const payload=(profile=id,request_id=crypto.randomUUID())=>({action:'upload',specialist_id:profile,request_id,kind:'portfolio',mime:'image/png',data:bytes.toString('base64'),caption:'Gateway photo'});
  async function gw(c,body,headers={}){
@@ -80,7 +77,19 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
    assert.equal((await db.query("SELECT count(*)::int n FROM storage.objects WHERE bucket_id='specialist-media' AND split_part(name,'/',1)=$1",[p.id])).rows[0].n,0);
   }
  });
- await test('unknown expired operation remains quarantined; disable/enable and company Storage unaffected',async()=>{
+ await test('real Auth user deletion cannot cascade away a pending reservation',async()=>{
+  const email='cascade-'+crypto.randomUUID()+'@example.test',password='Gateway-'+crypto.randomUUID()+'!';
+  const user=ok(await admin.auth.admin.createUser({email,password,email_confirm:true})).user;
+  const c=createClient(api,anon,{auth:{persistSession:false,autoRefreshToken:false}});ok(await c.auth.signInWithPassword({email,password}));
+  const p=ok(await c.rpc('create_my_specialist_draft',{p_display_name:'Cascade test',p_slug:'cascade-'+crypto.randomUUID().slice(0,12),p_profession:'Master'}));
+  ok(await admin.rpc('specialist_gateway_reserve',{p_owner:user.id,p_specialist_id:p.id,p_request_id:crypto.randomUUID(),p_kind:'portfolio',p_fingerprint:'c'.repeat(64),p_mime:'image/png',p_size:68,p_caption:null}));
+  assert((await admin.auth.admin.deleteUser(user.id)).error,'Pending FK must block Auth cascade');assert.equal(ok(await c.auth.getUser()).user.id,user.id);
+  // Fixture teardown ONLY: this test never issued a Storage request, so no late writer exists.
+  // This is NOT an application GC recipe for unknown operations.
+  await db.query('DELETE FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id]);
+  ok(await admin.auth.admin.deleteUser(user.id));
+ });
+ await test('unknown expired operation and Auth cascade stay safe; disable/enable and company unaffected',async()=>{
   const request=crypto.randomUUID();await db.query("SELECT specialist_gateway_reserve($1,$2,$3,'portfolio',$4,'image/png',68,null)",[A,id,request,'a'.repeat(64)]);
   await db.query("UPDATE specialist_upload_reservations SET expires_at=now()-interval '1 day' WHERE id=$1",[request]);
   const dry=await gw(a,{action:'reconcile',specialist_id:id});assert(dry.reservations.some(r=>r.id===request&&r.expired&&r.state==='uploading'));

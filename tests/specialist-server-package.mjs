@@ -27,6 +27,7 @@ try{
  await test('explicit capability enable/disable, no records dropped and baseline replay rejected',async()=>{
   await assert.rejects(()=>db.exec(fixturePreflight),/drift|pristine/);
   for(const m of ['SERVICES','SETTINGS','CHANNELS'])await db.exec(await file('sql/release/ENABLE_'+m+'_CANDIDATE.sql'));await db.exec(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
+  if(process.env.GATEWAY_CATALOG_PATH){const rows=(await db.query("SELECT oid::regprocedure::text signature,md5(pg_get_functiondef(oid)) definition_md5,prosecdef,proconfig,has_function_privilege('anon',oid,'EXECUTE') anon_execute,has_function_privilege('authenticated',oid,'EXECUTE') auth_execute,has_function_privilege('service_role',oid,'EXECUTE') service_execute FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname LIKE '%specialist%' ORDER BY oid::regprocedure::text")).rows;await fs.writeFile(process.env.GATEWAY_CATALOG_PATH,JSON.stringify({engine:'PostgreSQL17 isolated fixture',phase:'all enabled before disable tests',functions:rows},null,2));}
   const p=await db.call(A,'create_my_specialist_draft',['Package','package-test','Master']);assert.equal((await db.call(A,'get_my_specialist_upload_capability',[p.id])).enabled,true);
   for(const m of ['SERVICES','SETTINGS','CHANNELS'])await db.exec(await file('sql/release/DISABLE_'+m+'_CANDIDATE.sql'));await db.exec(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));
   assert((await db.call(A,'get_my_specialists')).some(x=>x.id===p.id));

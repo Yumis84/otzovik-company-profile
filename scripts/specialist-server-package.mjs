@@ -7,5 +7,6 @@ export const serverPackage=[
   "sql/release/30_MEDIA_CANDIDATE.sql",
   "sql/release/40_CORE_LIFECYCLE_CANDIDATE.sql",
   "sql/release/50_CHANNELS_CANDIDATE.sql",
-  "sql/release/60_GATEWAY_CANDIDATE.sql"
+  "sql/release/60_GATEWAY_CANDIDATE.sql",
+  "sql/release/70_POSTCHECK_CANDIDATE.sql"
 ];

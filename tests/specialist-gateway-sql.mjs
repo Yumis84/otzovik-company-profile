@@ -21,6 +21,7 @@ try{
   await denied(()=>reserve(rid,id,B),'42501');
   await denied(()=>db.query("SELECT public.specialist_gateway_reserve($1,$2,$3,'portfolio',$4,'image/png',10,null)",[A,id,rid,'b'.repeat(64)]),'PT409');
   await denied(()=>db.call(A,'delete_my_specialist_draft',[id]),'55000');
+  await denied(()=>db.query('DELETE FROM specialist_profiles WHERE id=$1',[id]),'23503');
  });
  await test('unknown and expired uploads never release slots automatically',async()=>{
   await db.query("UPDATE specialist_upload_reservations SET expires_at=now()-interval '1 day' WHERE id=$1",[rid]);assert.equal((await reserve(rid)).upload_allowed,false);

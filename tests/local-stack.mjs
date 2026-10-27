@@ -1,3 +1,4 @@
+import {serverPackage} from '../scripts/specialist-server-package.mjs';
 import {gatewayChecks} from './gateway-local-checks.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -8,7 +9,6 @@ import {createClient} from '@supabase/supabase-js';
 import {build} from 'esbuild';
 import {chromium} from 'playwright';
 import {migrationSQL} from '../scripts/specialist-migration.mjs';
-import {editorMigrationSQL} from '../scripts/specialist-editor-migration.mjs';
 import {editorChecks,editorBrowser} from './local-editor-checks.mjs';
 import {buildPages} from '../scripts/build-pages.mjs';
 const cfg=JSON.parse(await fs.readFile('/tmp/otzovik-local-status.json','utf8'));
@@ -43,8 +43,21 @@ try{
  // Limit subsidiary RPCs to authenticated just as the cabinet's API contract requires.
  for(const f of snapshot.functions){const r=await db.query("SELECT oid::regprocedure::text signature FROM pg_proc WHERE proname=$1 AND pronamespace='public'::regnamespace",[f.name]);for(const row of r.rows)await db.query(`REVOKE ALL ON FUNCTION ${row.signature} FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION ${row.signature} TO authenticated;`);}
  await db.query(await migrationSQL());
- await db.query(await editorMigrationSQL());
- await db.query(await fs.readFile(new URL('../sql/20261027_specialist_channels_CANDIDATE.sql',import.meta.url),'utf8'));
+ const productionPins=JSON.parse(await fs.readFile(new URL('../docs/SPECIALIST_GATEWAY_PRODUCTION_BASELINE_2026-10-27.json',import.meta.url),'utf8'));
+ for(const f of productionPins.functions)await db.query(f.definition);
+ const fixtureStorageHash=(await db.query("SELECT md5(coalesce(string_agg(row_to_json(p)::text,'|' ORDER BY schemaname,tablename,policyname),'')) h FROM pg_policies p WHERE schemaname='storage'")).rows[0].h;
+ for(const phase of serverPackage){
+  if(phase.includes('30_MEDIA'))ok(await admin.storage.createBucket('specialist-media',{public:false,fileSizeLimit:5242880,allowedMimeTypes:['image/png','image/jpeg','image/webp']}));
+  let sql=await fs.readFile(new URL('../'+phase,import.meta.url),'utf8');
+  if(phase.includes('00_PREFLIGHT'))sql=sql.replace(productionPins.storage_policies_md5,fixtureStorageHash); // fixture-only policy binding; exact original passed actual production READ ONLY
+  await db.query(sql);
+ }
+ assert.equal((await db.query("SELECT count(*)::int n FROM pg_trigger WHERE tgname='specialist_object_integrity'")).rows[0].n,0);
+ assert.equal((await db.query('SELECT enabled FROM specialist_upload_control')).rows[0].enabled,false);
+ for(const module of ['SERVICES','SETTINGS','CHANNELS'])await db.query(await fs.readFile(new URL('../sql/release/ENABLE_'+module+'_CANDIDATE.sql',import.meta.url),'utf8'));
+ await db.query(await fs.readFile(new URL('../sql/release/80_ENABLE_MEDIA_CANDIDATE.sql',import.meta.url),'utf8'));
+ console.log('LOCAL full split package: production core/schema/ACL pins; fixture-bound company Storage policy hash; NO managed trigger; explicit activation');
+
  ok(await admin.storage.createBucket('company-media',{public:false}));
  await db.query("NOTIFY pgrst,'reload schema'");
  await new Promise(r=>setTimeout(r,1500));

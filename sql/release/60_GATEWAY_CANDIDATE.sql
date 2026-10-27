@@ -8,10 +8,11 @@ END $$;
 CREATE TABLE public.specialist_upload_control(singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton),enabled boolean NOT NULL DEFAULT false);
 INSERT INTO public.specialist_upload_control VALUES(true,false);
 CREATE TABLE public.specialist_upload_reservations(
- id uuid PRIMARY KEY, specialist_id uuid NOT NULL REFERENCES public.specialist_profiles(id) ON DELETE CASCADE,
+ id uuid PRIMARY KEY, profile_id uuid NOT NULL, specialist_id uuid REFERENCES public.specialist_profiles(id) ON DELETE RESTRICT,
  object_name text NOT NULL UNIQUE, kind text NOT NULL CHECK(kind IN ('avatar','portfolio')),
  fingerprint text, mime text, size_bytes integer, caption text,
  state text NOT NULL CHECK(state IN ('uploading','ready','deleting','deleted')),
+ CHECK((state='deleted' AND specialist_id IS NULL) OR (state<>'deleted' AND specialist_id IS NOT NULL AND specialist_id=profile_id)),
  created_at timestamptz NOT NULL DEFAULT now(), expires_at timestamptz NOT NULL DEFAULT now()+interval '10 minutes'
 );
 CREATE INDEX ON public.specialist_upload_reservations(specialist_id);
@@ -45,7 +46,8 @@ BEGIN
  IF p_request_id IS NULL OR p_kind NOT IN ('avatar','portfolio') OR p_kind IS NULL OR p_fingerprint !~ '^[a-f0-9]{64}$' OR p_fingerprint IS NULL OR p_mime NOT IN ('image/png','image/jpeg','image/webp') OR p_mime IS NULL OR p_size NOT BETWEEN 1 AND 5242880 OR p_size IS NULL OR char_length(coalesce(p_caption,''))>500 THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid upload'; END IF;
  SELECT * INTO r FROM public.specialist_upload_reservations WHERE id=p_request_id;
  IF FOUND THEN
-  IF r.specialist_id<>p_specialist_id THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Upload unavailable'; END IF;
+  IF r.profile_id<>p_specialist_id THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Upload unavailable'; END IF;
+  IF r.state='deleted' THEN RETURN to_jsonb(r)||jsonb_build_object('upload_allowed',false); END IF;
   IF r.fingerprint IS DISTINCT FROM p_fingerprint OR r.kind<>p_kind OR r.caption IS DISTINCT FROM p_caption THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Request changed'; END IF;
   RETURN to_jsonb(r)||jsonb_build_object('upload_allowed',false);
  END IF;
@@ -56,7 +58,7 @@ BEGIN
  ext:=CASE p_mime WHEN 'image/png' THEN 'png' WHEN 'image/jpeg' THEN 'jpg' ELSE 'webp' END;
  path:=p_specialist_id::text||'/'||p_kind||'/'||p_request_id::text||'.'||ext;
  IF EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=path) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Object already exists'; END IF;
- INSERT INTO public.specialist_upload_reservations(id,specialist_id,object_name,kind,fingerprint,mime,size_bytes,caption,state) VALUES(p_request_id,p_specialist_id,path,p_kind,p_fingerprint,p_mime,p_size,p_caption,'uploading') RETURNING * INTO r;
+ INSERT INTO public.specialist_upload_reservations(id,profile_id,specialist_id,object_name,kind,fingerprint,mime,size_bytes,caption,state) VALUES(p_request_id,p_specialist_id,p_specialist_id,path,p_kind,p_fingerprint,p_mime,p_size,p_caption,'uploading') RETURNING * INTO r;
  RETURN to_jsonb(r)||jsonb_build_object('upload_allowed',true);
 END $$;
 CREATE FUNCTION public.specialist_gateway_finish(p_owner uuid,p_specialist_id uuid,p_request_id uuid) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
@@ -90,7 +92,7 @@ BEGIN
  ELSE
   IF NOT EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=p_object_name) AND NOT EXISTS(SELECT FROM public.specialist_media WHERE specialist_id=p_specialist_id AND object_name=p_object_name) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Object unavailable'; END IF;
   kind:=split_part(p_object_name,'/',2);
-  INSERT INTO public.specialist_upload_reservations(id,specialist_id,object_name,kind,state) VALUES(gen_random_uuid(),p_specialist_id,p_object_name,kind,'deleting') RETURNING * INTO r;
+  INSERT INTO public.specialist_upload_reservations(id,profile_id,specialist_id,object_name,kind,state) VALUES(gen_random_uuid(),p_specialist_id,p_specialist_id,p_object_name,kind,'deleting') RETURNING * INTO r;
  END IF;
  RETURN to_jsonb(r);
 END $$;
@@ -100,11 +102,11 @@ BEGIN
  PERFORM pg_advisory_xact_lock(hashtextextended('specialist-media:'||p_specialist_id::text,0));
  PERFORM 1 FROM public.specialist_profiles WHERE id=p_specialist_id AND owner_user_id=p_owner AND profile_status='draft' FOR UPDATE;
  IF NOT FOUND OR p_owner IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Draft unavailable'; END IF;
- SELECT * INTO r FROM public.specialist_upload_reservations WHERE id=p_request_id AND specialist_id=p_specialist_id FOR UPDATE;
+ SELECT * INTO r FROM public.specialist_upload_reservations WHERE id=p_request_id AND profile_id=p_specialist_id FOR UPDATE;
  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Object unavailable'; END IF;
  IF r.state NOT IN ('deleting','deleted') OR EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Storage deletion not confirmed'; END IF;
  DELETE FROM public.specialist_media WHERE specialist_id=p_specialist_id AND object_name=r.object_name;
- UPDATE public.specialist_upload_reservations SET state='deleted' WHERE id=r.id;
+ UPDATE public.specialist_upload_reservations SET state='deleted',specialist_id=NULL,fingerprint=NULL,mime=NULL,size_bytes=NULL,caption=NULL WHERE id=r.id;
  RETURN jsonb_build_object('deleted',true);
 END $$;
 CREATE FUNCTION public.specialist_gateway_reconcile(p_owner uuid,p_specialist_id uuid) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
