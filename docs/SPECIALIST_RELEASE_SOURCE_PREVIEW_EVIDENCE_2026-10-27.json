@@ -1,0 +1,594 @@
+{
+  "sourceGate": {
+    "head": "84de72349611a233d21f5dd121bb479710c5bc47",
+    "base": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+    "companyFiles": [
+      "account-access.html",
+      "account-ai-assistant.css",
+      "account-ai-assistant.html",
+      "account-analytics.css",
+      "account-analytics.html",
+      "account-billing.css",
+      "account-billing.html",
+      "account-branches.css",
+      "account-branches.html",
+      "account-claim.html",
+      "account-company-context.js",
+      "account-create-company.html",
+      "account-create-profile.html",
+      "account-home.html",
+      "account-login.html",
+      "account-media.css",
+      "account-media.html",
+      "account-menu.html",
+      "account-mobile-swipe.js",
+      "account-notifications.css",
+      "account-notifications.html",
+      "account-preview.css",
+      "account-preview.html",
+      "account-profile-live.html",
+      "account-profile.css",
+      "account-profile.html",
+      "account-qna.html",
+      "account-reviews.css",
+      "account-reviews.html",
+      "account-services.css",
+      "account-services.html",
+      "account-sources.css",
+      "account-sources.html"
+    ],
+    "companyBlobAndWorkingBytes": "PASS33",
+    "runtimeBase": "693446dff47bb1335c43104cb37ed47931134700",
+    "runtimeFiles": 60,
+    "runtimeBytes": "PASS all manifest files unchanged from PR34",
+    "hostedWrites": false
+  },
+  "preview": {
+    "preview": "https://53545278.otzovik-cabinet-dev.pages.dev",
+    "checkedAt": "2026-10-27T05:57:09.5311488Z",
+    "source": "Existing PR34 preview, no deploy; normalized endpoints/public-key + line endings, not byte-identical deployed config",
+    "results": [
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "route": ".nojekyll",
+        "productionRef": false,
+        "status": 200,
+        "file": ".nojekyll"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "4da9a6128f01e3371ec402f9f4da6d2e5d16d7d6cf44932cdfc5518721239035",
+        "route": "account-access",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-access.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "a3f1822d82c2b1d72b2ce78cd0d9829f9f35c9c98786f4fe700bf3159e1aa961",
+        "route": "account-ai-assistant.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-ai-assistant.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "a993d6c2531599e9a0a8c6c61ff0ae424e7379d2697a46ca2fbf990ace78b76a",
+        "route": "account-ai-assistant",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-ai-assistant.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "de70777c0c4bcae8c8ff18d6ee9c692896f0fee85152aef40fa6aa9818d1eb0a",
+        "route": "account-analytics.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-analytics.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "5905ce718e44c10ddf96e7c148b36330e5970dd7b7548816596edc99ac2627e5",
+        "route": "account-analytics",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-analytics.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "8645bf4f458bad2bb1ff8c1f7e0f7186844f1fe401991739c27d2c59ad3811e9",
+        "route": "account-billing.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-billing.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "50178be5318e68d28bd97d25fa0753206b29197c5bc0cce2402f4d093762aedd",
+        "route": "account-billing",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-billing.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "5b029fd060b39ca7c1f31977453a500e3f8a32a863e88d5f84dab4c437bf1941",
+        "route": "account-branches.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-branches.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "d098f7938003f8c652a7a5cec8bd7928f8b90af51abbda5f3adb92d25cbabde3",
+        "route": "account-branches",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-branches.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "f0c9c86b980f00367922b3a73e6c96851bff25ad8493f52f6d9aa2215a0ef81b",
+        "route": "account-claim",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-claim.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "9a5f2915ea7b8b034f85243e329322d545c3df56cff4f1307c31a3d73f9f163c",
+        "route": "account-company-context.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-company-context.js"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "19abbb4c747e6c7f602843ee6f9ece374cc69de015a30ea13c79e2b48a7b005a",
+        "route": "account-create-company",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-create-company.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "6fb093b6a7cefb358e8806574154b41a0f913a3969bfba14bcebf6b9b616ef4b",
+        "route": "account-create-profile",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-create-profile.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "a9fdd638ff1d3ed9b32ff819395865e29b790eb4d69cb6db592598645d024e87",
+        "route": "account-create-specialist",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-create-specialist.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "06efb97343f94b496d159e4813d8d346539bcdf41dbd1baca9e6dbcb2d2a48d5",
+        "route": "account-home",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-home.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "630c8c460c5293fd2070d184f848a240df5812cfafbcb00bfee71fd7665a8036",
+        "route": "account-login",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-login.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "0653454d0fa26b29dc9b070115afddffb372c7f521c4363bb070910b39234c11",
+        "route": "account-media.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-media.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "fdfdc483f58697ef9a47a248a10656b726acd049f1d8bced36a81d331514e057",
+        "route": "account-media",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-media.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "678622ec44cac3ddbec2d71aba215e8709293faa401b1306084700465cbc8dd4",
+        "route": "account-menu",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-menu.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "8acebe87060c0fca19edd76d12f0eb929b4f0cac9003c3aae4924bebcbaa2c17",
+        "route": "account-mobile-swipe.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-mobile-swipe.js"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "46f86f08fbc0409609d0134a49572cb76c6956309b030f1f1bd06a4817334129",
+        "route": "account-notifications.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-notifications.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "9e182da9bc7e239fd33397705be02465f6fc3ed447e9828589d3246f5ed0e001",
+        "route": "account-notifications",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-notifications.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "a16b1ce20789068c4660b672cacaca4415eec8386c2a98848a6bca8ccffa3499",
+        "route": "account-preview.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-preview.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "1712428f73a9ee79bd5a9cfb1f78ef68ebfc048f9defcef9c7bd475b863bbf60",
+        "route": "account-preview",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-preview.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "1551725c7989e4df5969f46f916309ddcbb74d7528e97f04a496e82b20055fca",
+        "route": "account-profile-live",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-profile-live.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "4bb5d54130512798fdc1887c5381dd15219de2032d391a0449a1eb354b96e430",
+        "route": "account-profile.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-profile.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "aa0b56b86f029b313103d256125f11400a6361804a52a03c236f93e90efe85e2",
+        "route": "account-profile",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-profile.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "eaebdde62229a177f10d95937d1a01552201a00238de4f9099f2d7bf047bf058",
+        "route": "account-qna",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-qna.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "51e6fc71517aa6375a5dcf1e364a76f9f16f8cf82f41e54f3e005e91a4f07087",
+        "route": "account-reviews.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-reviews.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "4b6635af07987bd8a6e5180863145fcae5773bec9c13f045af402e82cf277efb",
+        "route": "account-reviews",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-reviews.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "bf2ed9053c379055cd10030f97851abe8d181e0b804c68601532256e88916679",
+        "route": "account-services.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-services.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "8a13b36c1170741bed2d12e797d93b26c162c7f12370eea547692061ce6b150f",
+        "route": "account-services",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-services.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "fdff6db079e3af9a1de5f6947d62ae8ce346b0adf66fb002aaebf627409e0b1d",
+        "route": "account-sources.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-sources.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "aba65608a78254324e6302bc887c8cd1dfeab048f37382e90d905293e8358597",
+        "route": "account-sources",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-sources.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "27ba022b753756999faa55163b775c16ccd764903ff5ed72de75b4b1b4144c20",
+        "route": "",
+        "productionRef": false,
+        "status": 200,
+        "file": "index.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "9ddde612f5887d10fb86ac4bc051400c8cab1ba4a16992bef692b3f638a22620",
+        "route": "llms.txt",
+        "productionRef": false,
+        "status": 200,
+        "file": "llms.txt"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "9b48adda527b299c353b50cb227d58021732828e4773f9a1d05dc9145a8383fc",
+        "route": "profile-inactive",
+        "productionRef": false,
+        "status": 200,
+        "file": "profile-inactive.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "4a1ffadd76167a2712b00858521af30910b366a0fb0613e58467fe61a8c4704a",
+        "route": "profile.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "profile.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "62c463ca5f1ba92618cd64ab02c3148c9fd71a6a6aeaff05fc798181c9d92cea",
+        "route": "profile",
+        "productionRef": false,
+        "status": 200,
+        "file": "profile.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "5b117964b32a3a42fd53aea0d9f4cbd74bb44e0f1adb5d5fe85e0f3c1e798c88",
+        "route": "profile.json",
+        "productionRef": false,
+        "status": 200,
+        "file": "profile.json"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "663ad6c554f08177117f2b02c40bea59ef6c7d26caeca36eed767f9f081eb84c",
+        "route": "profile.md",
+        "productionRef": false,
+        "status": 200,
+        "file": "profile.md"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "55ff880b1b12557d8596134a95588f06caa80cc539fe88669da2ae817ece036f",
+        "route": "published-review-template-v1",
+        "productionRef": false,
+        "status": 200,
+        "file": "published-review-template-v1.html"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "e9a09474fb6511bbac3d0c15130415e2790991eafd472172367184d444dec4c1",
+        "route": "review-form-contract-v1",
+        "productionRef": false,
+        "status": 200,
+        "file": "review-form-contract-v1.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "c63d432837bff4e46dbbc0a8fc5c1b9888cd35bdcaad8bf519d65b175a557a1a",
+        "route": "review-submit.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "review-submit.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "a7b7478fe8d4176555e847324bdf0853f5f57d72af6846f1bbd5977b8b7fad67",
+        "route": "review-submit",
+        "productionRef": false,
+        "status": 200,
+        "file": "review-submit.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "676abc057efd2a50e9a7b8ac8a51f924d0ad34ae8a29aed862d69dd17970b04d",
+        "route": "reviews.json",
+        "productionRef": false,
+        "status": 200,
+        "file": "reviews.json"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "ac237cd5d7ebfb2631ef2b5033efcabaa1d66327f9893f04f3bbb191a244e2c3",
+        "route": "reviews/",
+        "productionRef": false,
+        "status": 200,
+        "file": "reviews/index.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "6b148206280cda7140d490ee720755a6d8422b9476350c307669185d5c3f59e4",
+        "route": "styles.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "styles.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "bf4e6b06dff500af72aa0028c9e9dc0bc5e7399df8d79e18877cc0af09c9f147",
+        "route": "account-specialist-api.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-api.js"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "9f86d0e07693dc2b3c00ade4ff59b63af9e99f461081cffcd37d5217e35538ab",
+        "route": "account-specialist-ui.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-ui.js"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "2fcd95373aa406c5167a9b6f92bdcc057f818fa5ad2576dd5833a05328826f01",
+        "route": "account-specialist-ui.css",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-ui.css"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "e532ff0ca2044bdecee5d1b2a691d1db694cb24a146edebdcec120f8bdafaeed",
+        "route": "account-specialist-services",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-services.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "585e71af9833d7afae425a41559a4d39352f7fb9e4083c857b2ae86b2b280f38",
+        "route": "account-specialist-services.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-services.js"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "f26374e648d6e580c22cc8bf56f4ca4855a082619f7460eaa54ad5c93d11353d",
+        "route": "account-specialist-media",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-media.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "85c13403dbd475fcc9d29ac05021a37e3dda4edf49833dbd36aae7a1a2a90dc2",
+        "route": "account-specialist-media.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-media.js"
+      },
+      {
+        "configNormalizedEqual": false,
+        "stagingRef": true,
+        "sha256": "1831de52bdf4df6a512d414b1fe35c90e879595353fdaeaba8224fdfda97560a",
+        "route": "account-specialist-contacts",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-contacts.html"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "a0a6ee51a3dc1db51accc765960d6e5fecd6417d2f71865afbff578aa754a817",
+        "route": "account-specialist-contacts.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-contacts.js"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "4abb8042b5cc1de1a4660483bad20723d108b85909c9bf878e0844115ae7cd57",
+        "route": "account-specialist-channel-rules.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-channel-rules.js"
+      },
+      {
+        "configNormalizedEqual": true,
+        "stagingRef": false,
+        "sha256": "dc83185b363bea44d3704e5664491fc6ca77e24121387c9c7cac1ca71448504a",
+        "route": "account-specialist-channels.js",
+        "productionRef": false,
+        "status": 200,
+        "file": "account-specialist-channels.js"
+      }
+    ]
+  },
+  "limits": "Preview uses staging/SDK/CSP transformations, not byte-identical RC deployment. Config-normalized comparisons did NOT strip SDK imports/CSP and are not a failure of source equality. No hosted writes, real signed-in preview scenarios NOT RUN; new SQL guard absent hosted."
+}

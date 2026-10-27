@@ -6,7 +6,10 @@
     "test": "node tests/specialist-acceptance.mjs",
     "test:browser": "node tests/specialist-browser.mjs",
     "build:pages": "node scripts/build-pages.mjs",
-    "test:pages": "node tests/pages-artifact.mjs"
+    "test:pages": "node tests/pages-artifact.mjs",
+    "test:editor": "node tests/specialist-editor.mjs",
+    "test:channels": "node tests/specialist-channels.mjs",
+    "test:channels:browser": "node tests/specialist-channels-browser.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

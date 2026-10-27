@@ -1,0 +1,1435 @@
+{
+  "date": "2026-10-27",
+  "scope": "read-only catalog/auth config; no row data or secrets",
+  "main": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+  "prs": [
+    {
+      "n": 17,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "ffd5bb628798c8acc79a8777bfff446f412532af",
+      "base": "main",
+      "base_sha": "6440aad551d6872544ad864bd08549eb97df2b7b",
+      "ci": {
+        "workflow_runs": []
+      }
+    },
+    {
+      "n": 20,
+      "state": "closed",
+      "merged": true,
+      "draft": false,
+      "head": "d5da699ec286b5ba03d20dab5b5465776f834878",
+      "base": "main",
+      "base_sha": "ed3a3e0e09678ca7175f6c4e42fb3945294fd18d",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39051734574,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 72,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39051734574/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39051734574/logs",
+            "workflow_id": 387185765
+          },
+          {
+            "id": 39051734578,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 14,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39051734578/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39051734578/logs",
+            "workflow_id": 387727830
+          }
+        ]
+      }
+    },
+    {
+      "n": 23,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "69d4bc6d6c6c0c9ad5e7b72197b821702333abec",
+      "base": "main",
+      "base_sha": "3b8a639b79414004def3d2b62acb23d3d0692960",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39065312703,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 80,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39065312703/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39065312703/logs",
+            "workflow_id": 387185765
+          },
+          {
+            "id": 39065312710,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 21,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39065312710/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39065312710/logs",
+            "workflow_id": 387727830
+          }
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "250e370ff5d6850b813bada3e53b6300154ae4fa",
+      "base": "main",
+      "base_sha": "3b8a639b79414004def3d2b62acb23d3d0692960",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39072668913,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 89,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39072668913/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39072668913/logs",
+            "workflow_id": 387185765
+          },
+          {
+            "id": 39072668889,
+            "name": "AI consultant mock acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 5,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39072668889/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39072668889/logs",
+            "workflow_id": 387979972
+          },
+          {
+            "id": 39072668892,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 30,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39072668892/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39072668892/logs",
+            "workflow_id": 387727830
+          }
+        ]
+      }
+    },
+    {
+      "n": 25,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "bc9a0e50b74798cad5348bb37ccb32517df146de",
+      "base": "main",
+      "base_sha": "3b8a639b79414004def3d2b62acb23d3d0692960",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39075656151,
+            "name": "Cabinet assistant mock acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 10,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656151/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656151/logs",
+            "workflow_id": 387997311
+          },
+          {
+            "id": 39075656171,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 36,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656171/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656171/logs",
+            "workflow_id": 387727830
+          },
+          {
+            "id": 39075656141,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 95,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656141/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656141/logs",
+            "workflow_id": 387185765
+          },
+          {
+            "id": 39075656140,
+            "name": "Cabinet assistant stage1b real acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 6,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656140/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39075656140/logs",
+            "workflow_id": 388016357
+          }
+        ]
+      }
+    },
+    {
+      "n": 29,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "e74a42bffda89d1764cf3066393281cc6a18ba6d",
+      "base": "feature/specialist-cabinet-complete",
+      "base_sha": "cb7ee9342e7103db68c8d5adbaafc7225e05e4e6",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39766496318,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 114,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39766496318/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39766496318/logs",
+            "workflow_id": 387185765
+          },
+          {
+            "id": 39766496573,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 55,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39766496573/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39766496573/logs",
+            "workflow_id": 387727830
+          }
+        ]
+      }
+    },
+    {
+      "n": 30,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "b382174a12c4cb6cbed35ded3cf66e6657483f6a",
+      "base": "main",
+      "base_sha": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39775765433,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 57,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775765433/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775765433/logs",
+            "workflow_id": 387727830
+          },
+          {
+            "id": 39775761046,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 115,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775761046/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39775761046/logs",
+            "workflow_id": 387185765
+          }
+        ]
+      }
+    },
+    {
+      "n": 31,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "c0a97c00450da75f039837a938c76a671fcd775f",
+      "base": "main",
+      "base_sha": "76b3fa7a99df04d320b022a5a777fdbdf897b826",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39815318297,
+            "name": "Local Supabase acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 59,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318297/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318297/logs",
+            "workflow_id": 387727830
+          },
+          {
+            "id": 39815318277,
+            "name": "Specialist draft acceptance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 117,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318277/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39815318277/logs",
+            "workflow_id": 387185765
+          }
+        ]
+      }
+    },
+    {
+      "n": 32,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "9b3d2d829e30a00852a6773a0cff8e2684deaa42",
+      "base": "work/specialist-stage2a-20261022",
+      "base_sha": "c0a97c00450da75f039837a938c76a671fcd775f",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39963536654,
+            "name": "Specialist contact channels",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 12,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39963536654/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39963536654/logs",
+            "workflow_id": 393164606
+          }
+        ]
+      }
+    },
+    {
+      "n": 33,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "2fd81f07bf30aced6d47c1e84a9182ef3232c2e7",
+      "base": "work/specialist-contact-channels-20261022",
+      "base_sha": "9b3d2d829e30a00852a6773a0cff8e2684deaa42",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39974927824,
+            "name": "Specialist contact channels",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 15,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39974927824/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39974927824/logs",
+            "workflow_id": 393164606
+          }
+        ]
+      }
+    },
+    {
+      "n": 34,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "693446dff47bb1335c43104cb37ed47931134700",
+      "base": "work/specialist-ux-polish-20261023",
+      "base_sha": "2fd81f07bf30aced6d47c1e84a9182ef3232c2e7",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 39984915671,
+            "name": "Specialist contact channels",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 17,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39984915671/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/39984915671/logs",
+            "workflow_id": 393164606
+          }
+        ]
+      }
+    },
+    {
+      "n": 35,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "18b974d1aac3aa1bb4030308f53fd91184653256",
+      "base": "work/specialist-readiness-20261023",
+      "base_sha": "693446dff47bb1335c43104cb37ed47931134700",
+      "ci": {
+        "workflow_runs": []
+      }
+    },
+    {
+      "n": 36,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "b9acc730005eb385a3d15a633eda2d174ca37ce2",
+      "base": "work/specialist-next-phase-design-20261026",
+      "base_sha": "18b974d1aac3aa1bb4030308f53fd91184653256",
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 40295372817,
+            "name": "Specialist pricing PostgreSQL 17",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 2,
+            "jobs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/40295372817/jobs",
+            "logs_url": "https://api.github.com/repos/Yumis84/otzovik-company-profile/actions/runs/40295372817/logs",
+            "workflow_id": 396831393
+          }
+        ]
+      }
+    }
+  ],
+  "schemas": [
+    {
+      "ref": "rzhlcszqtuhkhfibygnk",
+      "grants": [
+        {
+          "relname": "specialist_profiles",
+          "anon_any": false,
+          "auth_any": false
+        }
+      ],
+      "tables": [
+        {
+          "relname": "specialist_profiles",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        }
+      ],
+      "buckets": null,
+      "columns": [
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_profiles",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "gen_random_uuid()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_profiles",
+          "column_name": "owner_user_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "slug",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "display_name",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "profession",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "specialization",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "city",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "description",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "profile_status",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "'draft'::text",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_profiles",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_profiles",
+          "column_name": "updated_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        }
+      ],
+      "policies": [
+        {
+          "cmd": "SELECT",
+          "qual": "((bucket_id = 'company-media'::text) AND storage.allow_any_operation(ARRAY['object.get_authenticated_info'::text, 'object.get_authenticated'::text]) AND media_internal.is_published_company_media_object(name))",
+          "roles": [
+            "anon"
+          ],
+          "tablename": "objects",
+          "policyname": "anon_read_published_company_media",
+          "schemaname": "storage",
+          "with_check": null
+        },
+        {
+          "cmd": "DELETE",
+          "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = ( SELECT auth.uid() AS uid)) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "company_media_owner_delete",
+          "schemaname": "storage",
+          "with_check": null
+        },
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "company_media_owner_insert",
+          "schemaname": "storage",
+          "with_check": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))"
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "company_media_owner_read",
+          "schemaname": "storage",
+          "with_check": null
+        }
+      ],
+      "functions": [
+        {
+          "proname": "create_my_specialist_draft",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "64f33fb6fd83f891363c2035f39ca73c"
+        },
+        {
+          "proname": "get_my_specialists",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "get_my_specialists()",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "82a3057d27c450b18cbb00edc393db78"
+        },
+        {
+          "proname": "update_my_specialist_draft",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "630a01e05cb0f65cbef110ef4a695e79"
+        }
+      ]
+    },
+    {
+      "ref": "salmcnhexlftrgtiryyo",
+      "grants": [
+        {
+          "relname": "specialist_channel_sets",
+          "anon_any": false,
+          "auth_any": false
+        },
+        {
+          "relname": "specialist_contact_channels",
+          "anon_any": false,
+          "auth_any": false
+        },
+        {
+          "relname": "specialist_profiles",
+          "anon_any": false,
+          "auth_any": false
+        },
+        {
+          "relname": "specialist_services",
+          "anon_any": false,
+          "auth_any": false
+        },
+        {
+          "relname": "specialist_settings",
+          "anon_any": false,
+          "auth_any": false
+        },
+        {
+          "relname": "specialist_media",
+          "anon_any": false,
+          "auth_any": false
+        }
+      ],
+      "tables": [
+        {
+          "relname": "specialist_channel_sets",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        },
+        {
+          "relname": "specialist_contact_channels",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        },
+        {
+          "relname": "specialist_profiles",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        },
+        {
+          "relname": "specialist_services",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        },
+        {
+          "relname": "specialist_settings",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        },
+        {
+          "relname": "specialist_media",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        }
+      ],
+      "buckets": [
+        {
+          "id": "specialist-media",
+          "public": false,
+          "file_size_limit": 5242880,
+          "allowed_mime_types": [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+          ]
+        }
+      ],
+      "columns": [
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_channel_sets",
+          "column_name": "specialist_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "specialist_channel_sets",
+          "column_name": "version",
+          "is_nullable": "NO",
+          "numeric_scale": 0,
+          "column_default": null,
+          "numeric_precision": 32
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_channel_sets",
+          "column_name": "updated_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_contact_channels",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_contact_channels",
+          "column_name": "specialist_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_contact_channels",
+          "column_name": "kind",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_contact_channels",
+          "column_name": "value_raw",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_contact_channels",
+          "column_name": "href",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_contact_channels",
+          "column_name": "label",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "''::text",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "specialist_contact_channels",
+          "column_name": "sort_order",
+          "is_nullable": "NO",
+          "numeric_scale": 0,
+          "column_default": null,
+          "numeric_precision": 32
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "specialist_contact_channels",
+          "column_name": "is_preferred",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "false",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "specialist_contact_channels",
+          "column_name": "accepts_inquiries",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "false",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "specialist_contact_channels",
+          "column_name": "is_public",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "false",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_media",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "gen_random_uuid()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_media",
+          "column_name": "specialist_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_media",
+          "column_name": "object_name",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_media",
+          "column_name": "kind",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_media",
+          "column_name": "caption",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_media",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_profiles",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "gen_random_uuid()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_profiles",
+          "column_name": "owner_user_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "slug",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "display_name",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "profession",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "specialization",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "city",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "description",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_profiles",
+          "column_name": "profile_status",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "'draft'::text",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_profiles",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_profiles",
+          "column_name": "updated_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_services",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "gen_random_uuid()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_services",
+          "column_name": "specialist_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_services",
+          "column_name": "name",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_services",
+          "column_name": "description",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "numeric",
+          "table_name": "specialist_services",
+          "column_name": "price_from",
+          "is_nullable": "YES",
+          "numeric_scale": 2,
+          "column_default": null,
+          "numeric_precision": 12
+        },
+        {
+          "data_type": "numeric",
+          "table_name": "specialist_services",
+          "column_name": "price_to",
+          "is_nullable": "YES",
+          "numeric_scale": 2,
+          "column_default": null,
+          "numeric_precision": 12
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_services",
+          "column_name": "currency",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "'RUB'::text",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "specialist_services",
+          "column_name": "duration_minutes",
+          "is_nullable": "YES",
+          "numeric_scale": 0,
+          "column_default": null,
+          "numeric_precision": 32
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "specialist_services",
+          "column_name": "is_active",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "true",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "specialist_services",
+          "column_name": "version",
+          "is_nullable": "NO",
+          "numeric_scale": 0,
+          "column_default": "1",
+          "numeric_precision": 32
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_services",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_services",
+          "column_name": "updated_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "specialist_settings",
+          "column_name": "specialist_id",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_settings",
+          "column_name": "phone",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_settings",
+          "column_name": "email",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_settings",
+          "column_name": "website",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "ARRAY",
+          "table_name": "specialist_settings",
+          "column_name": "work_formats",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "'{}'::text[]",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_settings",
+          "column_name": "service_area",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_settings",
+          "column_name": "qualifications",
+          "is_nullable": "YES",
+          "numeric_scale": null,
+          "column_default": null,
+          "numeric_precision": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "specialist_settings",
+          "column_name": "contact_visibility",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "'private'::text",
+          "numeric_precision": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "specialist_settings",
+          "column_name": "version",
+          "is_nullable": "NO",
+          "numeric_scale": 0,
+          "column_default": "1",
+          "numeric_precision": 32
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "specialist_settings",
+          "column_name": "updated_at",
+          "is_nullable": "NO",
+          "numeric_scale": null,
+          "column_default": "now()",
+          "numeric_precision": null
+        }
+      ],
+      "policies": [
+        {
+          "cmd": "SELECT",
+          "qual": "((bucket_id = 'company-media'::text) AND storage.allow_any_operation(ARRAY['object.get_authenticated_info'::text, 'object.get_authenticated'::text]) AND media_internal.is_published_company_media_object(name))",
+          "roles": [
+            "anon"
+          ],
+          "tablename": "objects",
+          "policyname": "anon_read_published_company_media",
+          "schemaname": "storage",
+          "with_check": null
+        },
+        {
+          "cmd": "DELETE",
+          "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = ( SELECT auth.uid() AS uid)) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "company_media_owner_delete",
+          "schemaname": "storage",
+          "with_check": null
+        },
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "company_media_owner_insert",
+          "schemaname": "storage",
+          "with_check": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))"
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "((bucket_id = 'company-media'::text) AND ((storage.foldername(name))[1] IN ( SELECT (company_memberships.company_id)::text AS company_id\n   FROM company_memberships\n  WHERE ((company_memberships.user_id = auth.uid()) AND (company_memberships.verification_status = 'verified'::text) AND (company_memberships.role = ANY (ARRAY['owner'::text, 'admin'::text]))))))",
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "company_media_owner_read",
+          "schemaname": "storage",
+          "with_check": null
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "specialist_object_read",
+          "schemaname": "storage",
+          "with_check": null
+        },
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "specialist_object_insert",
+          "schemaname": "storage",
+          "with_check": "((bucket_id = 'specialist-media'::text) AND can_upload_specialist_object(name))"
+        },
+        {
+          "cmd": "DELETE",
+          "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+          "roles": [
+            "authenticated"
+          ],
+          "tablename": "objects",
+          "policyname": "specialist_object_delete",
+          "schemaname": "storage",
+          "with_check": null
+        }
+      ],
+      "functions": [
+        {
+          "proname": "can_manage_specialist_object",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "can_manage_specialist_object(text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "4a26383f268562526e8b350c9e3e324e"
+        },
+        {
+          "proname": "can_upload_specialist_object",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "can_upload_specialist_object(text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "64fc6618ce80ea5e625a761bf6fd475b"
+        },
+        {
+          "proname": "create_my_specialist_draft",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "create_my_specialist_draft(text,text,text,text,text,text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "e455f988848cfdbb2d4f2552aaea679e"
+        },
+        {
+          "proname": "delete_my_specialist_draft",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "delete_my_specialist_draft(uuid)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "59af56430be774dd03a78b785bc2fe72"
+        },
+        {
+          "proname": "delete_my_specialist_media",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "delete_my_specialist_media(uuid,uuid)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "0e39d67da32a302a8258d01f39e048d1"
+        },
+        {
+          "proname": "delete_my_specialist_service",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "delete_my_specialist_service(uuid,uuid,integer)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "5502d6f4b8a8e07ab06999e59b4640e5"
+        },
+        {
+          "proname": "get_my_specialist_media",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "get_my_specialist_media(uuid)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "34e280735b4053b284c316f5661bc6d1"
+        },
+        {
+          "proname": "get_my_specialist_services",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "get_my_specialist_services(uuid)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "9d2986dfc249fe119c4391bc9c76a18a"
+        },
+        {
+          "proname": "get_my_specialist_settings",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "get_my_specialist_settings(uuid)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "5cfdb4c1404bfc6f7900eae748f749cb"
+        },
+        {
+          "proname": "get_my_specialists",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "get_my_specialists()",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "82a3057d27c450b18cbb00edc393db78"
+        },
+        {
+          "proname": "list_my_specialist_channels",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "list_my_specialist_channels(uuid)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "060ed06c01de5ec0cea876eff3c7ac6a"
+        },
+        {
+          "proname": "register_my_specialist_media",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "register_my_specialist_media(uuid,text,text,text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "5318e6da6a1c7fe0646e948b2bf1eb22"
+        },
+        {
+          "proname": "save_my_specialist_channels",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "save_my_specialist_channels(uuid,integer,jsonb)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "c9e9df3b542956aaeb9e6e507ced21ac"
+        },
+        {
+          "proname": "save_my_specialist_service",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "save_my_specialist_service(uuid,uuid,text,text,numeric,numeric,text,integer,boolean,integer)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "bc5be914c0269f826387fc38057d5005"
+        },
+        {
+          "proname": "save_my_specialist_settings",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "save_my_specialist_settings(uuid,text,text,text,text[],text,text,integer)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "59e9fba134dc014eba1892f7ccf0f884"
+        },
+        {
+          "proname": "specialist_channel_normalize",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": false,
+          "signature": "specialist_channel_normalize(text,text)",
+          "anon_execute": false,
+          "auth_execute": false,
+          "definition_md5": "ac2aed671db0e05d5872311e018b9fe7"
+        },
+        {
+          "proname": "update_my_specialist_draft",
+          "proconfig": [
+            "search_path=\"\""
+          ],
+          "prosecdef": true,
+          "signature": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+          "anon_execute": false,
+          "auth_execute": true,
+          "definition_md5": "630a01e05cb0f65cbef110ef4a695e79"
+        }
+      ]
+    }
+  ],
+  "auth": [
+    {
+      "project": "salmcnhexlftrgtiryyo",
+      "disable_signup": true,
+      "external_email_enabled": true,
+      "jwt_exp": 3600,
+      "mailer_autoconfirm": false,
+      "password_min_length": 6,
+      "security_captcha_enabled": false,
+      "site_url": "http://localhost:3000",
+      "uri_allow_list": ""
+    },
+    {
+      "project": "rzhlcszqtuhkhfibygnk",
+      "disable_signup": false,
+      "external_email_enabled": true,
+      "jwt_exp": 3600,
+      "mailer_autoconfirm": true,
+      "password_min_length": 6,
+      "security_captcha_enabled": false,
+      "site_url": "http://localhost:3000",
+      "uri_allow_list": ""
+    }
+  ],
+  "deployments": {
+    "canonical_test": "2f71b889-361b-4d6c-8097-e18257a428fe",
+    "canonical_test_source": "e74a42bffda89d1764cf3066393281cc6a18ba6d",
+    "latest_preview": "53545278-cddd-45a0-ab31-2554b7af5410",
+    "preview_source": "693446dff47bb1335c43104cb37ed47931134700",
+    "preview": "https://53545278.otzovik-cabinet-dev.pages.dev",
+    "production_http": "https://yumis84.github.io/otzovik-company-profile/account-home.html"
+  }
+}
