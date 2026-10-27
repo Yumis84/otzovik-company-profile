@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs]
+        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-gateway-remediation.mjs, specialist-gateway-http.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs]
     services:
       postgres:
         image: postgres:17
@@ -37,6 +37,7 @@ jobs:
         env:
           TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
       - run: node tests/pages-artifact.mjs
+      - run: node tests/gateway-integrity.mjs
       - name: Company source and auto-migration gate
         run: |
           git diff --exit-code 76b3fa7a99df04d320b022a5a777fdbdf897b826 HEAD -- 'account*.html' 'account*.js' 'account*.css' ':!account-specialist*' ':!account-create-specialist.html'

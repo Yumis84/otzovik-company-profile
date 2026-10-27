@@ -1,6 +1,6 @@
 {
   "engine": "PostgreSQL17 isolated fixture",
-  "phase": "all enabled before disable tests",
+  "phase": "All enabled after PR38 remediation phase65; native PostgreSQL17.11 compiled definitions",
   "functions": [
     {
       "signature": "can_manage_specialist_object(text)",
@@ -103,7 +103,7 @@
     },
     {
       "signature": "get_my_specialist_upload_capability(uuid)",
-      "definition_md5": "67a5d0c9760eaf16765b1756b1cc3a29",
+      "definition_md5": "db9baeba1e33d15e44c6dd90768ab988",
       "prosecdef": true,
       "proconfig": [
         "search_path=\"\""
@@ -191,7 +191,7 @@
     },
     {
       "signature": "specialist_gateway_begin_delete(uuid,uuid,text)",
-      "definition_md5": "d9978d621b1059d23dfb655fe0cf84a6",
+      "definition_md5": "18d6745d4e6237d99a15d31d9b6341e2",
       "prosecdef": true,
       "proconfig": [
         "search_path=\"\""
@@ -253,6 +253,50 @@
       ],
       "anon_execute": false,
       "auth_execute": true,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_erasure_inventory(uuid,uuid)",
+      "definition_md5": "46ce843a97448cf1004f0eb9c18bae77",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_force_retire(uuid,uuid,uuid,text,text,text,jsonb)",
+      "definition_md5": "67ad9016777f27fbdf7cc25e34a44e90",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_metrics()",
+      "definition_md5": "7696cbac5ed77a3ca1b79d9563704a2c",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "service_execute": true
+    },
+    {
+      "signature": "specialist_gateway_reject(uuid,uuid,uuid,integer)",
+      "definition_md5": "7bc1d5444e096588fac32cca3a27bbc7",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
       "service_execute": true
     }
   ]

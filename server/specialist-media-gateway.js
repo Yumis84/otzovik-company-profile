@@ -1,5 +1,16 @@
 // Server-only handler shared with the Edge adapter. No signed upload tokens or direct client Storage writes.
 const LIMIT=5242880,MAX_BODY=7100000,uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// HTTP and legacy embedded statuses must both describe a terminal rejection.
+// 408, 409, 5xx and unknown/network outcomes retain the reservation.
+export async function isDefiniteStorageRejection(response){
+ if(response.status<400||response.status>=500||[408,409].includes(response.status))return false;
+ let body;try{body=await response.clone().json();}catch{return false;}
+ if(!body||typeof body!=='object')return false;
+ const status=Number(body.statusCode??body.status??response.status);
+ if(!Number.isInteger(status)||status<400||status>=500||[408,409].includes(status))return false;
+ if(/timeout|internal|unknown|alreadyexists|duplicate/i.test(String(body.code||body.error||'')))return false;
+ return true;
+}
 export function createMediaGateway({url,anonKey,serviceKey,origins=[],fetcher=fetch}){
  const base=new URL(url);if(!['https:','http:'].includes(base.protocol)||base.username||base.password||base.search||base.hash||!anonKey||!serviceKey)throw Error('Invalid server configuration');
  const endpoint=base.origin,serviceHeaders={apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':'application/json'};
@@ -41,7 +52,13 @@ export function createMediaGateway({url,anonKey,serviceKey,origins=[],fetcher=fe
     if(r.upload_allowed){
      // Exactly one attempt per reservation. An uncertain result MUST retain the slot.
      const upload=await fetcher(endpoint+'/storage/v1/object/specialist-media/'+r.object_name,{method:'POST',headers:{apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':body.mime,'x-upsert':'false'},body:bytes,signal:AbortSignal.timeout(25000)});
-     if(!upload.ok)return response(409,{error:'Upload not confirmed; reservation retained',request_id:body.request_id});
+     if(!upload.ok){
+      if(await isDefiniteStorageRejection(upload)){
+       await rpc('specialist_gateway_reject',{...owner,p_request_id:body.request_id,p_http_status:upload.status});
+       return response(422,{error:'Storage rejected upload; choose the file again',request_id:body.request_id,reservation_released:true});
+      }
+      return response(409,{error:'Upload not confirmed; reservation retained',request_id:body.request_id});
+     }
     }
     return response(200,{media:await rpc('specialist_gateway_finish',{...owner,p_request_id:body.request_id})});
    }
