@@ -75,7 +75,7 @@
     },
     {
       "file": "sql/release/70_POSTCHECK_CANDIDATE.sql",
-      "sha256": "d8e7c2e92ae86322db0094cf13e9f3f4ec3d5b2c20a82d1f6b00234e1d00b4f2"
+      "sha256": "2c388c2e1fb25da4b4a2bd5dd7dba6774d69f74a943a192757d5de3b0fa659b1"
     },
     {
       "file": "sql/release/80_ENABLE_MEDIA_CANDIDATE.sql",
@@ -207,11 +207,11 @@
     },
     {
       "file": "docs/SPECIALIST_PILOT_PLAN_2026-10-28.md",
-      "sha256": "49ca45f683b7e996a1289fa9942d28aa68e500d6440809b75282b4834398796e"
+      "sha256": "76fc26fdf9503f630de139c7c2a35d23c7fcd818618b46e3c33c3befe9b5fea7"
     },
     {
       "file": "sql/release/66_SPECIALIST_OPERATOR_CANDIDATE.sql",
-      "sha256": "aa4999613d604814fe22ebd5384cb7560b36b5ebe51703b870ccdc16b22734ce"
+      "sha256": "e96322e6a87d2c80bf5fa7236d73c8a826fa7dc7b0798b9b684cb5fe4df7c0f5"
     },
     {
       "file": "tests/operator-fixture.mjs",
@@ -219,7 +219,7 @@
     },
     {
       "file": "tests/specialist-pilot-hardening.mjs",
-      "sha256": "53421046f8f374287db2270ff73fd594ad14781c9bcdf216c749a13c4390b48b"
+      "sha256": "e3cd2ff404017ea5a24b88153db20edb6cefd4a8db286bd80486161aa5dc1f97"
     }
   ],
   "hostedApplyAuthorized": false,
