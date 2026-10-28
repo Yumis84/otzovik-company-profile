@@ -1,3 +1,4 @@
+import {installNavigation} from './account-shared-navigation.js';
 const SUPABASE_URL='https://rzhlcszqtuhkhfibygnk.supabase.co';
 const SUPABASE_KEY='sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-';
 const params=new URLSearchParams(location.search);
@@ -23,6 +24,7 @@ function ensureMediaDecoder(){if(!location.pathname.endsWith('/account-media.htm
 ensureMediaDecoder();
 ensureHomeNav();
 ensureSourcesNav();
+installNavigation(document.querySelector('main nav[aria-label="Навигация кабинета"]'));
 keepContext();
 mount();
 revealActiveNav();
