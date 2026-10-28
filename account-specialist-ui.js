@@ -1,9 +1,11 @@
+import {installNavigation} from './account-shared-navigation.js';
 // Pure specialist UI helpers. No company context, RPC or storage.
 export const isUUID=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
 export function navigation(node,id,active='profile',name=''){
  node.replaceChildren();
  const items=[['home','Мои профили','account-home.html'],['profile','Профиль','account-create-specialist.html'],...(isUUID(id)?[['services','Услуги','account-specialist-services.html'],['media','Фото и портфолио','account-specialist-media.html'],['contacts','Контакты и работа','account-specialist-contacts.html']]:[])];
  for(const [key,label,file] of items){const a=document.createElement('a');a.textContent=label;a.href=key==='home'?file:isUUID(id)?file+'?id='+encodeURIComponent(id):'#profile';if(key===active){a.className='active';a.setAttribute('aria-current','page');}node.append(a);}
+ installNavigation(node);
  const plaque=document.getElementById('specialist-context');if(plaque){plaque.hidden=!isUUID(id);plaque.replaceChildren();if(isUUID(id)){const label=document.createElement('small');label.textContent='Редактируется специалист';const strong=document.createElement('strong');strong.textContent=name;plaque.append(label,strong);}}
 }
 export function text(tag,value,className=''){const el=document.createElement(tag);el.textContent=value??'';el.className=className;return el;}
