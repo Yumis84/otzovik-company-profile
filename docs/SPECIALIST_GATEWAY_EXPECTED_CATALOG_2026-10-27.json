@@ -351,7 +351,7 @@
     },
     {
       "signature": "specialist_operator_cleanup_orphan(uuid,text,jsonb)",
-      "definition_md5": "329b67ecef0ab87d74e8716964c4c28b",
+      "definition_md5": "37441476ab6bdbdc3935c19996eeb2b8",
       "anon_execute": false,
       "auth_execute": false,
       "service_execute": false,

@@ -155,6 +155,8 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   const orphanAuth=ok(await approver.rpc('specialist_operator_authorize',{p_specialist_id:p.id,p_confirmation_id:null,p_request_id:late.request_id,p_purpose:'orphan_cleanup',p_ticket:'OTZ-LOCAL-ORPHAN-00000001'})).authorization_id;
   const orphanProof={kind:'provider_terminal_no_late_writer',mode:'orphan_cleanup',authorization_id:orphanAuth,request_id:late.request_id,evidence_ref:'isolated-test:late-writer-awaited:'+late.request_id,all_writers_stopped:true};
   assert((await cleanupSpecialistOrphan({operator,request:late.request_id,proof:orphanProof})).deleted);
+  assert((await cleanupSpecialistOrphan({operator,request:late.request_id,proof:orphanProof})).deleted);
+  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE request_id=$1 AND action='orphan_begin'",[late.request_id])).rows[0].n,1);
   assert((await admin.storage.from('specialist-media').download(path)).error);
   assert.equal((await db.query("SELECT count(*)::int n FROM storage.objects WHERE bucket_id='specialist-media' AND name=$1",[path])).rows[0].n,0);
   assert.equal((await db.query("SELECT actor FROM specialist_upload_audit WHERE request_id=$1 AND action='orphan_finish'",[late.request_id])).rows[0].actor,ok(await operator.auth.getUser()).user.id);

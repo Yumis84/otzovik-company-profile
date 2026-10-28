@@ -72,7 +72,7 @@ BEGIN
  RETURN public.specialist_gateway_erasure_inventory(p_owner,p_specialist_id)||jsonb_build_object('planned',true,'authorization_id',p_authorization_id);
 END $plan$;
 CREATE FUNCTION public.specialist_operator_cleanup_orphan(p_request_id uuid,p_phase text,p_proof jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $orphan$
-DECLARE r public.specialist_upload_reservations; v_actor uuid; resumed boolean;
+DECLARE r public.specialist_upload_reservations; v_actor uuid; resumed boolean; completed boolean;
 BEGIN
  SELECT * INTO r FROM public.specialist_upload_reservations WHERE id=p_request_id;
  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Tombstone unavailable'; END IF;
@@ -81,8 +81,13 @@ BEGIN
  IF EXISTS(SELECT FROM public.specialist_profiles WHERE id=r.profile_id) OR r.state<>'deleted' OR r.specialist_id IS NOT NULL OR NOT EXISTS(SELECT FROM public.specialist_upload_audit WHERE request_id=r.id AND profile_id=r.profile_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Audited deleted-profile tombstone required'; END IF;
  IF (SELECT enabled FROM public.specialist_upload_control WHERE singleton) THEN RAISE EXCEPTION USING ERRCODE='55000',MESSAGE='Disable admission first'; END IF;
  IF p_phase IS NULL OR p_phase NOT IN ('begin','finish') OR p_proof IS NULL OR jsonb_typeof(p_proof)<>'object' OR octet_length(p_proof::text)>8192 OR p_proof->>'mode' IS DISTINCT FROM 'orphan_cleanup' OR p_proof->>'request_id' IS DISTINCT FROM r.id::text OR p_proof->'all_writers_stopped' IS DISTINCT FROM 'true'::jsonb OR coalesce(p_proof->>'kind','') NOT IN ('provider_terminal_no_late_writer','credentials_revoked_all_writers_drained') OR coalesce(char_length(p_proof->>'evidence_ref'),0) NOT BETWEEN 8 AND 1000 OR coalesce(p_proof->>'authorization_id','') !~ '^[0-9a-f-]{36}$' THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Reviewed writer-stop evidence required'; END IF;
+ completed:=EXISTS(SELECT FROM public.specialist_upload_audit WHERE request_id=r.id AND action='orphan_finish' AND evidence=p_proof AND actor=auth.uid()::text);
  resumed:=EXISTS(SELECT FROM public.specialist_upload_audit a WHERE a.request_id=r.id AND a.action='orphan_begin' AND a.evidence=p_proof AND a.actor=auth.uid()::text AND (p_phase='finish' OR NOT EXISTS(SELECT FROM public.specialist_upload_audit z WHERE z.request_id=r.id AND z.action='orphan_finish' AND z.evidence=p_proof AND z.actor=a.actor AND z.created_at>=a.created_at)));
- v_actor:=public.specialist_operator_check((p_proof->>'authorization_id')::uuid,r.profile_id,r.id,'orphan_cleanup',resumed);
+ v_actor:=public.specialist_operator_check((p_proof->>'authorization_id')::uuid,r.profile_id,r.id,'orphan_cleanup',resumed OR (completed AND NOT EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name)));
+ IF p_phase='begin' AND completed THEN
+  IF EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='New late object needs fresh authorization and proof'; END IF;
+  RETURN jsonb_build_object('deleted',true,'object_name',r.object_name);
+ END IF;
  IF p_phase='finish' THEN
   IF NOT resumed OR EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Audited begin and Storage deletion required'; END IF;
   IF EXISTS(SELECT FROM public.specialist_upload_audit WHERE request_id=r.id AND action='orphan_finish' AND evidence=p_proof AND actor=v_actor::text) THEN RETURN jsonb_build_object('deleted',true); END IF;

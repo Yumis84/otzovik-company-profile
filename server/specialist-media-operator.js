@@ -32,7 +32,7 @@ export async function prepareSpecialistErasure({operator,owner,profile,authoriza
 export async function cleanupSpecialistOrphan({operator,request,proof}){
  await identity(operator);
  const call=async phase=>check(await operator.rpc('specialist_operator_cleanup_orphan',{p_request_id:request,p_phase:phase,p_proof:proof}));
- const begin=await call('begin');check(await operator.storage.from('specialist-media').remove([begin.object_name]));return call('finish');
+ const begin=await call('begin');if(begin.deleted)return begin;check(await operator.storage.from('specialist-media').remove([begin.object_name]));return call('finish');
 }
 export async function readGatewayAlerts(client){
  const data=check(await client.rpc('specialist_gateway_metrics'));

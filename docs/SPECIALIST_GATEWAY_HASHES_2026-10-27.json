@@ -75,7 +75,7 @@
     },
     {
       "file": "sql/release/70_POSTCHECK_CANDIDATE.sql",
-      "sha256": "0adf63af7c1b3278de2bb8d7b554ac12ce9598f070d92be7ca603768fb34816c"
+      "sha256": "9858519abd243322f8e0ad3cb40f839e99c31f2174ca2ec996548c9dfcc6abdb"
     },
     {
       "file": "sql/release/80_ENABLE_MEDIA_CANDIDATE.sql",
@@ -159,7 +159,7 @@
     },
     {
       "file": "server/specialist-media-operator.js",
-      "sha256": "b31682f03716d00b10e46398f823fcf21bacd5e68043700f7e4cb4dd711d0753"
+      "sha256": "bd8801545d2cb258386482a4715761f07bdc2c71d6a6c16f040119fab217e141"
     },
     {
       "file": "sql/release/65_GATEWAY_REMEDIATION_CANDIDATE.sql",
@@ -175,7 +175,7 @@
     },
     {
       "file": "tests/gateway-local-checks.mjs",
-      "sha256": "9b44622d4abe1f8e7b42f0f2c196ed895d8a3bd4fc4f0af2bfeedd8e6d8b6a91"
+      "sha256": "4573fe4f84c3f5c18ab8fa63e1b4caf160be87c00d89e0d6b3f172dcd6031beb"
     },
     {
       "file": "tests/gateway-integrity.mjs",
@@ -187,7 +187,7 @@
     },
     {
       "file": "docs/SPECIALIST_GATEWAY_EXPECTED_CATALOG_2026-10-27.json",
-      "sha256": "bfe2f900f1d1c4482f33b905c0b5ee17cb71d7085e69f69f7af54f4554af0bc0"
+      "sha256": "48dc3b1bd040898172d35abab40ee12de875a33eec5e3ebe84a1f0391b5c6ae6"
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
@@ -207,11 +207,11 @@
     },
     {
       "file": "docs/SPECIALIST_PILOT_PLAN_2026-10-28.md",
-      "sha256": "8fff68e2e23aa8a63bf90e9dcd5df81c1fe23f91f3a88191bc6504a4f6f8dbc4"
+      "sha256": "e2dc87dab7077820322ca64d8fb067b6b020525b51de80855e75feee0d0b60e4"
     },
     {
       "file": "sql/release/66_SPECIALIST_OPERATOR_CANDIDATE.sql",
-      "sha256": "f027d97d869bcfc855816d1eef47d8364999afad83426542d235e4b235c57835"
+      "sha256": "e9c2d750a19e27e73c9dc30ea6d402815eb369196a80e3673be738ff0d38f01d"
     },
     {
       "file": "tests/operator-fixture.mjs",
@@ -219,7 +219,7 @@
     },
     {
       "file": "tests/specialist-pilot-hardening.mjs",
-      "sha256": "af1b3dbf9d195f5d4a520c2ff69924249937e704037bd22fb441aa361f220888"
+      "sha256": "64a391b9ddfd5eadb2e5734e8c274c28cbed48f439196b466a73b3ac1c104c58"
     }
   ],
   "hostedApplyAuthorized": false,

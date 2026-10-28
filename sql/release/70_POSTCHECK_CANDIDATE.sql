@@ -64,7 +64,7 @@ DO $post$ DECLARE h text; p record; BEGIN
  IF (SELECT md5(pg_get_functiondef(to_regprocedure('public.confirm_my_specialist_erasure(uuid,uuid)')))) IS DISTINCT FROM '0bfc39c25476dbcc85f2afced603fbcf' THEN RAISE EXCEPTION 'Installed function drift: confirm_my_specialist_erasure(uuid,uuid)'; END IF;
  IF (SELECT md5(pg_get_functiondef(to_regprocedure('public.specialist_operator_authorize(uuid,uuid,uuid,text,text)')))) IS DISTINCT FROM '86bd6148c97590f19d7fb9004c4e3326' THEN RAISE EXCEPTION 'Installed function drift: specialist_operator_authorize(uuid,uuid,uuid,text,text)'; END IF;
  IF (SELECT md5(pg_get_functiondef(to_regprocedure('public.specialist_operator_check(uuid,uuid,uuid,text,boolean)')))) IS DISTINCT FROM '12345f02e5cde0d1ce89192c403a2d28' THEN RAISE EXCEPTION 'Installed function drift: specialist_operator_check(uuid,uuid,uuid,text,boolean)'; END IF;
- IF (SELECT md5(pg_get_functiondef(to_regprocedure('public.specialist_operator_cleanup_orphan(uuid,text,jsonb)')))) IS DISTINCT FROM '329b67ecef0ab87d74e8716964c4c28b' THEN RAISE EXCEPTION 'Installed function drift: specialist_operator_cleanup_orphan(uuid,text,jsonb)'; END IF;
+ IF (SELECT md5(pg_get_functiondef(to_regprocedure('public.specialist_operator_cleanup_orphan(uuid,text,jsonb)')))) IS DISTINCT FROM '37441476ab6bdbdc3935c19996eeb2b8' THEN RAISE EXCEPTION 'Installed function drift: specialist_operator_cleanup_orphan(uuid,text,jsonb)'; END IF;
  IF (SELECT md5(pg_get_functiondef(to_regprocedure('public.specialist_operator_plan_erasure(uuid,uuid,uuid)')))) IS DISTINCT FROM 'b03e4405968520dea532091959fe46e1' THEN RAISE EXCEPTION 'Installed function drift: specialist_operator_plan_erasure(uuid,uuid,uuid)'; END IF;
  IF has_function_privilege('anon','public.can_operator_remove_specialist_object(text)','EXECUTE') IS DISTINCT FROM false THEN RAISE EXCEPTION 'Exact operator/function ACL drift: can_operator_remove_specialist_object(text) anon'; END IF;
  IF has_function_privilege('authenticated','public.can_operator_remove_specialist_object(text)','EXECUTE') IS DISTINCT FROM false THEN RAISE EXCEPTION 'Exact operator/function ACL drift: can_operator_remove_specialist_object(text) authenticated'; END IF;
@@ -123,5 +123,6 @@ DO $post$ DECLARE h text; p record; BEGIN
  IF (SELECT count(*) FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname IN ('specialist_operator_read','specialist_operator_remove') AND polpermissive AND cardinality(polroles)=1 AND polroles[1]='specialist_operator'::regrole AND polcmd=CASE polname WHEN 'specialist_operator_read' THEN 'r'::"char" ELSE 'd'::"char" END)<>2 THEN RAISE EXCEPTION 'Operator Storage policy drift'; END IF;
 
  IF (SELECT count(*) FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname IN ('specialist_operator_scope_read','specialist_operator_scope_remove') AND NOT polpermissive AND cardinality(polroles)=1 AND polroles[1]='specialist_operator'::regrole AND polcmd=CASE polname WHEN 'specialist_operator_scope_read' THEN 'r'::"char" ELSE 'd'::"char" END)<>2 THEN RAISE EXCEPTION 'Restrictive operator Storage scope missing'; END IF;
+
 END $post$;
 COMMIT;
