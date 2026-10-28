@@ -1,0 +1,46 @@
+# Candidate only: this workflow is PR-controlled and is not an independent trust root.
+name: Synthetic safety candidate
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  local-synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        pg: [16, 17]
+    services:
+      postgres:
+        image: postgres:${{ matrix.pg }}
+        env:
+          POSTGRES_PASSWORD: acceptance-only
+          POSTGRES_DB: otzovik_acceptance
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d otzovik_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/synthetic-security.mjs
+      - run: node tests/trusted-surface-candidate.mjs
+      - run: node tests/gateway-integrity.mjs
+      - run: node tests/company-integrity.mjs
+      - run: node tests/specialist-pilot-hardening.mjs
+        env:
+          TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
+      - run: node tests/specialist-gateway-sql.mjs
+        env:
+          TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
+      - run: node tests/specialist-server-package.mjs
+        env:
+          TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
