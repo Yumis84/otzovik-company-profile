@@ -179,7 +179,7 @@
     },
     {
       "file": "tests/gateway-integrity.mjs",
-      "sha256": "e9b8e0292fe3e657db6d932c0a8d99dc71ee78ed9b9e771f528b75abc1d39828"
+      "sha256": "439ef83ce93e02117f52e8a1b0bcd7a20be9b4f28345dfa3fa198687d157fc84"
     },
     {
       "file": "docs/SPECIALIST_GATEWAY_REMEDIATION_RUNBOOK_2026-10-27.md",
@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "c220ecf03f8f1450429ae849570d08030c60e37dff19cc7768bd9b861f9b1534"
+      "sha256": "9e9bd397db94aa985ec5bfdf054c8400f017b2ad7e2c4d90f9a2d9de1e507c81"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
@@ -220,6 +220,22 @@
     {
       "file": "tests/specialist-pilot-hardening.mjs",
       "sha256": "e3cd2ff404017ea5a24b88153db20edb6cefd4a8db286bd80486161aa5dc1f97"
+    },
+    {
+      "file": "scripts/company-integrity.mjs",
+      "sha256": "f065c6d5072ba1683140a88d47f2a1facf88b6a48c869eaebc3e8d8a425f9d71"
+    },
+    {
+      "file": "tests/company-integrity.mjs",
+      "sha256": "63114ecd4fba8bb106f73ce4ee2411bb6c16a4f8f0a6d093d1558601e13135ba"
+    },
+    {
+      "file": "account-shared-navigation.js",
+      "sha256": "045783f101630268aaceff7a776ad3e391c6f4e299e59c3ce87cf07058bfce20"
+    },
+    {
+      "file": "tests/company-navigation-browser.mjs",
+      "sha256": "4021b0d31575c2252c575bb5d991e96cd2f295f1659f5fe26c3e9fc0523a1ac6"
     }
   ],
   "hostedApplyAuthorized": false,
