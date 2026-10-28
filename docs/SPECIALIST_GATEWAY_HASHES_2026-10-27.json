@@ -75,7 +75,7 @@
     },
     {
       "file": "sql/release/70_POSTCHECK_CANDIDATE.sql",
-      "sha256": "b6a4c8793c58039d7059ffb1a33850f5932dba2041d7b6457b67b147e1a38836"
+      "sha256": "0adf63af7c1b3278de2bb8d7b554ac12ce9598f070d92be7ca603768fb34816c"
     },
     {
       "file": "sql/release/80_ENABLE_MEDIA_CANDIDATE.sql",
@@ -135,7 +135,7 @@
     },
     {
       "file": "server/specialist-media-gateway.js",
-      "sha256": "bca701dd898e07043f6128203c8ce1f7ec8b601d6cfe8ba78d2bd1f55c4f57d4"
+      "sha256": "5aa924261cf233a7bf2e187ed8bb9d605370d36b69f2fcdaf5718f7b12fbb4e0"
     },
     {
       "file": "edge/specialist-media-gateway/index.ts",
@@ -151,7 +151,7 @@
     },
     {
       "file": "scripts/specialist-server-package.mjs",
-      "sha256": "e838bdff589a8a48f12a32cf74d107b03acaa509667b01aedf1c51d4caa92b8c"
+      "sha256": "54b5965cf5b73e8f2440cea8cd044eb1f802f8a646f595f17e7a09b7c7985258"
     },
     {
       "file": ".gitattributes",
@@ -159,7 +159,7 @@
     },
     {
       "file": "server/specialist-media-operator.js",
-      "sha256": "20fc56adaaaac9745514e513dd40e708b4ca16a8361886edb168cfa0f3f0859f"
+      "sha256": "b31682f03716d00b10e46398f823fcf21bacd5e68043700f7e4cb4dd711d0753"
     },
     {
       "file": "sql/release/65_GATEWAY_REMEDIATION_CANDIDATE.sql",
@@ -171,11 +171,11 @@
     },
     {
       "file": "tests/specialist-gateway-http.mjs",
-      "sha256": "f109402c163d9fa4f291af725d3760bcbfada7aec47c4bbfae600b27f1877229"
+      "sha256": "dfabac13769d5bc5141eb86862444e1ed70ba159d80906e1e134e3c5c20ded96"
     },
     {
       "file": "tests/gateway-local-checks.mjs",
-      "sha256": "9aae3d9c77c0f82c7895890627dcbfd203b5ccb40b95f9f441bc7aa37d5765ae"
+      "sha256": "4954a89176ddaad7963bddaa779ff4dfcdea516647444dd4362ee5c699d325c2"
     },
     {
       "file": "tests/gateway-integrity.mjs",
@@ -187,17 +187,42 @@
     },
     {
       "file": "docs/SPECIALIST_GATEWAY_EXPECTED_CATALOG_2026-10-27.json",
-      "sha256": "108dc070a8735ee617518d809c04f73beafbe577f70971fa523f6c77719f7feb"
+      "sha256": "bfe2f900f1d1c4482f33b905c0b5ee17cb71d7085e69f69f7af54f4554af0bc0"
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "bd1af86186a17e163a1dca9d0fcc71415212fb5efcc5b96330dc54d0eec127f4"
+      "sha256": "c220ecf03f8f1450429ae849570d08030c60e37dff19cc7768bd9b861f9b1534"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
-      "sha256": "120865a7104b2fa3a5ad6084e00debe943b3edd407939ffa8183bb0eb000c515"
+      "sha256": "d4497e201100f8c2fad2a205e1820c4ec9fa54e58ea75100a0f6de2585dabc66"
+    },
+    {
+      "file": "tests/local-stack.mjs",
+      "sha256": "86dfb268707b6e98cf2c7c33dc31f7bc99bd955a8b337854217c3c3974cec016"
+    },
+    {
+      "file": "docs/SPECIALIST_PILOT_DRAIN_SOP_2026-10-28.md",
+      "sha256": "5ac11285a385d976f0d9cd981b953be154e161c1acd772b6e5bb6a41e7006723"
+    },
+    {
+      "file": "docs/SPECIALIST_PILOT_PLAN_2026-10-28.md",
+      "sha256": "30e616a218c26710babc5e1f88b65c0f40248d78349e3b39a8d593c74a2f6d97"
+    },
+    {
+      "file": "sql/release/66_SPECIALIST_OPERATOR_CANDIDATE.sql",
+      "sha256": "f027d97d869bcfc855816d1eef47d8364999afad83426542d235e4b235c57835"
+    },
+    {
+      "file": "tests/operator-fixture.mjs",
+      "sha256": "cbba890ede658d868f0cae0b9ee2b65bbd4284011fd1e3e0598f6c36e8ec5251"
+    },
+    {
+      "file": "tests/specialist-pilot-hardening.mjs",
+      "sha256": "89fcbfa1e7d2ea8ebcf8ce74f687053bc05e998acffe9eb98b8243d31c65ae9c"
     }
   ],
   "hostedApplyAuthorized": false,
-  "remediationBase": "b6626a3169836be534a61aa1befecd26a5a55d43"
+  "remediationBase": "b6626a3169836be534a61aa1befecd26a5a55d43",
+  "pilotBase": "ad6101ef34812cce85f35c94ab0aa8fd0a8f0e99"
 }

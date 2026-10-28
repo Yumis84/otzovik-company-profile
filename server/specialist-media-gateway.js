@@ -15,8 +15,8 @@ export function createMediaGateway({url,anonKey,serviceKey,origins=[],fetcher=fe
  const base=new URL(url);if(!['https:','http:'].includes(base.protocol)||base.username||base.password||base.search||base.hash||!anonKey||!serviceKey)throw Error('Invalid server configuration');
  const endpoint=base.origin,serviceHeaders={apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':'application/json'};
  async function rpc(name,args){
-  const res=await fetcher(endpoint+'/rest/v1/rpc/'+name,{method:'POST',headers:serviceHeaders,body:JSON.stringify(args),signal:AbortSignal.timeout(15000)});
-  const data=await res.json();if(!res.ok){const e=Error('Request failed');e.code=data.code;e.status=data.code==='42501'?403:['PT409','40001','23505','23503'].includes(data.code)?409:data.code==='54000'?429:data.code==='55000'?503:400;throw e;}return data;
+  const res=await fetcher(endpoint+'/rest/v1/rpc/'+name,{method:'POST',headers:serviceHeaders,body:JSON.stringify(args),signal:AbortSignal.timeout(name==='specialist_gateway_reject'?3000:15000)});
+  const data=await res.json();if(!res.ok){const e=Error('Request failed');e.code=data.code;e.status=data.code==='42501'?403:['PT409','40001','23505','23503'].includes(data.code)?409:data.code==='54000'?429:data.code==='55000'?503:res.status>=500?503:400;throw e;}return data;
  }
  async function jsonBody(request){
   if(Number(request.headers.get('content-length')||0)>MAX_BODY)throw Object.assign(Error(),{status:413});
@@ -54,7 +54,11 @@ export function createMediaGateway({url,anonKey,serviceKey,origins=[],fetcher=fe
      const upload=await fetcher(endpoint+'/storage/v1/object/specialist-media/'+r.object_name,{method:'POST',headers:{apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':body.mime,'x-upsert':'false'},body:bytes,signal:AbortSignal.timeout(25000)});
      if(!upload.ok){
       if(await isDefiniteStorageRejection(upload)){
-       await rpc('specialist_gateway_reject',{...owner,p_request_id:body.request_id,p_http_status:upload.status});
+       // Retry ONLY idempotent rejection bookkeeping, never the Storage POST.
+       for(let attempt=0;;attempt++){
+        try{await rpc('specialist_gateway_reject',{...owner,p_request_id:body.request_id,p_http_status:upload.status});break;}
+        catch(e){if(attempt>=2||e.status&&e.status<500)throw e;await new Promise(resolve=>setTimeout(resolve,100*(attempt+1)));}
+       }
        return response(422,{error:'Storage отклонил загрузку. Выберите файл ещё раз.',request_id:body.request_id,reservation_released:true});
       }
       return response(409,{error:'Upload not confirmed; reservation retained',request_id:body.request_id});

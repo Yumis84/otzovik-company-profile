@@ -1,7 +1,8 @@
-import {prepareSpecialistErasure} from '../server/specialist-media-operator.js';
+import {operatorFixture,approveErasure} from './operator-fixture.mjs';
+import {planSpecialistErasure,cleanupSpecialistOrphan,prepareSpecialistErasure} from '../server/specialist-media-operator.js';
 import {createClient} from '@supabase/supabase-js';
 import assert from 'node:assert/strict';import fs from 'node:fs/promises';import crypto from 'node:crypto';import {createMediaGateway} from '../server/specialist-media-gateway.js';
-export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company}){
+export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company,jwtSecret}){
  const file=f=>fs.readFile(new URL('../'+f,import.meta.url),'utf8'),A=ok(await a.auth.getUser()).user.id;
  const id=ok(await a.rpc('get_my_specialists')).find(r=>r.slug==='local-specialist').id;
  assert.equal((await db.query("SELECT count(*)::int n FROM pg_trigger WHERE tgname='specialist_object_integrity'")).rows[0].n,0);
@@ -89,7 +90,22 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   assert.equal(ok(await admin.rpc('specialist_gateway_metrics')).definite_rejections,20);
   const saved=await gw(a,payload());assert.equal(saved.status,200);assert((await gw(a,{action:'delete',specialist_id:id,object_name:saved.media.object_name})).deleted);
  });
- await test('unknown 408/409/500 retain slots; late real Storage write, audited cleanup and Auth hard-delete',async()=>{
+
+ await test('bounded reject retry after real SQL commit/lost response has one audit and one Storage POST',async()=>{
+  const token=ok(await a.auth.getSession()).session.access_token,body=payload();let writes=0,rejections=0;
+  const handler=createMediaGateway({url:api,anonKey:anon,serviceKey:service,fetcher:async(url,options)=>{
+   if(url.includes('/storage/v1/object/')&&options?.method==='POST'){writes++;return Response.json({statusCode:413,error:'EntityTooLarge'},{status:413});}
+   if(url.endsWith('/specialist_gateway_reject')){rejections++;const response=await fetch(url,options);if(rejections===1)throw Error('Injected response loss after committed rejection');return response;}
+   return fetch(url,options);
+  }});
+  const result=await handler(new Request('http://isolated.test',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)}));
+  assert.equal(result.status,422);assert.equal(writes,1);assert.equal(rejections,2);
+  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE request_id=$1 AND action='definite_rejection'",[body.request_id])).rows[0].n,1);
+ });
+
+ const [approver,operator]=await operatorFixture({api,anon,admin,db,jwtSecret,ok});
+ await db.query("CREATE POLICY accidental_operator ON storage.objects FOR ALL TO specialist_operator USING(true) WITH CHECK(true)");
+ await test('unknown retention; verified operators, owner consent, legacy plan, Auth hard-delete and post-deletion orphan cleanup',async()=>{
   const email='erasure-'+crypto.randomUUID()+'@example.test',password='Gateway-'+crypto.randomUUID()+'!';
   const user=ok(await admin.auth.admin.createUser({email,password,email_confirm:true})).user;
   const c=createClient(api,anon,{auth:{persistSession:false,autoRefreshToken:false}});ok(await c.auth.signInWithPassword({email,password}));
@@ -110,20 +126,39 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   assert((await admin.auth.admin.deleteUser(user.id)).error,'Quarantine FK 23503 must be reproduced before operator remediation');
   assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,4);
   release();assert.equal((await inflight).status,200,'Admitted writer completes despite upload switch');
-  const inventory=ok(await admin.rpc('specialist_gateway_erasure_inventory',scope));assert.equal(inventory.objects.length,1);
-  const path=inventory.objects[0];ok(await c.storage.from('specialist-media').download(path));
-  const proofs=Object.fromEntries(inventory.reservations.map(r=>[r.id,{kind:'provider_terminal_no_late_writer',request_id:r.id,evidence_ref:'isolated-test:all-requests-awaited:'+r.id,all_writers_stopped:true}]));
-  await assert.rejects(()=>prepareSpecialistErasure({admin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs:{}}),/evidence/);
-  const failingAdmin={rpc:admin.rpc.bind(admin),storage:{from:()=>({remove:async()=>({data:null,error:Error('Injected operator Storage failure')})})}};
-  await assert.rejects(()=>prepareSpecialistErasure({admin:failingAdmin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs}),/Injected operator/);
-  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,4);
-  const erased=await prepareSpecialistErasure({admin,owner:user.id,profile:p.id,actor:'isolated-operator',reason:'Verified synthetic erasure request',proofs});assert(erased.media_erased&&!erased.account_deleted);
+  const authorization=await approveErasure({owner:c,approver,profile:p.id,ok});
+  const before=ok(await operator.rpc('specialist_gateway_erasure_inventory',scope));assert.equal(before.objects.length,1);
+  const path=before.objects[0];ok(await c.storage.from('specialist-media').download(path));
+  const lateProof={kind:'provider_terminal_no_late_writer',mode:'quarantine_retire',authorization_id:authorization,request_id:late.request_id,evidence_ref:'isolated-test:all-requests-awaited:'+late.request_id,all_writers_stopped:true};
+  assert.equal((await operator.rpc('specialist_gateway_force_retire',{...scope,p_request_id:late.request_id,p_phase:'begin',p_actor:'forged',p_reason:'Quarantine cannot erase ready media',p_proof:lateProof})).error?.code,'42501');
+  assert((await approver.rpc('specialist_gateway_force_retire',{...scope,p_request_id:late.request_id,p_phase:'begin',p_actor:'forged',p_reason:'Self approval denied',p_proof:{...lateProof,mode:'confirmed_erasure'}})).error);
+  ok(await approver.storage.from('specialist-media').remove([path]));ok(await admin.storage.from('specialist-media').download(path)); // RLS must leave bytes intact
+  const legacy=p.id+'/portfolio/'+crypto.randomUUID()+'.png';ok(await admin.storage.from('specialist-media').upload(legacy,bytes,{contentType:'image/png'}));
+  await db.query('UPDATE specialist_upload_control SET deletions_enabled=false');
+  const plan=await planSpecialistErasure({operator,owner:user.id,profile:p.id,authorization});assert.equal(plan.reservations.length,5);
+  const repeated=await planSpecialistErasure({operator,owner:user.id,profile:p.id,authorization});assert.deepEqual(repeated.reservations.map(r=>r.id).sort(),plan.reservations.map(r=>r.id).sort());ok(await admin.storage.from('specialist-media').download(legacy));
+  const proofs=Object.fromEntries(plan.reservations.map(r=>[r.id,{kind:'provider_terminal_no_late_writer',mode:'confirmed_erasure',authorization_id:authorization,request_id:r.id,evidence_ref:'isolated-test:all-requests-awaited:'+r.id,all_writers_stopped:true}]));
+  await assert.rejects(()=>prepareSpecialistErasure({operator,owner:user.id,profile:p.id,authorization,plan,reason:'Verified synthetic erasure request',proofs:{}}),/evidence/);
+  const failingOperator={auth:operator.auth,rpc:operator.rpc.bind(operator),storage:{from:()=>({remove:async()=>({data:null,error:Error('Injected operator Storage failure')})})}};
+  await assert.rejects(()=>prepareSpecialistErasure({operator:failingOperator,owner:user.id,profile:p.id,authorization,plan,reason:'Verified synthetic erasure request',proofs}),/Injected operator/);
+  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,5);
+  const erased=await prepareSpecialistErasure({operator,owner:user.id,profile:p.id,authorization,plan,reason:'Verified synthetic erasure request',proofs});assert(erased.media_erased&&!erased.account_deleted);
   assert((await c.storage.from('specialist-media').download(path)).error);
   assert.equal((await db.query('SELECT count(*)::int n FROM specialist_upload_reservations WHERE specialist_id=$1',[p.id])).rows[0].n,0);
-  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE profile_id=$1 AND action='operator_finish'",[p.id])).rows[0].n,4);
+  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE profile_id=$1 AND action='operator_finish'",[p.id])).rows[0].n,5);
   ok(await admin.auth.admin.deleteUser(user.id));
   assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles WHERE id=$1',[p.id])).rows[0].n,0);
   assert.equal((await gw(c,payload(p.id))).status,401,'Deleted user old JWT is checked against real Auth');
+  // Deliberate privileged late writer after profile/Auth deletion: reproduce Claude Q3 with real bytes.
+  ok(await admin.storage.from('specialist-media').upload(path,bytes,{contentType:'image/png'}));
+  assert.equal(ok(await admin.rpc('specialist_gateway_metrics')).severity,'critical');
+  const orphanAuth=ok(await approver.rpc('specialist_operator_authorize',{p_specialist_id:p.id,p_confirmation_id:null,p_request_id:late.request_id,p_purpose:'orphan_cleanup',p_ticket:'OTZ-LOCAL-ORPHAN-00000001'})).authorization_id;
+  const orphanProof={kind:'provider_terminal_no_late_writer',mode:'orphan_cleanup',authorization_id:orphanAuth,request_id:late.request_id,evidence_ref:'isolated-test:late-writer-awaited:'+late.request_id,all_writers_stopped:true};
+  assert((await cleanupSpecialistOrphan({operator,request:late.request_id,proof:orphanProof})).deleted);
+  assert((await admin.storage.from('specialist-media').download(path)).error);
+  assert.equal((await db.query("SELECT count(*)::int n FROM storage.objects WHERE bucket_id='specialist-media' AND name=$1",[path])).rows[0].n,0);
+  assert.equal((await db.query("SELECT actor FROM specialist_upload_audit WHERE request_id=$1 AND action='orphan_finish'",[late.request_id])).rows[0].actor,ok(await operator.auth.getUser()).user.id);
+
   await db.query(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
  });
  await test('unknown expired operation and Auth cascade stay safe; disable/enable and company unaffected',async()=>{
