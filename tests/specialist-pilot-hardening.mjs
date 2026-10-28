@@ -62,6 +62,10 @@ try{
   assert((await op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'finish',pr])).deleted);assert((await op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'finish',pr])).deleted);
   assert.equal((await root('specialist_gateway_metrics')).critical_orphan,false);
   assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE request_id=$1 AND action='orphan_finish'",[orphanRequest])).rows[0].n,1);
+  await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,{size:10,mimetype:'image/png'}]);
+  assert.equal((await db.session(T,c=>c.query("DELETE FROM storage.objects WHERE name=$1",[path]),'specialist_operator')).rowCount,0,'Completed proof must not leave Storage permission open');
+  await db.query("DELETE FROM storage.objects WHERE name=$1",[path]); // deliberate trust-violation teardown in tiny fixture
+
  });
  await test('20 terminal failures reuse slots; unknown/TTL retains quota and warning severity',async()=>{
   await db.exec(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));

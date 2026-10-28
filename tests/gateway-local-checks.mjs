@@ -132,7 +132,7 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   const lateProof={kind:'provider_terminal_no_late_writer',mode:'quarantine_retire',authorization_id:authorization,request_id:late.request_id,evidence_ref:'isolated-test:all-requests-awaited:'+late.request_id,all_writers_stopped:true};
   assert.equal((await operator.rpc('specialist_gateway_force_retire',{...scope,p_request_id:late.request_id,p_phase:'begin',p_actor:'forged',p_reason:'Quarantine cannot erase ready media',p_proof:lateProof})).error?.code,'42501');
   assert((await approver.rpc('specialist_gateway_force_retire',{...scope,p_request_id:late.request_id,p_phase:'begin',p_actor:'forged',p_reason:'Self approval denied',p_proof:{...lateProof,mode:'confirmed_erasure'}})).error);
-  ok(await approver.storage.from('specialist-media').remove([path]));ok(await admin.storage.from('specialist-media').download(path)); // RLS must leave bytes intact
+  const deniedDelete=await approver.storage.from('specialist-media').remove([path]);assert(deniedDelete.error||deniedDelete.data?.length===0);ok(await admin.storage.from('specialist-media').download(path)); // RLS must leave bytes intact
   const legacy=p.id+'/portfolio/'+crypto.randomUUID()+'.png';ok(await admin.storage.from('specialist-media').upload(legacy,bytes,{contentType:'image/png'}));
   await db.query('UPDATE specialist_upload_control SET deletions_enabled=false');
   const plan=await planSpecialistErasure({operator,owner:user.id,profile:p.id,authorization});assert.equal(plan.reservations.length,5);

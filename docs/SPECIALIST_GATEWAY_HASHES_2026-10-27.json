@@ -175,7 +175,7 @@
     },
     {
       "file": "tests/gateway-local-checks.mjs",
-      "sha256": "4954a89176ddaad7963bddaa779ff4dfcdea516647444dd4362ee5c699d325c2"
+      "sha256": "9b44622d4abe1f8e7b42f0f2c196ed895d8a3bd4fc4f0af2bfeedd8e6d8b6a91"
     },
     {
       "file": "tests/gateway-integrity.mjs",
@@ -207,7 +207,7 @@
     },
     {
       "file": "docs/SPECIALIST_PILOT_PLAN_2026-10-28.md",
-      "sha256": "30e616a218c26710babc5e1f88b65c0f40248d78349e3b39a8d593c74a2f6d97"
+      "sha256": "8fff68e2e23aa8a63bf90e9dcd5df81c1fe23f91f3a88191bc6504a4f6f8dbc4"
     },
     {
       "file": "sql/release/66_SPECIALIST_OPERATOR_CANDIDATE.sql",
@@ -219,7 +219,7 @@
     },
     {
       "file": "tests/specialist-pilot-hardening.mjs",
-      "sha256": "89fcbfa1e7d2ea8ebcf8ce74f687053bc05e998acffe9eb98b8243d31c65ae9c"
+      "sha256": "af1b3dbf9d195f5d4a520c2ff69924249937e704037bd22fb441aa361f220888"
     }
   ],
   "hostedApplyAuthorized": false,
