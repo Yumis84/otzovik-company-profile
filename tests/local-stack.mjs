@@ -186,7 +186,7 @@ try{
   assert(ok(await a.from('company_media').select('*')).some(x=>x.storage_object_name.endsWith('.webp')));
  });
  ok(await a.auth.signInWithPassword({email:emails[0],password}));ok(await b.auth.signInWithPassword({email:emails[1],password}));
- await gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company});
+ await gatewayChecks({a,b,anonymous,admin,db,api,anon,service,page,open,ok,test,company,jwtSecret:cfg.JWT_SECRET});
  assert.deepEqual(errors,[]);
  await test('private drafts remain absent from publisher and rollback preserves data',async()=>{
   const before=(await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n;

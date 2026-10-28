@@ -27,4 +27,23 @@ await test('network failure and ambiguous status never issue retirement or retry
   }});assert([409,503].includes((await gateway(request())).status));assert.equal(writes,1);
  }
 });
+
+await test('reject bookkeeping retries network and PostgREST503 at most3 times; Storage POST stays single',async()=>{
+ for(const mode of ['eventual','exhausted','forbidden']){
+  let writes=0,rejections=0;
+  const gateway=createMediaGateway({url:'http://loopback.test',anonKey:'public-fixture',serviceKey:'private-fixture',fetcher:async(url)=>{
+   if(url.endsWith('/auth/v1/user'))return Response.json({id:owner});
+   if(url.endsWith('/specialist_gateway_reserve'))return Response.json({object_name:profile+'/portfolio/'+rid+'.png',state:'uploading',upload_allowed:true});
+   if(url.endsWith('/specialist_gateway_reject')){
+    rejections++;if(mode==='forbidden')return Response.json({code:'42501'},{status:403});
+    if(mode==='eventual'&&rejections===1)throw Error('Injected lost response');
+    if(mode==='eventual'&&rejections===3)return Response.json({retired:true});
+    return Response.json({code:'PGRST000'},{status:503});
+   }
+   writes++;return Response.json({statusCode:413,error:'EntityTooLarge'},{status:413});
+  }});
+  const result=await gateway(request());assert.equal(result.status,mode==='eventual'?422:mode==='forbidden'?403:503);assert.equal(writes,1);assert.equal(rejections,mode==='forbidden'?1:3);
+ }
+});
+
 console.log('GATEWAY HTTP RESULT',n,'PASS; deterministic unit injection only');
