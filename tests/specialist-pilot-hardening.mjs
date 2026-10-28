@@ -67,6 +67,9 @@ try{
   await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,{size:10,mimetype:'image/png'}]);
   await denied(()=>op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',pr]),'PT409');
   await denied(()=>op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',{...pr,evidence_ref:'different-evidence-123'}]),'PT409');
+  const noncanonical=auth.replace(/-/g,'').replace(/^(.{4})(.{8})(.{8})(.{8})(.{4})$/,'$1-$2-$3-$4-$5');
+  await denied(()=>op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',{...pr,authorization_id:noncanonical,evidence_ref:'different-evidence-123'}]),'22023');
+  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE action='orphan_begin' AND (evidence->>'authorization_id')::uuid=$1::uuid",[auth])).rows[0].n,1);
   assert.equal((await db.session(T,c=>c.query("DELETE FROM storage.objects WHERE name=$1",[path]),'specialist_operator')).rowCount,0,'Completed proof must not leave Storage permission open');
   // Competing proofs for one authorization must result in exactly one begin.
   const fresh=(await op(O,'specialist_operator_authorize',[orphanProfile,null,orphanRequest,'orphan_cleanup','OTZ-TEST-00000003'])).authorization_id;
