@@ -24,6 +24,8 @@ ALTER TABLE public.specialist_erasure_authorizations FORCE ROW LEVEL SECURITY;
 REVOKE ALL ON public.specialist_operator_identities,public.specialist_erasure_confirmations,public.specialist_erasure_authorizations FROM PUBLIC,anon,authenticated,service_role,specialist_operator;
 ALTER TABLE public.specialist_upload_audit DROP CONSTRAINT specialist_upload_audit_action_check;
 ALTER TABLE public.specialist_upload_audit ADD CONSTRAINT specialist_upload_audit_action_check CHECK(action IN ('definite_rejection','operator_begin','operator_finish','orphan_begin','orphan_finish'));
+-- Database-enforced consumption: a reviewed orphan authorization may open only one begin.
+CREATE UNIQUE INDEX specialist_orphan_authorization_once ON public.specialist_upload_audit ((evidence->>'authorization_id')) WHERE action='orphan_begin';
 REVOKE ALL ON public.specialist_upload_audit FROM specialist_operator;
 CREATE FUNCTION public.confirm_my_specialist_erasure(p_specialist_id uuid,p_confirmation_id uuid) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $confirm$
 DECLARE r public.specialist_erasure_confirmations;
@@ -83,7 +85,16 @@ BEGIN
  IF p_phase IS NULL OR p_phase NOT IN ('begin','finish') OR p_proof IS NULL OR jsonb_typeof(p_proof)<>'object' OR octet_length(p_proof::text)>8192 OR p_proof->>'mode' IS DISTINCT FROM 'orphan_cleanup' OR p_proof->>'request_id' IS DISTINCT FROM r.id::text OR p_proof->'all_writers_stopped' IS DISTINCT FROM 'true'::jsonb OR coalesce(p_proof->>'kind','') NOT IN ('provider_terminal_no_late_writer','credentials_revoked_all_writers_drained') OR coalesce(char_length(p_proof->>'evidence_ref'),0) NOT BETWEEN 8 AND 1000 OR coalesce(p_proof->>'authorization_id','') !~ '^[0-9a-f-]{36}$' THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Reviewed writer-stop evidence required'; END IF;
  completed:=EXISTS(SELECT FROM public.specialist_upload_audit WHERE request_id=r.id AND action='orphan_finish' AND evidence=p_proof AND actor=auth.uid()::text);
  resumed:=EXISTS(SELECT FROM public.specialist_upload_audit a WHERE a.request_id=r.id AND a.action='orphan_begin' AND a.evidence=p_proof AND a.actor=auth.uid()::text AND (p_phase='finish' OR NOT EXISTS(SELECT FROM public.specialist_upload_audit z WHERE z.request_id=r.id AND z.action='orphan_finish' AND z.evidence=p_proof AND z.actor=a.actor AND z.created_at>=a.created_at)));
+ -- Serialize all uses of this authorization, including different proof values.
+ PERFORM 1 FROM public.specialist_erasure_authorizations WHERE id=(p_proof->>'authorization_id')::uuid FOR UPDATE;
  v_actor:=public.specialist_operator_check((p_proof->>'authorization_id')::uuid,r.profile_id,r.id,'orphan_cleanup',resumed OR (completed AND NOT EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name)));
+ IF p_phase='begin' AND NOT completed THEN
+  IF resumed THEN
+   IF NOT EXISTS(SELECT FROM public.specialist_erasure_authorizations WHERE id=(p_proof->>'authorization_id')::uuid AND expires_at>clock_timestamp()) OR NOT EXISTS(SELECT FROM public.specialist_upload_audit WHERE request_id=r.id AND action='orphan_begin' AND evidence=p_proof AND actor=v_actor::text AND created_at>clock_timestamp()-interval '15 minutes') THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Begin expired; fresh authorization required'; END IF;
+   RETURN jsonb_build_object('deleted',false,'object_name',r.object_name);
+  END IF;
+  IF EXISTS(SELECT FROM public.specialist_upload_audit WHERE action='orphan_begin' AND evidence->>'authorization_id'=p_proof->>'authorization_id') THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Authorization already consumed'; END IF;
+ END IF;
  IF p_phase='begin' AND completed THEN
   IF EXISTS(SELECT FROM storage.objects WHERE bucket_id='specialist-media' AND name=r.object_name) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='New late object needs fresh authorization and proof'; END IF;
   RETURN jsonb_build_object('deleted',true,'object_name',r.object_name);
@@ -98,7 +109,9 @@ END $orphan$;
 CREATE FUNCTION public.can_operator_remove_specialist_object(p_name text) RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path='' AS $remove$
  SELECT auth.uid() IS NOT NULL AND EXISTS(SELECT FROM public.specialist_operator_identities WHERE user_id=auth.uid() AND enabled) AND EXISTS(
  SELECT FROM public.specialist_upload_reservations r JOIN public.specialist_upload_audit a ON a.request_id=r.id AND a.profile_id=r.profile_id
- WHERE r.object_name=p_name AND a.actor=auth.uid()::text AND (
+ WHERE r.object_name=p_name AND a.actor=auth.uid()::text
+ AND a.created_at>clock_timestamp()-interval '15 minutes'
+ AND EXISTS(SELECT FROM public.specialist_erasure_authorizations u WHERE u.id::text=a.evidence->>'authorization_id' AND u.profile_id=r.profile_id AND u.approved_by<>auth.uid() AND u.expires_at>clock_timestamp() AND ((a.action='orphan_begin' AND u.purpose='orphan_cleanup' AND u.request_id=r.id) OR (a.action='operator_begin' AND u.purpose='profile_erasure'))) AND (
  (r.state='deleting' AND a.action='operator_begin' AND NOT EXISTS(SELECT FROM public.specialist_upload_audit z WHERE z.request_id=r.id AND z.action='operator_finish' AND z.evidence=a.evidence AND z.actor=a.actor AND z.created_at>=a.created_at)) OR
  (r.state='deleted' AND a.action='orphan_begin' AND NOT EXISTS(SELECT FROM public.specialist_upload_audit z WHERE z.request_id=r.id AND z.action='orphan_finish' AND z.evidence=a.evidence AND z.actor=a.actor AND z.created_at>=a.created_at) AND NOT EXISTS(SELECT FROM public.specialist_profiles WHERE id=r.profile_id))))
 $remove$;

@@ -66,8 +66,27 @@ try{
   assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE request_id=$1 AND action='orphan_finish'",[orphanRequest])).rows[0].n,1);
   await db.query("INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('specialist-media',$1,$2)",[path,{size:10,mimetype:'image/png'}]);
   await denied(()=>op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',pr]),'PT409');
+  await denied(()=>op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',{...pr,evidence_ref:'different-evidence-123'}]),'PT409');
   assert.equal((await db.session(T,c=>c.query("DELETE FROM storage.objects WHERE name=$1",[path]),'specialist_operator')).rowCount,0,'Completed proof must not leave Storage permission open');
-  await db.query("DELETE FROM storage.objects WHERE name=$1",[path]); // deliberate trust-violation teardown in tiny fixture
+  // Competing proofs for one authorization must result in exactly one begin.
+  const fresh=(await op(O,'specialist_operator_authorize',[orphanProfile,null,orphanRequest,'orphan_cleanup','OTZ-TEST-00000003'])).authorization_id;
+  const p1=proof(orphanRequest,'orphan_cleanup',fresh),p2={...p1,evidence_ref:'competing-evidence-123'};
+  const competing=await Promise.allSettled([op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',p1]),op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',p2])]);
+  assert.equal(competing.filter(x=>x.status==='fulfilled').length,1);assert.equal(competing.filter(x=>x.status==='rejected').length,1);
+  const winner=competing[0].status==='fulfilled'?p1:p2;
+  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_upload_audit WHERE action='orphan_begin' AND evidence->>'authorization_id'=$1",[fresh])).rows[0].n,1);
+  await db.query("UPDATE specialist_erasure_authorizations SET expires_at=now()-interval '1 day' WHERE id=$1",[fresh]);
+  assert.equal((await db.session(T,c=>c.query("DELETE FROM storage.objects WHERE name=$1",[path]),'specialist_operator')).rowCount,0,'authorization expiry closes current begin');
+  await db.query("UPDATE specialist_erasure_authorizations SET expires_at=now()+interval '10 minutes' WHERE id=$1",[fresh]);
+  await db.query("UPDATE specialist_upload_audit SET created_at=now()-interval '31 days' WHERE action='orphan_begin' AND evidence->>'authorization_id'=$1",[fresh]);
+  assert.equal((await db.session(T,c=>c.query("DELETE FROM storage.objects WHERE name=$1",[path]),'specialist_operator')).rowCount,0);
+  await denied(()=>op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',winner]),'42501');
+  const renewed=(await op(O,'specialist_operator_authorize',[orphanProfile,null,orphanRequest,'orphan_cleanup','OTZ-TEST-00000004'])).authorization_id;
+  const recovery=proof(orphanRequest,'orphan_cleanup',renewed);
+  await op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'begin',recovery]);
+  assert.equal((await db.session(T,c=>c.query("DELETE FROM storage.objects WHERE name=$1",[path]),'specialist_operator')).rowCount,1);
+  await op(T,'specialist_operator_cleanup_orphan',[orphanRequest,'finish',recovery]);
+
 
  });
  await test('20 terminal failures reuse slots; unknown/TTL retains quota and warning severity',async()=>{
@@ -81,7 +100,7 @@ try{
   const over=await root('specialist_gateway_metrics');assert(over.critical_over_quota&&over.alert);assert.equal(over.severity,'critical');assert.equal(over.over_quota_profiles,1);await db.query("DELETE FROM storage.objects WHERE name=$1",[extra]);
  });
  await test('audited erasure clears Auth cascade FK, operator registry revocation closes access',async()=>{
-  await db.exec(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));await denied(()=>db.query('DELETE FROM auth.users WHERE id=$1',[A]),'23503');
+  await db.exec(await file('sql/release/DISABLE_MEDIA_CANDIDATE.sql'));await denied(()=>db.query('DELETE FROM auth.users WHERE id=$1',[A]),(db.concurrent?'23503':'23001'));
   for(const {id:request}of (await db.query('SELECT id FROM specialist_upload_reservations WHERE specialist_id=$1',[id])).rows){await retire(request,'begin');await retire(request,'finish');}
   await db.query('DELETE FROM auth.users WHERE id=$1',[A]);assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles WHERE id=$1',[id])).rows[0].n,0);
   await db.query('UPDATE specialist_operator_identities SET enabled=false WHERE user_id=$1',[T]);await denied(()=>op(T,'specialist_gateway_erasure_inventory',[A,id]),'42501');

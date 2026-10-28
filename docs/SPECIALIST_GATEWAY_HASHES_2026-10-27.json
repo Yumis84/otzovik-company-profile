@@ -75,7 +75,7 @@
     },
     {
       "file": "sql/release/70_POSTCHECK_CANDIDATE.sql",
-      "sha256": "9858519abd243322f8e0ad3cb40f839e99c31f2174ca2ec996548c9dfcc6abdb"
+      "sha256": "d8e7c2e92ae86322db0094cf13e9f3f4ec3d5b2c20a82d1f6b00234e1d00b4f2"
     },
     {
       "file": "sql/release/80_ENABLE_MEDIA_CANDIDATE.sql",
@@ -195,7 +195,7 @@
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
-      "sha256": "d4497e201100f8c2fad2a205e1820c4ec9fa54e58ea75100a0f6de2585dabc66"
+      "sha256": "ce15551aca1596abb13c406faa0962ab985030e35641cb7ab14ae6ab3660aad7"
     },
     {
       "file": "tests/local-stack.mjs",
@@ -203,15 +203,15 @@
     },
     {
       "file": "docs/SPECIALIST_PILOT_DRAIN_SOP_2026-10-28.md",
-      "sha256": "5ac11285a385d976f0d9cd981b953be154e161c1acd772b6e5bb6a41e7006723"
+      "sha256": "b19ac6748304d491a0cca89aad65ae10bf9cfb07cde04fff0a2ac76872f0194d"
     },
     {
       "file": "docs/SPECIALIST_PILOT_PLAN_2026-10-28.md",
-      "sha256": "e2dc87dab7077820322ca64d8fb067b6b020525b51de80855e75feee0d0b60e4"
+      "sha256": "49ca45f683b7e996a1289fa9942d28aa68e500d6440809b75282b4834398796e"
     },
     {
       "file": "sql/release/66_SPECIALIST_OPERATOR_CANDIDATE.sql",
-      "sha256": "e9c2d750a19e27e73c9dc30ea6d402815eb369196a80e3673be738ff0d38f01d"
+      "sha256": "aa4999613d604814fe22ebd5384cb7560b36b5ebe51703b870ccdc16b22734ce"
     },
     {
       "file": "tests/operator-fixture.mjs",
@@ -219,7 +219,7 @@
     },
     {
       "file": "tests/specialist-pilot-hardening.mjs",
-      "sha256": "64a391b9ddfd5eadb2e5734e8c274c28cbed48f439196b466a73b3ac1c104c58"
+      "sha256": "53421046f8f374287db2270ff73fd594ad14781c9bcdf216c749a13c4390b48b"
     }
   ],
   "hostedApplyAuthorized": false,
