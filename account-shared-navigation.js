@@ -26,6 +26,8 @@ export function installNavigation(nav){
  menu.addEventListener('click',e=>{const link=e.target.closest('a');if(!link)return;const links=[...menu.querySelectorAll('a')],original=nav.querySelectorAll('a')[links.indexOf(link)];reveal(original);close();});
  document.addEventListener('click',e=>{if(!host.contains(e.target))close();});host.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){e.preventDefault();close(true);}});
  host.addEventListener('focusout',e=>{if(!host.contains(e.relatedTarget))close();});
- const observer=new MutationObserver(refresh);observer.observe(nav,{childList:true,subtree:true,attributes:true,characterData:true});refresh();requestAnimationFrame(()=>reveal(nav.querySelector('.active,[aria-current="page"]')));
+ const observer=new MutationObserver(refresh);observer.observe(nav,{childList:true,subtree:true,attributes:true,characterData:true});refresh();
+ const revealCurrent=()=>requestAnimationFrame(()=>reveal(nav.querySelector('.active,[aria-current="page"]')));
+ window.addEventListener('resize',revealCurrent);revealCurrent();
  instances.set(nav,{refresh});
 }
