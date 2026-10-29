@@ -29,7 +29,7 @@ export function evaluateDrain(evidence){
  const rows=Array.isArray(evidence?.writers)?evidence.writers:[];
  const missing=[];if(evidence?.environment!=='disposable-local')missing.push('environment');if(!evidence?.inventoryComplete||!rows.length)missing.push('inventory');
  for(const row of rows){if(!row.name||!row.freezeEvidence||!row.executionEvidence||!row.terminalEvidence)missing.push('writer:'+String(row.name||'unknown'));}
- return {worksheetComplete:missing.length===0,providerDrainVerified:false,allowDeletion:false,missing};
+ return {worksheetFieldsPresent:missing.length===0,providerDrainVerified:false,allowDeletion:false,missing};
 }
 export async function syntheticAlert(metric,transport){assert(['critical_orphan','stale_begin'].includes(metric),'unsupported metric');assert(typeof transport==='function','transport required');const id=randomUUID();const r=await transport({id,metric});assert(r?.ack===id,'alert not acknowledged');return {id,delivered:true,synthetic:true};}
 export function rollbackDryRun(state){assert(state?.environment==='disposable-local','local synthetic only');return {applied:false,steps:['close-admission','preserve-rls-fk-audit','verify-no-unknown-writers','review-ui-artifact','require-explicit-approval']};}
