@@ -1,6 +1,6 @@
 # Atomic operator model and CI trust — synthetic preparation only
 
-Basis PR45 `400d16123ec9e09e5db2d425a9742f59231ff291`, REQUEST 6fd9ea36, Claude 6a2046ac. This is not a hosted issuer, real MFA, user authorization, Storage/RPC integration or permission to delete. SQL under `tests/fixtures` is a disposable-only model, not a migration or release candidate. No real identities or secrets. The earlier PR45 in-memory syntheticIssuer remains a legacy fixture and is still reusable; only the new PostgreSQL model exercises one-use behavior. Neither fixture is a runtime issuer.
+Basis PR45 `400d16123ec9e09e5db2d425a9742f59231ff291`, REQUEST 6fd9ea36, Claude 6a2046ac. This is not a hosted issuer, real MFA, user authorization, Storage/RPC integration or permission to delete. SQL under `tests/fixtures` is a disposable-only model, not a migration or release candidate. No real identities or secrets. The earlier PR45 in-memory syntheticIssuer remains a legacy fixture and is still reusable, and its syntheticSupport still accepts unregistered UUIDs; only the new PostgreSQL model exercises one-use behavior and registered MFA-bound reviewers. Neither fixture is a runtime issuer.
 
 ## Atomic model
 
