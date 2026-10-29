@@ -1,6 +1,6 @@
 # Atomic operator model and CI trust — synthetic preparation only
 
-Basis PR45 `400d16123ec9e09e5db2d425a9742f59231ff291`, REQUEST 6fd9ea36, Claude 6a2046ac. This is not a hosted issuer, real MFA, user authorization, Storage/RPC integration or permission to delete. SQL under `tests/fixtures` is a disposable-only model, not a migration or release candidate. No real identities or secrets.
+Basis PR45 `400d16123ec9e09e5db2d425a9742f59231ff291`, REQUEST 6fd9ea36, Claude 6a2046ac. This is not a hosted issuer, real MFA, user authorization, Storage/RPC integration or permission to delete. SQL under `tests/fixtures` is a disposable-only model, not a migration or release candidate. No real identities or secrets. The earlier PR45 in-memory syntheticIssuer remains a legacy fixture and is still reusable; only the new PostgreSQL model exercises one-use behavior. Neither fixture is a runtime issuer.
 
 ## Atomic model
 
@@ -15,7 +15,7 @@ Basis PR45 `400d16123ec9e09e5db2d425a9742f59231ff291`, REQUEST 6fd9ea36, Claude 
 
 1. Host a separately administered reusable workflow and verifier outside the PR repository, pin its full commit SHA, and retain the expected baseline/policy in that trusted repository or a protected organization variable. PR44/45 are reference seeds only, not independently approved roots.
 2. The trusted job checks out the untrusted PR as data with no privileged secrets, validates paths/hashes before running any PR-controlled code, and reports a required status. Avoid executing head code in a privileged `pull_request_target` context. Sign or separately review updates to the baseline and protected-path policy.
-3. Protect original guard and tests, candidate guard and workflow, all `.github/workflows/**`, package and lock files, `scripts/pages-files.json`, all public artifact paths, operator/gateway SQL, company files, CODEOWNERS and the policy itself. Include additions/deletions, renames, symlinks and case differences. The synthetic detector checks PR45 pages-manifest paths, PR45 workflows and specified guard/package files, plus local snapshots of its own script and new workflow. It cannot stop coordinated self-modification, protect future unknown paths, or replace a trustworthy external check.
+3. Protect original guard and tests, candidate guard and workflow, all `.github/workflows/**`, package and lock files, `scripts/pages-files.json`, all public artifact paths, operator/gateway SQL, company files, CODEOWNERS and the policy itself. Include additions/deletions, renames, symlinks and case differences. The synthetic detector checks PR45 pages-manifest paths, PR45 workflows, tracked SQL, CODEOWNERS locations and specified guard/package files, plus local snapshots of its own script and new workflow. It cannot stop coordinated self-modification, protect future unknown paths, or replace a trustworthy external check.
 4. Owner-controlled CODEOWNERS, required review, required independent status, and any admin bypass decision need explicit consent. Test red results for guard, policy, workflow, manifest, package, public paths and CODEOWNERS in a disposable fork before relying on them. Repository admins and trusted-workflow maintainers remain trusted actors. No ruleset, ACL or external workflow is changed here.
 
 ## Owner decisions — blank worksheet
