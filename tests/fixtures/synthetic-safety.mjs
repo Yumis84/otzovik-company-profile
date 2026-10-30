@@ -7,6 +7,7 @@ const validId=s=>typeof s==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 const assert=(v,m)=>{if(!v)throw Error(m)};
 function pack(key,payload){const h=enc({alg:'EdDSA',typ:'JWT'}),p=enc(payload),msg=h+'.'+p;return msg+'.'+sign(null,Buffer.from(msg),key).toString('base64url');}
 function unpack(key,token){try{const parts=token.split('.');assert(parts.length===3,'invalid');const [h,p,s]=parts;assert(decode(h).alg==='EdDSA'&&decode(h).typ==='JWT','invalid');assert(verify(null,Buffer.from(h+'.'+p),key,Buffer.from(s,'base64url')),'invalid');return decode(p)}catch{throw Error('invalid signature or token');}}
+/** @deprecated Synthetic-only legacy: reusable credentials, do not use as an issuer. */
 export function syntheticIssuer({now=()=>Math.floor(Date.now()/1000)}={}){
  const identity=generateKeyPairSync('ed25519'),issuer=generateKeyPairSync('ed25519'),operators=new Set(),revoked=new Set(),usedAssertions=new Set(),audit=[];
  function register(id){assert(validId(id),'invalid subject');operators.add(id);}
@@ -17,6 +18,7 @@ export function syntheticIssuer({now=()=>Math.floor(Date.now()/1000)}={}){
  function disable(id){operators.delete(id);audit.push({event:'disable',subject:id,at:now()});}
  return {register,identityAssertion,issue,validate,revoke,disable,audit};
 }
+/** @deprecated Synthetic-only legacy: reviewers are not registered or MFA-verified. */
 export function syntheticSupport({now=()=>Math.floor(Date.now()/1000)}={}){
  const cases=new Map(),audit=[];
  function open(id,subject,requester,reference){assert([id,subject,requester].every(validId)&&typeof reference==='string'&&/^SYNTHETIC-[A-Z0-9-]{8,80}$/.test(reference),'invalid case');assert(!cases.has(id),'duplicate');cases.set(id,{id,subject,requester,reference,approvals:new Set(),status:'pending'});audit.push({event:'open',id,requester,at:now()});}
