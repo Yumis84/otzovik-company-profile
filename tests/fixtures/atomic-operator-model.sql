@@ -15,4 +15,4 @@ CREATE UNIQUE INDEX anonymous_denial_bucket ON synthetic_operator.audit(event,re
 
 -- Test-only operation journal. No runtime ACL or provider authority.
 CREATE TABLE synthetic_operator.operation_ledger(jti uuid PRIMARY KEY, subject_id uuid NOT NULL, action text NOT NULL, target uuid NOT NULL, recovery_hash text NOT NULL, state text NOT NULL CHECK(state IN ('reserved','done')));
-CREATE TABLE synthetic_operator.ledger_actions(jti uuid PRIMARY KEY REFERENCES synthetic_operator.operation_ledger(jti));
+CREATE TABLE synthetic_operator.recovery_attempts(bucket bigint PRIMARY KEY, attempts integer NOT NULL);
