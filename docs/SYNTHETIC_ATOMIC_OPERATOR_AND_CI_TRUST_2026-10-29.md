@@ -30,3 +30,11 @@ Basis PR45 `400d16123ec9e09e5db2d425a9742f59231ff291`, REQUEST 6fd9ea36, Claude 
 | Trust root | independently administered repo/workflow SHA, reviewers, required check, admin bypass | NOT DECIDED |
 
 Hosted synthetic, real-user pilot and production remain NO-GO until independently verified writer drain, real issuer/MFA/revocation, support verification, monitoring, independent CI control, owner decisions and explicit target-specific approval. Tests in this branch cannot close those gates.
+
+## PR46 follow-up: recovery and reviewer assertion (synthetic candidate)
+
+Reviewer assertion carries an exact case identifier and one-use JTI consumed in the same transaction as the approval. A case mismatch or replay is denied. Denials in the action model record an enumerated reason and timestamp, with no subject, target or case identifiers; if the audit store is unavailable, the request fails closed.
+
+The synthetic status function authenticates a still-live original test token and checks its bound action, subject, target, nonce, epoch and revocation. It returns the committed result when found; otherwise it returns `pending_or_unknown`, with `retryAllowed:false`. A simulated lost reply after COMMIT can be inspected idempotently. An absent row does NOT prove the original transaction has stopped: real recovery requires authoritative transaction joining and a durable, independently reviewed provider-specific protocol. The model does not issue a grant or permit retry after an unknown result.
+
+The mutation harness runs the complete primary suite once unmodified and then against each separately created mutant, with a fresh disposable schema and explicit survivor report. The deterministic epoch race holds an uncommitted epoch update to verify that consume waits on the subject row. These are synthetic tests and do not establish production security. The expanded detector additionally checks the build script and prior Pages test against the PR45 anchor and uses candidate-controlled snapshots for PR46 tests and its own checking files. Coordinated changes to script, snapshots and workflow still bypass this candidate; independent trust root remains BLOCKED.

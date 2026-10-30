@@ -1,12 +1,12 @@
-import assert from 'node:assert/strict';import fs from 'node:fs/promises';import os from 'node:os';import path from 'node:path';import {pathToFileURL} from 'node:url';import crypto from 'node:crypto';import pg from 'pg';
+// Runs the SAME main suite for each mutant against a fresh disposable schema.
+import assert from 'node:assert/strict';import fs from 'node:fs/promises';import os from 'node:os';import path from 'node:path';import {spawn} from 'node:child_process';import {fileURLToPath} from 'node:url';import pg from 'pg';
 const url=new URL(process.env.TEST_DATABASE_URL||'');assert(['127.0.0.1','localhost','::1','[::1]'].includes(url.hostname)&&url.pathname==='/otzovik_acceptance','Only disposable loopback DB allowed');
-const pool=new pg.Pool({connectionString:url.toString()}),dir=await fs.mkdtemp(path.join(os.tmpdir(),'atomic-mutant-'));const source=await fs.readFile(new URL('./fixtures/atomic-operator-model.mjs',import.meta.url),'utf8');
-try{await pool.query(await fs.readFile(new URL('./fixtures/atomic-operator-model.sql',import.meta.url),'utf8'));
- const cases=[['aud','p.aud===call.action&&',''],['target','p.target===call.target&&',''],['consume','ON CONFLICT DO NOTHING RETURNING jti','ON CONFLICT (jti) DO UPDATE SET jti=EXCLUDED.jti RETURNING jti']];
- for(const [kind,oldValue,newValue] of cases){assert(source.includes(oldValue),'mutation anchor missing');let file=path.join(dir,kind+'.mjs');await fs.writeFile(file,source.replace(oldValue,newValue));let {atomicModel}=await import(pathToFileURL(file));let m=atomicModel(pool,{now:()=>1000}),sub=crypto.randomUUID(),target=crypto.randomUUID(),nonce=crypto.randomUUID();await m.register(sub,crypto.randomUUID());let token=await m.issue(sub,'plan_erasure',target,nonce),call={sub,action:'plan_erasure',target,nonce};
- if(kind==='aud'){let r=await m.consume(token,{...call,action:'authorize'});assert.equal(r.outcome,'done','aud mutation should violate negative expectation');}
- if(kind==='target'){let r=await m.consume(token,{...call,target:crypto.randomUUID()});assert.equal(r.outcome,'done','target mutation should violate negative expectation');}
- if(kind==='consume'){await m.consume(token,call);let r=await m.consume(token,call);assert.equal(r.outcome,'rejected','consume mutation should turn replay rejection into a committed response');}
- }
- console.log('PASS mutation detection: removing aud/target/atomic consume breaks the corresponding negative expectation');
-}finally{await pool.end();await fs.rm(dir,{recursive:true,force:true});}
+const pool=new pg.Pool({connectionString:url.toString(),max:2}),dir=await fs.mkdtemp(path.join(os.tmpdir(),'atomic-mutants-')),source=await fs.readFile(new URL('./fixtures/atomic-operator-model.mjs',import.meta.url),'utf8');
+const tests=[['aud',"p.aud===call.action&&",''],['target','p.target===call.target&&',''],['consume','ON CONFLICT DO NOTHING RETURNING jti','ON CONFLICT (jti) DO UPDATE SET jti=EXCLUDED.jti RETURNING jti'],['row-lock','WHERE id=$1 FOR UPDATE',[ 'WHERE id=$1' ][0]],['issuer',"p.iss==='synthetic-issuer'&&",''],['token-lifetime','&&p.exp-p.iat<=60',''],['register-epoch','epoch=epoch+1,active=true','active=true']];
+const run=file=>new Promise((resolve,reject)=>{const p=spawn(process.execPath,[fileURLToPath(new URL('./atomic-operator-model.mjs',import.meta.url))],{env:{...process.env,ATOMIC_MODEL_MODULE:file},stdio:['ignore','pipe','pipe']});let out='';p.stdout.on('data',x=>out+=x);p.stderr.on('data',x=>out+=x);let timer=setTimeout(()=>{p.kill('SIGKILL');reject(Error('mutant timeout'))},60000);p.on('error',reject);p.on('close',code=>{clearTimeout(timer);resolve({code,out})})});
+const reset=()=>pool.query('DROP SCHEMA IF EXISTS synthetic_operator CASCADE; DROP SCHEMA IF EXISTS synthetic_store_offline CASCADE');
+try{
+ const base=path.join(dir,'control.mjs');await fs.writeFile(base,source);await reset();let control=await run(base);assert.equal(control.code,0,'Control suite failed: '+control.out.slice(-1800));let killed=[],survivors=[];
+ for(const [name,oldValue,newValue]of tests){assert(source.includes(oldValue),'missing mutation anchor '+name);const file=path.join(dir,name+'.mjs');await fs.writeFile(file,source.replace(oldValue,newValue));await reset();const result=await run(file);if(result.code===0){survivors.push(name);continue;}const expected=name==='row-lock'?'consume must wait for epoch lock':name==='consume'?'20 !== 1':'Missing expected rejection';assert(result.out.includes(expected),name+' did not fail for the expected reason: '+result.out.slice(-1800));killed.push(name);}
+ console.log('MUTATION RESULT',JSON.stringify({killed,survivors}));assert.deepEqual(survivors,[],'Surviving mutants');
+}finally{await reset();await pool.end();await fs.rm(dir,{recursive:true,force:true});}
