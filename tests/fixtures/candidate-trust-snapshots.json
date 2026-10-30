@@ -3,7 +3,7 @@
   ".github/workflows/synthetic-atomic-model.yml": "f12a4d29343dad75cd4017d8291dee5fd18e6af7d061de2c9f5be06ef8502de9",
   "tests/trusted-surface-expanded.mjs": "d4b8f9b9c394db3a9c4208b814e3c3f3500bf18a0c5af35f7af5855250e1a1d8",
   "tests/atomic-operator-model.mjs": "46cdc1d8f2d41bb640e670b5901df8d45b5e1f2334bc397b38009272c836413f",
-  "tests/atomic-operator-mutations.mjs": "f9c91ad24a53f18c057e4d6e6668094839e1a6cab801654e5703f6dfa3e443d8",
+  "tests/atomic-operator-mutations.mjs": "552d087511cc4b8ddbf255b9574b16aa9fa98ae9034bb367b2482f0ff7f47363",
   "tests/fixtures/atomic-operator-model.mjs": "fed73d7b753b70c41cf54e0462fdfbbf3fc46d84ef243e369fabdb20ddd7f24c",
   "tests/fixtures/atomic-operator-model.sql": "abf79519dfb9a25cbd17ac599f129ef4f6e752c667e3f8b8dd02895fcd9c9f42",
   "tests/fixtures/synthetic-safety.mjs": "cfd712917410f18c1d3e3efc95fa2c3f912248cfdfbe4fc1dde92cc410b55483",
