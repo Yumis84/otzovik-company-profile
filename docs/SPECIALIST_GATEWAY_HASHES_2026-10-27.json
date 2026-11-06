@@ -248,6 +248,10 @@
     {
       "file": "sql/20261106_specialist_slug_quarantine_CANDIDATE.sql",
       "sha256": "8946dfc6547e5c8b13384f577830db9c9ed649730a9e9099365266bdd6a600bf"
+    },
+    {
+      "file": "docs/SPECIALIST_PUBLICATION_DEPLOYMENT_PLAN_2026-11-06.md",
+      "sha256": "06f2b37270941dd34d0e8205510c23f11b23f4569be8ea746345eb1ca15bea14"
     }
   ],
   "hostedApplyAuthorized": false,
