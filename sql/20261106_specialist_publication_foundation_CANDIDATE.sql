@@ -26,7 +26,6 @@ CREATE TABLE public.specialist_reserved_slugs_v1 (
   policy_version integer NOT NULL CHECK (policy_version > 0)
 );
 ALTER TABLE public.specialist_reserved_slugs_v1 ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.specialist_reserved_slugs_v1 FORCE ROW LEVEL SECURITY;
 -- The SECURITY DEFINER trigger must still see this table when its owner is
 -- subject to FORCE RLS. Table privileges remain revoked from application roles.
 CREATE POLICY specialist_reserved_slugs_owner_read ON public.specialist_reserved_slugs_v1
@@ -39,6 +38,7 @@ SELECT slug, 1 FROM unnest(ARRAY['www','api','admin','test','test2','account','l
  'static','cdn','assets','status','support','help','blog','app','dev','staging','vpn','n8n',
  'supabase','auth','oauth','sso','pay','payments','billing','dashboard','cabinet','kabinet','moy',
  'root','administrator','security','abuse','postmaster','hostmaster','dmarc','otzovik','otzyv']) AS slug;
+ALTER TABLE public.specialist_reserved_slugs_v1 FORCE ROW LEVEL SECURITY;
 
 CREATE FUNCTION public.specialist_slug_policy_v1() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $fn$

@@ -239,7 +239,7 @@
     },
     {
       "file": "sql/20261106_specialist_publication_foundation_CANDIDATE.sql",
-      "sha256": "d7b4ca21fab48906f7f14330b75f407e6b5f11a11e4e6808fddf7db556a31c20"
+      "sha256": "11087ab84a7ce6298a01756b951a2d309a482c3c6a727dde27ce656cd685d2ef"
     },
     {
       "file": "tests/specialist-publication-foundation.mjs",
