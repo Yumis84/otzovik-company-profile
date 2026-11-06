@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import pg from 'pg';
 import {database,A,B} from './database.mjs';
 
 const db=await database();
@@ -36,6 +37,22 @@ try {
  for(const fn of ['specialist_public_fields_version_v1()','specialist_slug_policy_v1()','specialist_revision_immutable_v1()','specialist_slug_quarantine_v1()','specialist_slug_quarantine_purge_v1()'])
   for(const role of ['anon','authenticated','service_role'])
    assert.equal((await db.query('SELECT has_function_privilege($1,$2,$3) AS allowed',[role,'public.'+fn,'EXECUTE'])).rows[0].allowed,false,role+':'+fn);
+ if(db.concurrent){
+  const raceId=(await db.call(B,'create_my_specialist_draft',['Racer','race-claim','Master'])).id;
+  const pool=new pg.Pool({connectionString:process.env.TEST_DATABASE_URL,max:2});
+  const deleting=await pool.connect(),claiming=await pool.connect();
+  try {
+   await deleting.query('BEGIN');
+   await deleting.query('DELETE FROM public.specialist_profiles WHERE id=$1',[raceId]);
+   let settled=false;
+   const claim=claiming.query("INSERT INTO public.companies(id,slug,name) VALUES (gen_random_uuid(),'race-claim','Racer')").then(()=>({}),error=>({error})).finally(()=>{settled=true;});
+   await new Promise(resolve=>setTimeout(resolve,150));
+   assert.equal(settled,false,'claim waits for uncommitted specialist deletion');
+   await deleting.query('COMMIT');
+   assert.equal((await claim).error?.code,'23505','committed tombstone blocks concurrent company claim');
+  } finally {await deleting.query('ROLLBACK').catch(()=>{});deleting.release();claiming.release();await pool.end();}
+  console.log('PASS PostgreSQL concurrent delete vs company slug claim');
+ }
  assert.equal((await db.query('SELECT enabled FROM public.specialist_public_control')).rows[0].enabled,false);
  const rev=(await db.query("INSERT INTO public.specialist_public_revisions(specialist_id,client_request_id,source_version,slug,display_name,profession) VALUES ($1,gen_random_uuid(),2,'foundation-one','Specialist','Master') RETURNING revision_id",[id])).rows[0].revision_id;
  await assert.rejects(db.query('UPDATE public.specialist_public_revisions SET display_name=$1 WHERE specialist_id=$2',['Modified',id]),e=>e.code==='55000');
