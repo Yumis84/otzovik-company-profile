@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "9e9bd397db94aa985ec5bfdf054c8400f017b2ad7e2c4d90f9a2d9de1e507c81"
+      "sha256": "767cf6cd9b3fa34f617a0712f1dd87185f9ae49a7981fdcd1b0d136f3f6cdcff"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
@@ -236,6 +236,14 @@
     {
       "file": "tests/company-navigation-browser.mjs",
       "sha256": "4021b0d31575c2252c575bb5d991e96cd2f295f1659f5fe26c3e9fc0523a1ac6"
+    },
+    {
+      "file": "sql/20261106_specialist_publication_foundation_CANDIDATE.sql",
+      "sha256": "d7b4ca21fab48906f7f14330b75f407e6b5f11a11e4e6808fddf7db556a31c20"
+    },
+    {
+      "file": "tests/specialist-publication-foundation.mjs",
+      "sha256": "a8237b12a474c0403c2eac629406ba7b33e88fb0b75416bc24ae54471a9fc308"
     }
   ],
   "hostedApplyAuthorized": false,
