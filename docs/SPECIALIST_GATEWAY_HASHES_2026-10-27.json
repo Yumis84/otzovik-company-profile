@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "767cf6cd9b3fa34f617a0712f1dd87185f9ae49a7981fdcd1b0d136f3f6cdcff"
+      "sha256": "eba5679a689d5b736bb78db4233b27f93a00014101c74504d8dfd7a85299d982"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
@@ -243,7 +243,11 @@
     },
     {
       "file": "tests/specialist-publication-foundation.mjs",
-      "sha256": "a8237b12a474c0403c2eac629406ba7b33e88fb0b75416bc24ae54471a9fc308"
+      "sha256": "4b0da4cce45ee331eeb5c6d74ee1586833bac26f22aa3dcb2847c90c8dbc8a5e"
+    },
+    {
+      "file": "sql/20261106_specialist_slug_quarantine_CANDIDATE.sql",
+      "sha256": "8946dfc6547e5c8b13384f577830db9c9ed649730a9e9099365266bdd6a600bf"
     }
   ],
   "hostedApplyAuthorized": false,

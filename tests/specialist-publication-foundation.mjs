@@ -5,6 +5,7 @@ import {database,A,B} from './database.mjs';
 const db=await database();
 try {
  await db.exec(await fs.readFile(new URL('../sql/20261106_specialist_publication_foundation_CANDIDATE.sql',import.meta.url),'utf8'));
+ await db.exec(await fs.readFile(new URL('../sql/20261106_specialist_slug_quarantine_CANDIDATE.sql',import.meta.url),'utf8'));
  const id=(await db.call(A,'create_my_specialist_draft',['Specialist','foundation-one','Master'])).id;
  const version=async()=>Number((await db.query('SELECT version FROM public.specialist_profiles WHERE id=$1',[id])).rows[0].version);
  assert.equal(await version(),1);
@@ -16,9 +17,15 @@ try {
  assert.equal(await version(),2);
  for(const slug of ['mail','vpn','hello--world'])
   await assert.rejects(db.call(B,'create_my_specialist_draft',['Other',slug,'Master']),e=>e.code==='22023');
+ // Exercise FORCE RLS with a table/function owner that does not bypass RLS.
+ await db.exec('CREATE ROLE publication_owner_fixture NOLOGIN NOSUPERUSER NOBYPASSRLS; ALTER TABLE public.specialist_reserved_slugs_v1 OWNER TO publication_owner_fixture; ALTER FUNCTION public.specialist_slug_policy_v1() OWNER TO publication_owner_fixture; ALTER TABLE public.specialist_slug_tombstones_v1 OWNER TO publication_owner_fixture; ALTER FUNCTION public.specialist_slug_quarantine_v1() OWNER TO publication_owner_fixture; ALTER FUNCTION public.specialist_slug_quarantine_purge_v1() OWNER TO publication_owner_fixture;');
+ await assert.rejects(db.call(B,'create_my_specialist_draft',['Other','mail','Master']),e=>e.code==='22023','reserved list remains effective for a non-bypass owner');
+ await db.call(B,'create_my_specialist_draft',['Other','allowed-two','Master']);
  // Specialist policy must not alter the existing company slug contract.
  await db.query("INSERT INTO public.companies(id,slug,name) VALUES (gen_random_uuid(),'mail','Company')");
- const tables=['specialist_public_revisions','specialist_publication_state','specialist_public_control','specialist_reserved_slugs_v1'];
+ await db.query("DELETE FROM public.companies WHERE slug='mail'");
+ await db.query("INSERT INTO public.companies(id,slug,name) VALUES (gen_random_uuid(),'mail','Company')");
+ const tables=['specialist_public_revisions','specialist_publication_state','specialist_public_control','specialist_reserved_slugs_v1','specialist_slug_tombstones_v1'];
  for(const table of tables){
   const row=(await db.query("SELECT relrowsecurity,relforcerowsecurity FROM pg_class WHERE oid=$1::regclass",['public.'+table])).rows[0];
   assert.equal(row.relrowsecurity,true,table);assert.equal(row.relforcerowsecurity,true,table);
@@ -26,7 +33,7 @@ try {
    for(const privilege of ['SELECT','INSERT','UPDATE','DELETE'])
     assert.equal((await db.query('SELECT has_table_privilege($1,$2,$3) AS allowed',[role,'public.'+table,privilege])).rows[0].allowed,false,role+':'+table+':'+privilege);
  }
- for(const fn of ['specialist_public_fields_version_v1()','specialist_slug_policy_v1()','specialist_revision_immutable_v1()'])
+ for(const fn of ['specialist_public_fields_version_v1()','specialist_slug_policy_v1()','specialist_revision_immutable_v1()','specialist_slug_quarantine_v1()','specialist_slug_quarantine_purge_v1()'])
   for(const role of ['anon','authenticated','service_role'])
    assert.equal((await db.query('SELECT has_function_privilege($1,$2,$3) AS allowed',[role,'public.'+fn,'EXECUTE'])).rows[0].allowed,false,role+':'+fn);
  assert.equal((await db.query('SELECT enabled FROM public.specialist_public_control')).rows[0].enabled,false);
@@ -36,5 +43,15 @@ try {
  await db.query('DELETE FROM auth.users WHERE id=$1',[A]);
  assert.equal(Number((await db.query('SELECT count(*) AS n FROM public.specialist_public_revisions WHERE specialist_id=$1',[id])).rows[0].n),0);
  assert.equal(Number((await db.query('SELECT count(*) AS n FROM public.specialist_publication_state WHERE specialist_id=$1',[id])).rows[0].n),0);
+ const tomb=(await db.query('SELECT slug,hold_until FROM public.specialist_slug_tombstones_v1 WHERE slug=$1',['foundation-one'])).rows[0];
+ assert.ok(tomb); assert.ok(new Date(tomb.hold_until).getTime()-Date.now()>89*86400*1000);
+ await assert.rejects(db.call(B,'create_my_specialist_draft',['Other','foundation-one','Master']),e=>e.code==='23505');
+ await assert.rejects(db.query("INSERT INTO public.companies(id,slug,name) VALUES (gen_random_uuid(),'foundation-one','Company')"),e=>e.code==='23505');
+ await db.query("UPDATE public.specialist_slug_tombstones_v1 SET hold_until=clock_timestamp()-interval '1 second' WHERE slug='foundation-one'");
+ await db.query("INSERT INTO public.companies(id,slug,name) VALUES (gen_random_uuid(),'foundation-one','Company')");
+ assert.equal((await db.query("SELECT count(*)::int AS n FROM public.specialist_slug_tombstones_v1 WHERE slug='foundation-one'")).rows[0].n,0);
+ await db.query("INSERT INTO public.specialist_slug_tombstones_v1 VALUES ('expired-name',clock_timestamp()-interval '1 second'), ('held-name',clock_timestamp()+interval '90 days')");
+ assert.equal(Number((await db.query('SELECT public.specialist_slug_quarantine_purge_v1() AS n')).rows[0].n),1);
+ assert.equal((await db.query("SELECT count(*)::int AS n FROM public.specialist_slug_tombstones_v1 WHERE slug='held-name'")).rows[0].n,1);
  console.log('PASS publication foundation: version, tenant denial, slug isolation, FORCE RLS, ACL, immutable revision and cascade; disposable SQL model only');
 } finally {await db.close();}
