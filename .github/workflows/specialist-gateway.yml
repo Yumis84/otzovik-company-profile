@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-pilot-hardening.mjs, specialist-gateway-http.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs, specialist-publication-foundation.mjs]
+        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-pilot-hardening.mjs, specialist-gateway-http.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs, specialist-publication-foundation.mjs, specialist-erasure-barrier.mjs]
     services:
       postgres:
         image: postgres:17
@@ -47,6 +47,10 @@ jobs:
   publication-foundation-pg16:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [specialist-publication-foundation.mjs, specialist-erasure-barrier.mjs]
     services:
       postgres:
         image: postgres:16
@@ -67,7 +71,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: node tests/specialist-publication-foundation.mjs
+      - run: node tests/${{ matrix.file }}
         env:
           TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
       - run: node tests/gateway-integrity.mjs
