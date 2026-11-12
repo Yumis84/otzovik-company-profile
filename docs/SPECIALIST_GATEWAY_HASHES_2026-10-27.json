@@ -291,7 +291,7 @@
     },
     {
       "file": "account-create-specialist.html",
-      "sha256": "2d4c9a3dac256c63c4d2d3cb507b7269dfcbf107bd83a593156b4c5aeae4e181"
+      "sha256": "840a0d2a25b0348273b3ebea0654b7f4287ff6611a0f56887ab9374ee04b635c"
     },
     {
       "file": "tests/specialist-ux-browser.mjs",
