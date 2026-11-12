@@ -263,7 +263,7 @@
     },
     {
       "file": "tests/erasure-local-checks.mjs",
-      "sha256": "79ef26d86ae06e92c3861a508875d277f76c72625250a34360886d97c9ac696e"
+      "sha256": "89914a998a2ec67237231ef2cf77e4cb686212a7c845756db41c391c7e2f236a"
     }
   ],
   "hostedApplyAuthorized": false,

@@ -23,8 +23,8 @@ export async function erasureLocalChecks({admin,db,api,anon,jwtSecret,ok,test}){
   assert((await admin.auth.admin.deleteUser(user.id)).error,'reservation must restrict account deletion');
   const confirmation=crypto.randomUUID();ok(await owner.rpc('confirm_my_specialist_erasure',{p_specialist_id:profile.id,p_confirmation_id:confirmation}));
   assert.equal((await db.query('SELECT state FROM specialist_publication_state WHERE specialist_id=$1',[profile.id])).rows[0].state,'erasing');
-  assert((await owner.rpc('update_my_specialist_draft',{p_specialist_id:profile.id,p_display_name:'Changed',p_profession:'Master'})).error);
-  assert.notEqual((await upload()).status,200,'no new upload after erasure confirmation');
+  assert.equal((await owner.rpc('update_my_specialist_draft',{p_id:profile.id,p_display_name:'Changed',p_profession:'Master'})).error?.code,'42501');
+  assert.equal((await upload()).status,403,'no new upload after erasure confirmation');
   const [approver,operator]=await operatorFixture({api,anon,admin,db,jwtSecret,ok});
   const authorization=ok(await approver.rpc('specialist_operator_authorize',{p_specialist_id:profile.id,p_confirmation_id:confirmation,p_request_id:null,p_purpose:'profile_erasure',p_ticket:'OTZ-LOCAL-BARRIER-00000001'})).authorization_id;
   await db.query(await fs.readFile(new URL('../sql/release/DISABLE_MEDIA_CANDIDATE.sql',import.meta.url),'utf8'));
