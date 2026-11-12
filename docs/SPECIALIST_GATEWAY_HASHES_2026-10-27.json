@@ -243,7 +243,7 @@
     },
     {
       "file": "tests/specialist-publication-foundation.mjs",
-      "sha256": "130c058081e3cba82a7c105eb467f8a0d4e63500d971c3cb2aa30b3eb58c2528"
+      "sha256": "7fbf600645d79c8f0b476177c98420611d4f9cb7a78283a37dd7376d370b28f1"
     },
     {
       "file": "sql/20261106_specialist_slug_quarantine_CANDIDATE.sql",
@@ -264,6 +264,10 @@
     {
       "file": "tests/erasure-local-checks.mjs",
       "sha256": "89914a998a2ec67237231ef2cf77e4cb686212a7c845756db41c391c7e2f236a"
+    },
+    {
+      "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
+      "sha256": "7249487c5cbcd4c96c7913be1e17a88b7ad4d7a3c4046f38c714447cbd335e9b"
     }
   ],
   "hostedApplyAuthorized": false,
