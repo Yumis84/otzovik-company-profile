@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import fs from 'node:fs/promises';
+import {database,A,B} from './database.mjs';
+const db=await database();
+try {
+ for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql'])
+  await db.exec(await fs.readFile(new URL('../sql/'+p,import.meta.url),'utf8'));
+ const id=(await db.call(A,'create_my_specialist_draft',['Publish','publish-test','Master'])).id, req=crypto.randomUUID();
+ await assert.rejects(db.call(B,'publish_my_specialist_v1',[id,1,req]),e=>e.code==='42501');
+ await assert.rejects(db.session(null,c=>c.query('SELECT public.publish_my_specialist_v1($1,$2,$3)',[id,1,req]),'anon'),e=>e.code==='42501');
+ assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.specialist_publish_requests_v1','SELECT') ok")).rows[0].ok,false);
+ const first=await db.call(A,'publish_my_specialist_v1',[id,1,req]);assert(first.published&&!first.replayed);
+ assert.equal((await db.call(A,'publish_my_specialist_v1',[id,1,req])).revision_id,first.revision_id);
+ await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,2,req]),e=>e.code==='PT409');
+ await db.call(A,'update_my_specialist_draft',[id,'Edited','Master',null,null,'Draft text']);
+ await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,1,crypto.randomUUID()]),e=>e.code==='40001');
+ assert.equal((await db.query('SELECT display_name FROM specialist_public_revisions WHERE specialist_id=$1 AND revision_id=$2',[id,first.revision_id])).rows[0].display_name,'Publish');
+ const second=await db.call(A,'publish_my_specialist_v1',[id,2,crypto.randomUUID()]);assert(second.published);
+ const third=await db.call(A,'publish_my_specialist_v1',[id,2,crypto.randomUUID()]);assert(third.published);
+ assert.equal((await db.query('SELECT count(*)::int n FROM specialist_public_revisions WHERE specialist_id=$1',[id])).rows[0].n,2);
+ await assert.rejects(db.call(B,'unpublish_my_specialist_v1',[id]),e=>e.code==='42501');
+ assert.equal((await db.call(A,'unpublish_my_specialist_v1',[id])).published,false);
+ assert.equal((await db.call(A,'unpublish_my_specialist_v1',[id])).published,false);
+ const replay=await db.call(A,'publish_my_specialist_v1',[id,1,req]);assert(replay.replayed&&!replay.published,'replay must not resurrect a removed revision');
+ await db.query("UPDATE specialist_publication_state SET state='suspended',published_revision_id=NULL WHERE specialist_id=$1",[id]);
+ await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,2,crypto.randomUUID()]),e=>e.code==='42501');
+ await assert.rejects(db.call(A,'unpublish_my_specialist_v1',[id]),e=>e.code==='42501');
+ console.log('PASS publish candidate: owner, anon, CAS, snapshot, replay, retention, unpublish and suspended');
+} finally {await db.close();}

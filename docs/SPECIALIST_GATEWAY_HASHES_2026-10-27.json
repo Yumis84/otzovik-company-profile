@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "4b2b440c8c8ed3b49d9d47d34b5794ba0b5cd4619cbf27eb81fc8e701c0d8918"
+      "sha256": "be852e74920dedc99272da889ef736a28facea6e71bc78502974c45ab144fe71"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
@@ -259,7 +259,7 @@
     },
     {
       "file": "tests/specialist-erasure-barrier.mjs",
-      "sha256": "ffb03d5dbc0b68da056627ecac7c1e5f405abf5e32dc50d0f3156e7dd6d2792d"
+      "sha256": "6a347bdd98c2baf849077c1e472e005ce8f4480fa721babbc93144d4764dd990"
     },
     {
       "file": "tests/erasure-local-checks.mjs",
@@ -268,6 +268,14 @@
     {
       "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
       "sha256": "7249487c5cbcd4c96c7913be1e17a88b7ad4d7a3c4046f38c714447cbd335e9b"
+    },
+    {
+      "file": "sql/20261112_specialist_publish_CANDIDATE.sql",
+      "sha256": "e9e40261d5e88460eb2ae1746b97e4f39fded7a4ec4dba81b59c923b1d65f731"
+    },
+    {
+      "file": "tests/specialist-publish.mjs",
+      "sha256": "f2605e9d9a5e299c1b66bf3a16e1c1985e87396080f120d5424db482e2f68f15"
     }
   ],
   "hostedApplyAuthorized": false,

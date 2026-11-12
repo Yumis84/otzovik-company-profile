@@ -11,7 +11,7 @@ const op=(who,name,args=[])=>db.session(who,c=>query(c,name,args),'specialist_op
 try {
  await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role NOLOGIN BYPASSRLS; END IF; END $$; GRANT USAGE ON SCHEMA public,storage TO service_role; DROP TRIGGER specialist_object_integrity ON storage.objects;");
  for(const p of ['60_GATEWAY','65_GATEWAY_REMEDIATION','66_SPECIALIST_OPERATOR']) await db.exec(await file('sql/release/'+p+'_CANDIDATE.sql'));
- for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_erasure_barrier_CANDIDATE.sql']) await db.exec(await file('sql/'+p));
+ for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_erasure_barrier_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql']) await db.exec(await file('sql/'+p));
  await db.query('INSERT INTO auth.users VALUES($1),($2)',[O,T]); await db.query('INSERT INTO specialist_operator_identities(user_id) VALUES($1),($2)',[O,T]);
  await db.exec(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
  if(db.concurrent){
@@ -40,6 +40,7 @@ try {
  assert.equal(c.confirmation_id,confirmation); assert.equal((await db.call(A,'confirm_my_specialist_erasure',[id,confirmation])).confirmation_id,confirmation);
  assert.deepEqual((await db.query('SELECT state,published_revision_id FROM public.specialist_publication_state WHERE specialist_id=$1',[id])).rows[0],{state:'erasing',published_revision_id:null});
  assert.equal((await db.query('SELECT profile_status FROM specialist_profiles WHERE id=$1',[id])).rows[0].profile_status,'erasing');
+ await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,1,crypto.randomUUID()]),e=>e.code==='42501');
  await assert.rejects(db.call(A,'update_my_specialist_draft',[id,'New','Master',null,null,null]),e=>e.code==='42501');
  await assert.rejects(query(db,'specialist_gateway_reserve',[A,id,crypto.randomUUID(),'portfolio','b'.repeat(64),'image/png',10,null]),e=>e.code==='42501');
  await assert.rejects(db.query('DELETE FROM auth.users WHERE id=$1',[A]),e=>['23503','23001'].includes(e.code));
