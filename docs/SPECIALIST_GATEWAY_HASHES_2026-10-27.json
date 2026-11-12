@@ -263,7 +263,7 @@
     },
     {
       "file": "tests/erasure-local-checks.mjs",
-      "sha256": "89914a998a2ec67237231ef2cf77e4cb686212a7c845756db41c391c7e2f236a"
+      "sha256": "a0710023b639d814490219dda80b43342d59f00ddea213267d42a162c0cefae6"
     },
     {
       "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
