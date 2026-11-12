@@ -259,7 +259,7 @@
     },
     {
       "file": "tests/specialist-erasure-barrier.mjs",
-      "sha256": "6a347bdd98c2baf849077c1e472e005ce8f4480fa721babbc93144d4764dd990"
+      "sha256": "3464c5768fd57ad708d2178cb779903e65d8004371820e6cd31a23d5f1d41b45"
     },
     {
       "file": "tests/erasure-local-checks.mjs",
@@ -275,7 +275,15 @@
     },
     {
       "file": "tests/specialist-publish.mjs",
-      "sha256": "f2605e9d9a5e299c1b66bf3a16e1c1985e87396080f120d5424db482e2f68f15"
+      "sha256": "d3a5efbdfce59b226f1c168b53f021b3bcea71bf2fc29b8053cdee5e85f1795d"
+    },
+    {
+      "file": "sql/20261112_specialist_public_getter_CANDIDATE.sql",
+      "sha256": "a3ffc0f3a04d75c1c5f9c52a6a9c98a4a0c33d069b16a38c319985c6302f81ed"
+    },
+    {
+      "file": "sql/20261112_specialist_public_operator_CANDIDATE.sql",
+      "sha256": "b373805c2cc556bdfc49cde5b3b7b0867f2dcbb8c260a6505c260dfa59dee75e"
     }
   ],
   "hostedApplyAuthorized": false,

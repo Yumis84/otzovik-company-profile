@@ -11,7 +11,7 @@ const op=(who,name,args=[])=>db.session(who,c=>query(c,name,args),'specialist_op
 try {
  await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role NOLOGIN BYPASSRLS; END IF; END $$; GRANT USAGE ON SCHEMA public,storage TO service_role; DROP TRIGGER specialist_object_integrity ON storage.objects;");
  for(const p of ['60_GATEWAY','65_GATEWAY_REMEDIATION','66_SPECIALIST_OPERATOR']) await db.exec(await file('sql/release/'+p+'_CANDIDATE.sql'));
- for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_erasure_barrier_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql']) await db.exec(await file('sql/'+p));
+ for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_erasure_barrier_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql','20261112_specialist_public_getter_CANDIDATE.sql','20261112_specialist_public_operator_CANDIDATE.sql']) await db.exec(await file('sql/'+p));
  await db.query('INSERT INTO auth.users VALUES($1),($2)',[O,T]); await db.query('INSERT INTO specialist_operator_identities(user_id) VALUES($1),($2)',[O,T]);
  await db.exec(await file('sql/release/80_ENABLE_MEDIA_CANDIDATE.sql'));
  if(db.concurrent){
@@ -32,6 +32,9 @@ try {
  const id=(await db.call(A,'create_my_specialist_draft',['Erase','erase-sample','Master'])).id;
  const revision=(await db.query("INSERT INTO public.specialist_public_revisions(specialist_id,client_request_id,source_version,slug,display_name,profession) VALUES ($1,gen_random_uuid(),1,'erase-sample','Erase','Master') RETURNING revision_id",[id])).rows[0].revision_id;
  await db.query("INSERT INTO public.specialist_publication_state(specialist_id,state,published_revision_id) VALUES ($1,'published',$2)",[id,revision]);
+ await db.query('UPDATE public.specialist_public_control SET enabled=true');
+ const getter=()=>db.session(null,c=>c.query("SELECT public.get_public_specialist_v1('erase-sample') AS data").then(r=>r.rows[0].data),'anon');
+ assert((await getter()).display_name==='Erase');
  const request=crypto.randomUUID(), confirmation=crypto.randomUUID();
  await query(db,'specialist_gateway_reserve',[A,id,request,'portfolio','a'.repeat(64),'image/png',10,null]);
  await assert.rejects(db.call(B,'confirm_my_specialist_erasure',[id,confirmation]),e=>e.code==='42501');
@@ -39,6 +42,7 @@ try {
  const c=await db.call(A,'confirm_my_specialist_erasure',[id,confirmation]);
  assert.equal(c.confirmation_id,confirmation); assert.equal((await db.call(A,'confirm_my_specialist_erasure',[id,confirmation])).confirmation_id,confirmation);
  assert.deepEqual((await db.query('SELECT state,published_revision_id FROM public.specialist_publication_state WHERE specialist_id=$1',[id])).rows[0],{state:'erasing',published_revision_id:null});
+ assert.equal(await getter(),null,'erasure immediately hides public revision');
  assert.equal((await db.query('SELECT profile_status FROM specialist_profiles WHERE id=$1',[id])).rows[0].profile_status,'erasing');
  await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,1,crypto.randomUUID()]),e=>e.code==='42501');
  await assert.rejects(db.call(A,'update_my_specialist_draft',[id,'New','Master',null,null,null]),e=>e.code==='42501');
@@ -54,5 +58,15 @@ try {
  await db.call(A,'delete_my_specialist_draft',[id]);
  assert.equal((await db.query('SELECT count(*)::int n FROM specialist_public_revisions WHERE specialist_id=$1',[id])).rows[0].n,0);
  assert.equal((await db.query("SELECT count(*)::int n FROM specialist_slug_tombstones_v1 WHERE slug='erase-sample'")).rows[0].n,1);
+ const blocked=(await db.call(B,'create_my_specialist_draft',['Blocked','blocked-specialist','Master'])).id;
+ await db.call(B,'publish_my_specialist_v1',[blocked,1,crypto.randomUUID()]);
+ await assert.rejects(db.call(B,'specialist_suspend_public_v1',[blocked,'No permission']),e=>e.code==='42501');
+ assert((await op(T,'specialist_suspend_public_v1',[blocked,'Synthetic reviewed reason'])).suspended);
+ assert((await op(T,'specialist_suspend_public_v1',[blocked,'Synthetic reviewed reason'])).suspended);
+ assert.equal((await db.query("SELECT count(*)::int n FROM specialist_public_operator_audit_v1 WHERE specialist_id=$1 AND action='suspend'",[blocked])).rows[0].n,1);
+ await assert.rejects(db.call(B,'publish_my_specialist_v1',[blocked,1,crypto.randomUUID()]),e=>e.code==='42501');
+ assert.equal((await op(T,'specialist_disable_public_v1',['Synthetic emergency stop'])).enabled,false);
+ assert.equal((await op(T,'specialist_disable_public_v1',['Synthetic emergency stop'])).enabled,false);
+ assert.equal((await db.query("SELECT count(*)::int n FROM specialist_public_operator_audit_v1 WHERE action='disable_projection'")).rows[0].n,1);
  console.log('PASS erasure barrier: ownership, hide, repeat, writer denial, FK restrict, operator retire, cascade and tombstone');
 } finally {await db.close();}
