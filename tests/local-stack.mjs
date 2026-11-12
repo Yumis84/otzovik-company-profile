@@ -1,5 +1,6 @@
 import {serverPackage} from '../scripts/specialist-server-package.mjs';
 import {gatewayChecks} from './gateway-local-checks.mjs';
+import {erasureLocalChecks} from './erasure-local-checks.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
@@ -198,5 +199,6 @@ try{
   assert((await a.rpc('get_my_specialists')).error);assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
   await db.query('GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated');
  });
+ await erasureLocalChecks({admin,db,api,anon,jwtSecret:cfg.JWT_SECRET,ok,test});
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
 }finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}

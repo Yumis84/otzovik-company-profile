@@ -199,7 +199,7 @@
     },
     {
       "file": "tests/local-stack.mjs",
-      "sha256": "e441f1723ca8b7e2549582ef254fc40a8e74204c3ee347b82b88de89ce6c0a67"
+      "sha256": "e1b089e7290220fd4b4465529e9d11dd40acdfec1638b17e0256eecaa52dc3d5"
     },
     {
       "file": "docs/SPECIALIST_PILOT_DRAIN_SOP_2026-10-28.md",
@@ -260,6 +260,10 @@
     {
       "file": "tests/specialist-erasure-barrier.mjs",
       "sha256": "ffb03d5dbc0b68da056627ecac7c1e5f405abf5e32dc50d0f3156e7dd6d2792d"
+    },
+    {
+      "file": "tests/erasure-local-checks.mjs",
+      "sha256": "79ef26d86ae06e92c3861a508875d277f76c72625250a34360886d97c9ac696e"
     }
   ],
   "hostedApplyAuthorized": false,
