@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-pilot-hardening.mjs, specialist-gateway-http.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs]
+        file: [specialist-acceptance.mjs, specialist-editor.mjs, specialist-channels.mjs, specialist-gateway-sql.mjs, specialist-pilot-hardening.mjs, specialist-gateway-http.mjs, specialist-server-package.mjs, specialist-ux-browser.mjs, specialist-publication-foundation.mjs, specialist-erasure-barrier.mjs, specialist-publish.mjs]
     services:
       postgres:
         image: postgres:17
@@ -44,6 +44,37 @@ jobs:
         run: |
           node tests/company-integrity.mjs
           test ! -d supabase/migrations
+  publication-foundation-pg16:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [specialist-publication-foundation.mjs, specialist-erasure-barrier.mjs, specialist-publish.mjs]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: acceptance-only
+          POSTGRES_DB: otzovik_acceptance
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d otzovik_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node tests/${{ matrix.file }}
+        env:
+          TEST_DATABASE_URL: postgres://postgres:acceptance-only@127.0.0.1:5432/otzovik_acceptance
+      - run: node tests/gateway-integrity.mjs
   real-edge-supabase:
     runs-on: ubuntu-latest
     timeout-minutes: 25

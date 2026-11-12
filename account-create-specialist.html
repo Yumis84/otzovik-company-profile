@@ -16,7 +16,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 <nav class="editor-nav" aria-label="Навигация кабинета"><a href="account-home.html">Мои профили</a><a class="active" href="#profile">Профиль</a></nav><section id="specialist-context" class="specialist-context" hidden></section>
 <div class="specialist-editor">
 <section class="card" id="profile"><h1>Индивидуальный специалист</h1>
-<p class="notice" role="status"><strong>Черновик специалиста.</strong> Профиль не публикуется автоматически.</p>
+<p class="notice" role="status"><strong>Профиль специалиста.</strong> Изменения не публикуются автоматически.</p>
 <form id="preview"><fieldset id="fields" disabled style="border:0;padding:0;margin:0;min-width:0">
 <label class="field">Публичное имя *<input name="display_name" required minlength="2" maxlength="150" autocomplete="name" placeholder="Как вас будут видеть клиенты"></label>
 <label class="field">Адрес профиля *<span class="slug-field"><span class="slug-part">https://</span><input name="slug" required minlength="3" maxlength="63" pattern="[a-z0-9][a-z0-9\-]*[a-z0-9]" placeholder="master-ivan" aria-label="Имя адреса профиля"><span class="slug-part">.отзыв.com</span></span><span class="slug-preview">После публикации: <strong id="specialist-url">https://master-ivan.отзыв.com/</strong></span></label>
@@ -24,10 +24,10 @@ button:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:12px}
 <label class="field">Специализация<input name="specialization" maxlength="160" placeholder="Например, предметная съёмка"></label>
 <label class="field">Город, где вы находитесь<input name="city" maxlength="120" placeholder="Например, Калининград"><span class="hint">Территорию обслуживания и работу онлайн можно указать в разделе «Контакты и работа».</span></label>
 <label class="field">Описание<textarea name="description" maxlength="2000" placeholder="Опишите опыт, услуги и подход к работе"></textarea></label>
-<p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Услуги, фотографии и контакты можно заполнить после сохранения. Публикация и отзывы пока не подключены.</p>
+<p class="hint">Черновик виден только вам. Адрес резервируется при создании и пока не меняется. Услуги, фотографии и контакты можно заполнить после сохранения. Публикация отзывов пока не подключена.</p>
 <button type="submit" id="save" disabled>Сохранить черновик</button>
 </fieldset><p id="save-note" class="hint" role="status" aria-live="polite">Загружаем профиль…</p>
-</form><details id="profile-readiness" class="saved-summary"></details><p><a href="account-home.html">К списку профилей</a></p></section></div></main>
+</form><details id="profile-readiness" class="saved-summary"></details><section id="publication" class="card" hidden><h2>Публикация профиля</h2><p id="publication-status" role="status" aria-live="polite">Проверяем статус…</p><p>Публично показываются имя, профессия, специализация, город и описание. Если вы указали телефон или email в описании, они тоже будут видны.</p><div id="publication-preview" aria-label="Предпросмотр сохранённых сведений"></div><label><input id="publication-confirm" type="checkbox"> Я проверил сведения для публикации</label><div class="actions"><button type="button" id="publication-publish" disabled>Опубликовать</button><button type="button" id="publication-unpublish" disabled>Снять с публикации</button></div></section><p><a href="account-home.html">К списку профилей</a></p></section></div></main>
 <script type="module">
 import {navigation,installValidation,validateForm,fieldError,createSavedSummary} from './account-specialist-ui.js';
 import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';
@@ -38,6 +38,22 @@ const params=new URLSearchParams(location.search);
 let editing=params.has('id');
 let editId=params.get('id');
 let ready=false,busy=false;
+const publication=document.getElementById('publication'),publicationStatus=document.getElementById('publication-status'),publicationPreview=document.getElementById('publication-preview'),publicationConfirm=document.getElementById('publication-confirm'),publishButton=document.getElementById('publication-publish'),unpublishButton=document.getElementById('publication-unpublish');
+let publicationState=null,publicationDirty=false,publicationBusy=false,publicationLoad=0;
+function publicationButtons(){publishButton.disabled=publicationBusy||publicationDirty||!publicationConfirm.checked||!publicationState?.public_enabled||publicationState?.state==='suspended';unpublishButton.disabled=publicationBusy||!publicationState||publicationState.state!=='published';}
+publicationConfirm.addEventListener('change',publicationButtons);
+form.addEventListener('input',()=>{publicationDirty=true;publicationConfirm.checked=false;publicationButtons();});
+async function loadPublication(id,item){
+ const load=++publicationLoad;publication.hidden=false;publicationState=null;publicationButtons();publicationStatus.textContent='Проверяем статус публикации…';publicationPreview.replaceChildren();
+ try{const {data,error}=await s.rpc('get_my_specialist_publication_v1',{p_specialist_id:id});if(load!==publicationLoad)return;if(error||!data||!Number.isInteger(data.version)||data.version<1||typeof data.public_enabled!=='boolean'||!['unpublished','published','suspended'].includes(data.state)||!data.preview||typeof data.preview!=='object')throw error||Error('Unavailable');for(const [label,key] of [['Имя','display_name'],['Профессия','profession'],['Специализация','specialization'],['Город','city'],['Описание','description']]){const row=document.createElement('p');row.textContent=label+': '+(data.preview[key]||'—');publicationPreview.append(row);}publicationState=data;publicationStatus.textContent=data.state==='suspended'?'Публикация приостановлена. Обратитесь в поддержку.':data.state==='published'?(data.public_enabled?'Профиль опубликован.':'Публикация сохранена, публичный показ сейчас отключён.'):'Профиль не опубликован.';if(!data.public_enabled&&data.state!=='published')publicationStatus.textContent+=' Публичный показ пока недоступен.';}catch{if(load===publicationLoad)publicationStatus.textContent='Управление публикацией пока недоступно.';}finally{if(load===publicationLoad)publicationButtons();}
+}
+publishButton.addEventListener('click',async()=>{
+ if(!publicationState||publicationDirty||publicationBusy||!publicationConfirm.checked||!publicationState.public_enabled)return;
+ publicationBusy=true;publicationButtons();const version=publicationState.version,key='specialist-publication:'+editId+':'+version;
+ let requestId=sessionStorage.getItem(key);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(key,requestId);}
+ try{const {data,error}=await s.rpc('publish_my_specialist_v1',{p_specialist_id:editId,p_expected_version:version,p_request_id:requestId});if(error)throw error;if(!data||typeof data.published!=='boolean')throw Error('Unexpected response');sessionStorage.removeItem(key);publicationState.state=data.published?'published':'unpublished';await loadPublication(editId,{});}catch(error){publicationStatus.textContent=['40001','PT409'].includes(error?.code)?'Данные изменились. Обновите страницу и проверьте сведения.':'Не удалось подтвердить публикацию. Повторите запрос или обновите страницу.';}finally{publicationBusy=false;publicationButtons();}
+});
+unpublishButton.addEventListener('click',async()=>{if(!publicationState||publicationBusy||publicationState.state!=='published')return;publicationBusy=true;publicationButtons();try{const {data,error}=await s.rpc('unpublish_my_specialist_v1',{p_specialist_id:editId});if(error||data?.published!==false)throw error||Error('Unexpected response');publicationState.state='unpublished';publicationStatus.textContent='Профиль снят с публикации.';}catch{publicationStatus.textContent='Не удалось подтвердить снятие. Обновите страницу.';}finally{publicationBusy=false;publicationButtons();}});
 installValidation(form);
 const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementById('specialist-url');
 function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';}
@@ -58,7 +74,7 @@ async function initialize(){
    if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
    for(const key of ['display_name','slug','profession','specialization','city','description'])form.elements.namedItem(key).value=item[key]||'';
    form.elements.namedItem('slug').readOnly=true;updateUrlPreview();
-   save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',item.display_name);void summary.load(editId,item);
+   save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',item.display_name);void summary.load(editId,item);publicationDirty=false;void loadPublication(editId,item);
   }
   ready=true;fields.disabled=false;save.disabled=false;note.textContent='Изменения сохранятся только после нажатия кнопки.';
  }catch{failLoad('Не удалось загрузить профиль. Проверьте соединение и обновите страницу.');}
@@ -80,7 +96,7 @@ form.addEventListener('submit',async event=>{
    note.textContent=['42883','PGRST202'].includes(error.code)?'Сохранение временно недоступно. Попробуйте позже.':error.code==='23505'?'Адрес уже занят. Выберите другой.':error.code==='42501'?'Черновик недоступен или сессия истекла. Войдите снова.':'Не удалось сохранить. Проверьте поля и попробуйте снова.';return;
   }
   if(!data?.id||data.profile_status!=='draft')throw new Error('Unexpected response');
-  editing=true;editId=data.id;history.replaceState(null,'',location.pathname+'?id='+encodeURIComponent(editId));slugInput.value=slug;slugInput.readOnly=true;updateUrlPreview();save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',name);note.textContent='Сохранено. Изменения видны только вам.';void summary.load(editId,{description:String(fd.get('description')||'').trim()});
+  editing=true;editId=data.id;history.replaceState(null,'',location.pathname+'?id='+encodeURIComponent(editId));slugInput.value=slug;slugInput.readOnly=true;updateUrlPreview();save.textContent='Сохранить изменения';navigation(document.querySelector('.editor-nav'),editId,'profile',name);note.textContent='Сохранено. Изменения видны только вам.';const saved={display_name:name,profession,specialization:String(fd.get('specialization')||'').trim(),city:String(fd.get('city')||'').trim(),description:String(fd.get('description')||'').trim()};void summary.load(editId,saved);publicationDirty=false;publicationConfirm.checked=false;void loadPublication(editId,saved);
  }catch{note.textContent='Не удалось подтвердить сохранение. Проверьте «Мои профили» перед повторной попыткой.';}
  finally{busy=false;save.disabled=false;fields.disabled=false;}
 });
