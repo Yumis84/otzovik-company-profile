@@ -25,6 +25,7 @@ await ctx.route('**/*',async route=>{
 await ctx.exposeBinding('testSession',()=>user?{user:{id:user}}:null);
 await ctx.exposeBinding('testRPC',async(_,name,args={})=>{
  calls.push({name,args});if(name==='get_my_specialist_upload_capability')return {data:{protocol:1,enabled:true},error:null};
+ if(name==='get_my_specialist_publication_v1')return {data:null,error:{code:'PGRST202',message:'Not installed'}};
   if(name==='get_my_companies'||name==='get_my_pending_company_invitations')return {data:[],error:null};if(missingEditor&&/^(get_my_specialist_(services|settings|media)|list_my_specialist_channels)$/.test(name))return {data:null,error:{code:'PGRST202',message:'Not installed'}};assert(keys[name],'Unexpected RPC '+name);
  if(fail===name)throw Error('offline');if(slow===name)await new Promise(r=>setTimeout(r,200));
  try{return {data:await db.call(user,name,keys[name].map(k=>k==='p_channels'?JSON.stringify(args[k]):args[k])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}

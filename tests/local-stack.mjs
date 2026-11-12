@@ -199,6 +199,6 @@ try{
   assert((await a.rpc('get_my_specialists')).error);assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
   await db.query('GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated');
  });
- await erasureLocalChecks({admin,db,api,anon,jwtSecret:cfg.JWT_SECRET,ok,test});
+ await erasureLocalChecks({admin,db,api,anon,jwtSecret:cfg.JWT_SECRET,ok,test,page,open});
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
 }finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}

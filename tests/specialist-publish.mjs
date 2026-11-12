@@ -4,9 +4,11 @@ import fs from 'node:fs/promises';
 import {database,A,B} from './database.mjs';
 const db=await database();
 try {
- for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql','20261112_specialist_public_getter_CANDIDATE.sql'])
+ for(const p of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql','20261112_specialist_public_getter_CANDIDATE.sql','20261112_specialist_public_owner_status_CANDIDATE.sql'])
   await db.exec(await fs.readFile(new URL('../sql/'+p,import.meta.url),'utf8'));
  const id=(await db.call(A,'create_my_specialist_draft',['Publish','publish-test','Master'])).id, req=crypto.randomUUID();
+ assert.deepEqual(await db.call(A,'get_my_specialist_publication_v1',[id]),{version:1,state:'unpublished',public_enabled:false,preview:{display_name:'Publish',profession:'Master',specialization:null,city:null,description:null}});
+ await assert.rejects(db.call(B,'get_my_specialist_publication_v1',[id]),e=>e.code==='42501');
  await assert.rejects(db.call(B,'publish_my_specialist_v1',[id,1,req]),e=>e.code==='42501');
  await assert.rejects(db.session(null,c=>c.query('SELECT public.publish_my_specialist_v1($1,$2,$3)',[id,1,req]),'anon'),e=>e.code==='42501');
  assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.specialist_publish_requests_v1','SELECT') ok")).rows[0].ok,false);
@@ -20,6 +22,7 @@ try {
  assert.equal((await db.call(A,'publish_my_specialist_v1',[id,1,req])).revision_id,first.revision_id);
  await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,2,req]),e=>e.code==='PT409');
  await db.call(A,'update_my_specialist_draft',[id,'Edited','Master',null,null,'Draft text']);
+ assert.equal((await db.call(A,'get_my_specialist_publication_v1',[id])).version,2);
  assert.equal((await getter('publish-test')).display_name,'Publish','draft edits do not mutate public revision');
  await assert.rejects(db.call(A,'publish_my_specialist_v1',[id,1,crypto.randomUUID()]),e=>e.code==='40001');
  assert.equal((await db.query('SELECT display_name FROM specialist_public_revisions WHERE specialist_id=$1 AND revision_id=$2',[id,first.revision_id])).rows[0].display_name,'Publish');

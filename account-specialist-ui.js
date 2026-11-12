@@ -41,7 +41,7 @@ export function validateForm(form){
 export function createSavedSummary(root,rpc){
  let revision=0;
  const heading=text('summary','Заполнение профиля'),list=text('ul','');
- const footer=text('p','Профиль остаётся приватным. Условия публикации будут определены отдельно.','hint');
+ const footer=text('p','Услуги, фотографии и контакты остаются приватными.','hint');
  list.setAttribute('aria-live','polite');root.replaceChildren(heading,list,footer);
  list.append(text('li','Сначала сохраните профиль, затем здесь появится сводка сохранённых сведений.'));
  return {async load(id,profile){

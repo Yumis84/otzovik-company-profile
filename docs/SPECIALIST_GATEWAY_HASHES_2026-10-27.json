@@ -199,7 +199,7 @@
     },
     {
       "file": "tests/local-stack.mjs",
-      "sha256": "e1b089e7290220fd4b4465529e9d11dd40acdfec1638b17e0256eecaa52dc3d5"
+      "sha256": "872c5471261a1500ff9caecd4304b3c0a26d43ac5418549fdca8ed803e5fbfe4"
     },
     {
       "file": "docs/SPECIALIST_PILOT_DRAIN_SOP_2026-10-28.md",
@@ -263,7 +263,7 @@
     },
     {
       "file": "tests/erasure-local-checks.mjs",
-      "sha256": "a0710023b639d814490219dda80b43342d59f00ddea213267d42a162c0cefae6"
+      "sha256": "d0c902a88244915d46a0ea5a1edd8f623e85241edf3c4b382e4e41d45fe8715d"
     },
     {
       "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
@@ -275,7 +275,7 @@
     },
     {
       "file": "tests/specialist-publish.mjs",
-      "sha256": "d3a5efbdfce59b226f1c168b53f021b3bcea71bf2fc29b8053cdee5e85f1795d"
+      "sha256": "9beda9407dd9057ecc5084db800da14fe84c942912bede918151ea54f024753a"
     },
     {
       "file": "sql/20261112_specialist_public_getter_CANDIDATE.sql",
@@ -284,6 +284,22 @@
     {
       "file": "sql/20261112_specialist_public_operator_CANDIDATE.sql",
       "sha256": "b373805c2cc556bdfc49cde5b3b7b0867f2dcbb8c260a6505c260dfa59dee75e"
+    },
+    {
+      "file": "sql/20261112_specialist_public_owner_status_CANDIDATE.sql",
+      "sha256": "3f27285ac53fe74be0f2b0baa0261d55ff0c8c0667b38889eb1ee85709a0dea1"
+    },
+    {
+      "file": "account-create-specialist.html",
+      "sha256": "2d4c9a3dac256c63c4d2d3cb507b7269dfcbf107bd83a593156b4c5aeae4e181"
+    },
+    {
+      "file": "tests/specialist-ux-browser.mjs",
+      "sha256": "82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9"
+    },
+    {
+      "file": "account-specialist-ui.js",
+      "sha256": "baf94615b74786b0aac834ac1d3671fee207da708aec3b98e7cd727f1c74c630"
     }
   ],
   "hostedApplyAuthorized": false,
