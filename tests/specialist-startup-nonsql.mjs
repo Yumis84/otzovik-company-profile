@@ -6,16 +6,17 @@ const moduleSource=html.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1]
 assert(moduleSource);
 const source=moduleSource.replace(/^import\b.*$/gm,'').replace('ms=8000','ms=20');
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
-const execute=new AsyncFunction('document','location','history','createClient','navigation','installValidation','validateForm','fieldError','createSavedSummary','sessionStorage','crypto',source);
-function element(){return {disabled:false,hidden:true,textContent:'',checked:false,value:'',addEventListener(){},replaceChildren(){},append(){},setAttribute(){},removeAttribute(){}}}
+const execute=new AsyncFunction('document','location','history','createClient','navigation','installValidation','validateForm','fieldError','createSavedSummary','sessionStorage','crypto','FormData',source);
+function element(){return {disabled:false,hidden:true,textContent:'',checked:false,value:'',listeners:{},addEventListener(type,callback){this.listeners[type]=callback;},replaceChildren(){},append(){},setAttribute(){},removeAttribute(){}}}
 async function run({session,rpc,id=''}){
  const nodes=new Map(),form=element(),inputs=new Map();
  form.elements={namedItem(name){if(!inputs.has(name))inputs.set(name,element());return inputs.get(name);}};
  const doc={getElementById(name){if(name==='preview')return form;if(!nodes.has(name))nodes.set(name,element());return nodes.get(name);},querySelector(){return element();},createElement(){return element();}};
  const location={search:id?'?id='+id:'',pathname:'/account-create-specialist.html',replace(value){this.redirect=value;}};
  const client={auth:{getSession:session},rpc};
- await execute(doc,location,{replaceState(){}},()=>client,()=>{},()=>{},()=>true,()=>{},()=>({load:async()=>{}}),{getItem(){return null;}},{randomUUID(){return 'test';}});
- return {nodes,location,inputs};
+ const MockFormData=class{get(name){return inputs.get(name)?.value??null;}};
+ await execute(doc,location,{replaceState(){}},()=>client,()=>{},()=>{},()=>true,()=>{},()=>({load:async()=>{}}),{getItem(){return null;}},{randomUUID(){return 'test';}},MockFormData);
+ return {nodes,location,inputs,form};
 }
 const never=()=>new Promise(()=>{});
 test('hanging session fails closed and does not redirect or enable editing',async()=>{
@@ -49,4 +50,21 @@ test('late session response cannot enable a timed-out form',async()=>{
  const r=await run({session:()=>pending,rpc:never});
  complete({data:{session:{user:{id:'owner'}}}});await new Promise(resolve=>setTimeout(resolve,10));
  assert.equal(r.nodes.get('save').disabled,true);assert.match(r.nodes.get('save-note').textContent,/Не удалось загрузить/);
+});
+test('synthetic create is not duplicated on concurrent submit; later save updates same profile',async()=>{
+ const id='12345678-1234-4234-8234-123456789012';let resolveCreate;const calls=[];
+ const r=await run({session:async()=>({data:{session:{user:{id:'owner'}}}}),rpc:(name,args)=>{
+  calls.push({name,args});
+  if(name==='create_my_specialist_draft')return new Promise(resolve=>{resolveCreate=resolve;});
+  if(name==='update_my_specialist_draft')return Promise.resolve({data:{id,profile_status:'draft'}});
+  return never();
+ }});
+ r.inputs.set('display_name',{value:'Test'});r.inputs.get('slug').value='person-one';r.inputs.set('profession',{value:'Master'});
+ const submit=()=>r.form.listeners.submit({preventDefault(){}});
+ const first=submit();await submit();assert.equal(calls.filter(x=>x.name==='create_my_specialist_draft').length,1);
+ resolveCreate({data:{id,profile_status:'draft'}});await first;
+ r.inputs.get('display_name').value='Updated';await submit();
+ assert.equal(calls.filter(x=>x.name==='create_my_specialist_draft').length,1);
+ assert.equal(calls.find(x=>x.name==='update_my_specialist_draft').args.p_id,id);
+ assert.equal(r.nodes.get('save').disabled,false);
 });
