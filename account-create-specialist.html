@@ -59,16 +59,23 @@ const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementBy
 function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';}
 slugInput.addEventListener('input',updateUrlPreview);updateUrlPreview();
 const failLoad=message=>{note.textContent=message;fields.disabled=true;save.disabled=true;};
+// Bound read-only startup waits. Never apply this retry pattern to writes:
+// a timed-out write may already have committed.
+const withReadTimeout=(work,ms=8000)=>new Promise((resolve,reject)=>{
+ const timer=setTimeout(()=>reject(new Error('Read timeout')),ms);
+ Promise.resolve(work).then(value=>{clearTimeout(timer);resolve(value);},error=>{clearTimeout(timer);reject(error);});
+});
 async function initialize(){
  try{
-  const {data,error}=await s.auth.getSession();
-  if(error||!data?.session){
+  const {data,error}=await withReadTimeout(s.auth.getSession());
+  if(error)throw error;
+  if(!data?.session){
    const next='account-create-specialist.html'+(editing?'?id='+encodeURIComponent(editId||''):'');
    location.replace('account-login.html?next='+encodeURIComponent(next));return;
   }
   if(editing){
    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editId||'')){failLoad('Некорректная ссылка на черновик.');return;}
-   const result=await s.rpc('get_my_specialists');
+   const result=await withReadTimeout(s.rpc('get_my_specialists'));
    if(result.error){failLoad('Не удалось загрузить черновик. Обновите страницу и попробуйте снова.');return;}
    const item=Array.isArray(result.data)?result.data.find(x=>x.id===editId):null;
    if(!item||item.profile_status!=='draft'){failLoad('Черновик не найден или недоступен.');return;}
@@ -102,3 +109,4 @@ form.addEventListener('submit',async event=>{
 });
 await initialize();
 </script></body></html>
+
