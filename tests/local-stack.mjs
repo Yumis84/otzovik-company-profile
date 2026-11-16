@@ -172,10 +172,11 @@ try{
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();await page.locator('[name=description]').fill('Browser persisted');await page.locator('#save').click();await page.locator('#save-note').filter({hasText:'Сохранено.'}).waitFor();assert.equal(new URL(page.url()).searchParams.get('id'),row.id);
   await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[0]);
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
-  await page.reload();await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.locator('[name=description]').fill('Browser after relogin');await page.locator('#save').click();await page.locator('#save-note').filter({hasText:'Сохранено.'}).waitFor();console.log('PASS LOCAL post-relogin edit and save');
+  await page.reload();await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser after relogin');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await open('account-profile.html?company_id='+company.id);await page.locator('#profile-fields:not([disabled])').waitFor();
   await open('account-home.html');await page.locator('.specialist-card').filter({hasText:'Browser Specialist'}).locator('a.edit-link').click();await page.locator('#save:not([disabled])').waitFor();
-  assert.equal(new URL(page.url()).searchParams.get('id'),row.id);assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
+  assert.equal(new URL(page.url()).searchParams.get('id'),row.id);assert.equal(await page.locator('[name=description]').inputValue(),'Browser after relogin');
   await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[1]);await open('account-create-specialist.html?id='+row.id);await page.getByText(/Черновик не найден или недоступен/).waitFor();assert(await page.locator('#save').isDisabled());
  });
  await test('real browser company edit, branch/service save and photo upload',async()=>{
