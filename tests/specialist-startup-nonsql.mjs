@@ -8,21 +8,47 @@ const source=moduleSource.replace(/^import\b.*$/gm,'').replace('ms=8000','ms=20'
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 const execute=new AsyncFunction('document','location','history','createClient','navigation','installValidation','validateForm','fieldError','createSavedSummary','sessionStorage','crypto','FormData',source);
 function element(){return {disabled:false,hidden:true,textContent:'',checked:false,value:'',listeners:{},addEventListener(type,callback){this.listeners[type]=callback;},replaceChildren(){},append(){},setAttribute(){},removeAttribute(){}}}
-async function run({session,rpc,id=''}){
+async function run({session,rpc,id='',storage=new Map()}){
  const nodes=new Map(),form=element(),inputs=new Map();
  form.elements={namedItem(name){if(!inputs.has(name))inputs.set(name,element());return inputs.get(name);}};
  const doc={getElementById(name){if(name==='preview')return form;if(!nodes.has(name))nodes.set(name,element());return nodes.get(name);},querySelector(){return element();},createElement(){return element();}};
  const location={search:id?'?id='+id:'',pathname:'/account-create-specialist.html',replace(value){this.redirect=value;}};
  const client={auth:{getSession:session},rpc};
  const MockFormData=class{get(name){return inputs.get(name)?.value??null;}};
- await execute(doc,location,{replaceState(){}},()=>client,()=>{},()=>{},()=>true,()=>{},()=>({load:async()=>{}}),{getItem(){return null;}},{randomUUID(){return 'test';}},MockFormData);
- return {nodes,location,inputs,form};
+ let uuid=0;const store={get length(){return storage.size},key(i){return [...storage.keys()][i]??null},getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)},removeItem(k){storage.delete(k)}};
+ await execute(doc,location,{replaceState(){}},()=>client,()=>{},()=>{},()=>true,()=>{},()=>({load:async()=>{}}),store,{randomUUID(){return 'test-'+(++uuid);}},MockFormData);
+ return {nodes,location,inputs,form,storage};
 }
 const never=()=>new Promise(()=>{});
 test('hanging session fails closed and does not redirect or enable editing',async()=>{
  const r=await run({session:never,rpc:never});
  assert.equal(r.nodes.get('fields').disabled,true);assert.equal(r.nodes.get('save').disabled,true);
  assert.match(r.nodes.get('save-note').textContent,/Не удалось загрузить/);assert.equal(r.location.redirect,undefined);
+});
+test('publication status timeout fails closed',async()=>{
+ const id='12345678-1234-4234-8234-123456789012';
+ const r=await run({id,session:async()=>({data:{session:{user:{id:'owner'}}}}),rpc:name=>name==='get_my_specialists'?Promise.resolve({data:[{id,profile_status:'draft'}]}):never()});
+ await new Promise(resolve=>setTimeout(resolve,35));
+ assert.match(r.nodes.get('publication-status').textContent,/пока недоступно/);
+ assert.equal(r.nodes.get('publication-publish').disabled,true);assert.equal(r.nodes.get('publication-unpublish').disabled,true);
+});
+test('unpublish clears only this profile request keys and stale replay rotates request id',async()=>{
+ const id='12345678-1234-4234-8234-123456789012',prefix='specialist-publication:'+id+':';let state='published';const calls=[];
+ const storage=new Map([[prefix+'1','old'],[prefix+'2','old2'],['specialist-publication:other:1','keep']]);
+ const r=await run({id,storage,session:async()=>({data:{session:{user:{id:'owner'}}}}),rpc:async(name,args)=>{
+  calls.push({name,args});if(name==='get_my_specialists')return {data:[{id,profile_status:'draft'}]};
+  if(name==='get_my_specialist_publication_v1')return {data:{version:1,public_enabled:true,state,preview:{}}};
+  if(name==='unpublish_my_specialist_v1'){state='unpublished';return {data:{published:false}};}
+  if(name==='publish_my_specialist_v1')return {data:{published:false,replayed:true}};
+  throw Error(name);
+ }});
+ await new Promise(resolve=>setTimeout(resolve,0));
+ await r.nodes.get('publication-unpublish').listeners.click();
+ assert.equal(storage.has(prefix+'1'),false);assert.equal(storage.has(prefix+'2'),false);assert.equal(storage.get('specialist-publication:other:1'),'keep');
+ storage.set(prefix+'1','stale');r.nodes.get('publication-confirm').checked=true;
+ await r.nodes.get('publication-publish').listeners.click();
+ assert.match(r.nodes.get('publication-status').textContent,/ещё раз/);assert.notEqual(storage.get(prefix+'1'),'stale');
+ assert.equal(calls.filter(x=>x.name==='publish_my_specialist_v1').length,1);
 });
 test('hanging owner profile lookup leaves form disabled',async()=>{
  const r=await run({session:async()=>({data:{session:{user:{id:'owner'}}}}),rpc:never,id:'12345678-1234-4234-8234-123456789012'});
@@ -68,3 +94,4 @@ test('synthetic create is not duplicated on concurrent submit; later save update
  assert.equal(calls.find(x=>x.name==='update_my_specialist_draft').args.p_id,id);
  assert.equal(r.nodes.get('save').disabled,false);
 });
+
