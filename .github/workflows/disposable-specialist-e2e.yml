@@ -1,0 +1,46 @@
+name: Disposable specialist editor E2E
+on:
+  push:
+    branches: [work/disposable-supabase-e2e-2d288-20261116]
+permissions:
+  contents: read
+jobs:
+  disposable-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 2d288047006c618f819060297ee4dfe7fe3247a8
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Verify clean disposable runner
+        run: |
+          test "${GITHUB_EVENT_NAME}" = push
+          test "$(git rev-parse HEAD)" = 2d288047006c618f819060297ee4dfe7fe3247a8
+          test -z "${DOCKER_HOST:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test "$(docker context show)" = default
+          test -z "$(docker ps -aq)"
+          test ! -e /tmp/otzovik-supabase
+      - run: npm ci
+      - run: node tests/prepare-gateway-stack.mjs
+      - name: Start new local disposable Supabase
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,logflare,vector,supavisor > /tmp/otzovik-stack-start.log 2>&1
+      - name: Start local gateway
+        run: |
+          npx supabase functions serve --workdir /tmp/otzovik-supabase --env-file /tmp/otzovik-gateway.env --no-verify-jwt > /tmp/otzovik-edge.log 2>&1 &
+          node tests/wait-gateway.mjs
+      - name: Save local endpoints privately
+        run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+      - run: npx playwright install --with-deps chromium
+      - name: Run isolated Auth RLS Storage and editor tests
+        run: node tests/local-stack.mjs
+      - name: Stop only the disposable stack
+        if: always()
+        run: |
+          if [ -f /tmp/otzovik-supabase/supabase/config.toml ]; then
+            npx supabase stop --workdir /tmp/otzovik-supabase --no-backup
+          fi
