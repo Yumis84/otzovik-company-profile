@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {validateDisposableConfiguration as check} from './disposable-pg17-guard.mjs';
+const ok={GITHUB_ACTIONS:'true',RUNNER_ENVIRONMENT:'github-hosted',OTZ_DISPOSABLE_CONFIRM:'new-stack-only'};
+const endpoint='postgresql://test:synthetic@127.0.0.1:54322/postgres';
+test('accepts only explicitly attested loopback config',()=>{assert.equal(check(ok,endpoint).host,'127.0.0.1');});
+for(const bad of ['postgresql://test:synthetic@localhost:54322/postgres','postgresql://test:synthetic@127.0.0.1:5432/postgres','postgresql://test:synthetic@10.0.0.2:54322/postgres','postgresql://test:synthetic@127.0.0.1:54322/postgres?host=remote','postgresql://test:synthetic@127.0.0.1:54322/other'])test('rejects non-pinned endpoint '+bad,()=>assert.throws(()=>check(ok,bad)));
+for(const key of ['PGHOST','PGSERVICE','DATABASE_URL','SUPABASE_ACCESS_TOKEN','DOCKER_HOST'])test('rejects inherited '+key,()=>assert.throws(()=>check({...ok,[key]:'unexpected'},endpoint)));
+test('rejects unverified local execution',()=>assert.throws(()=>check({...ok,RUNNER_ENVIRONMENT:'self-hosted'},endpoint)));
+test('requires explicit new-stack marker',()=>assert.throws(()=>check({...ok,OTZ_DISPOSABLE_CONFIRM:''},endpoint)));

@@ -175,7 +175,7 @@
     },
     {
       "file": "tests/gateway-local-checks.mjs",
-      "sha256": "4573fe4f84c3f5c18ab8fa63e1b4caf160be87c00d89e0d6b3f172dcd6031beb"
+      "sha256": "aa12e369c769523c5adc88a7669131599219be183a97e3e8e01c54ca4adaae22"
     },
     {
       "file": "tests/gateway-integrity.mjs",
@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "9e9bd397db94aa985ec5bfdf054c8400f017b2ad7e2c4d90f9a2d9de1e507c81"
+      "sha256": "be852e74920dedc99272da889ef736a28facea6e71bc78502974c45ab144fe71"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
@@ -199,7 +199,7 @@
     },
     {
       "file": "tests/local-stack.mjs",
-      "sha256": "86dfb268707b6e98cf2c7c33dc31f7bc99bd955a8b337854217c3c3974cec016"
+      "sha256": "872c5471261a1500ff9caecd4304b3c0a26d43ac5418549fdca8ed803e5fbfe4"
     },
     {
       "file": "docs/SPECIALIST_PILOT_DRAIN_SOP_2026-10-28.md",
@@ -236,6 +236,70 @@
     {
       "file": "tests/company-navigation-browser.mjs",
       "sha256": "4021b0d31575c2252c575bb5d991e96cd2f295f1659f5fe26c3e9fc0523a1ac6"
+    },
+    {
+      "file": "sql/20261106_specialist_publication_foundation_CANDIDATE.sql",
+      "sha256": "11087ab84a7ce6298a01756b951a2d309a482c3c6a727dde27ce656cd685d2ef"
+    },
+    {
+      "file": "tests/specialist-publication-foundation.mjs",
+      "sha256": "7fbf600645d79c8f0b476177c98420611d4f9cb7a78283a37dd7376d370b28f1"
+    },
+    {
+      "file": "sql/20261106_specialist_slug_quarantine_CANDIDATE.sql",
+      "sha256": "8946dfc6547e5c8b13384f577830db9c9ed649730a9e9099365266bdd6a600bf"
+    },
+    {
+      "file": "docs/SPECIALIST_PUBLICATION_DEPLOYMENT_PLAN_2026-11-06.md",
+      "sha256": "06f2b37270941dd34d0e8205510c23f11b23f4569be8ea746345eb1ca15bea14"
+    },
+    {
+      "file": "sql/20261112_specialist_erasure_barrier_CANDIDATE.sql",
+      "sha256": "3d8622a05ad07c7e1b1854fc4e81c50574f57c0a319bca9c8822c315df25d29e"
+    },
+    {
+      "file": "tests/specialist-erasure-barrier.mjs",
+      "sha256": "3464c5768fd57ad708d2178cb779903e65d8004371820e6cd31a23d5f1d41b45"
+    },
+    {
+      "file": "tests/erasure-local-checks.mjs",
+      "sha256": "d0c902a88244915d46a0ea5a1edd8f623e85241edf3c4b382e4e41d45fe8715d"
+    },
+    {
+      "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
+      "sha256": "7249487c5cbcd4c96c7913be1e17a88b7ad4d7a3c4046f38c714447cbd335e9b"
+    },
+    {
+      "file": "sql/20261112_specialist_publish_CANDIDATE.sql",
+      "sha256": "e9e40261d5e88460eb2ae1746b97e4f39fded7a4ec4dba81b59c923b1d65f731"
+    },
+    {
+      "file": "tests/specialist-publish.mjs",
+      "sha256": "9beda9407dd9057ecc5084db800da14fe84c942912bede918151ea54f024753a"
+    },
+    {
+      "file": "sql/20261112_specialist_public_getter_CANDIDATE.sql",
+      "sha256": "a3ffc0f3a04d75c1c5f9c52a6a9c98a4a0c33d069b16a38c319985c6302f81ed"
+    },
+    {
+      "file": "sql/20261112_specialist_public_operator_CANDIDATE.sql",
+      "sha256": "b373805c2cc556bdfc49cde5b3b7b0867f2dcbb8c260a6505c260dfa59dee75e"
+    },
+    {
+      "file": "sql/20261112_specialist_public_owner_status_CANDIDATE.sql",
+      "sha256": "3f27285ac53fe74be0f2b0baa0261d55ff0c8c0667b38889eb1ee85709a0dea1"
+    },
+    {
+      "file": "account-create-specialist.html",
+      "sha256": "3d215b725906be2e9085b7d78e35bb484e9c3a10cc121558664a97cffe847fee"
+    },
+    {
+      "file": "tests/specialist-ux-browser.mjs",
+      "sha256": "82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9"
+    },
+    {
+      "file": "account-specialist-ui.js",
+      "sha256": "baf94615b74786b0aac834ac1d3671fee207da708aec3b98e7cd727f1c74c630"
     }
   ],
   "hostedApplyAuthorized": false,

@@ -1,0 +1,28 @@
+# PR50 811e688e — review-only design and PG17 test specification
+
+No SQL executed. This document does not approve a TTL, rate, capacity, privileges, or a deployment.
+
+## P1-4b: safe expiry and recovery
+A UUIDv4 request ID carries no trusted issue time. Deleting its ledger row and treating a replay as a new request is unsafe: after unpublish an old request with an unchanged profile version can republish without fresh consent. Therefore the audit suggestion of deletion followed by accepting the same ID must NOT be implemented without an additional replay barrier.
+
+Candidate design for review: authenticated server issues short-lived, purpose/profile/user/version scoped signed request tokens with issued-at, expiry and random nonce; reject expired/unverifiable tokens even if a ledger row was pruned. Issuer key rotation and old key validity must span max token lifetime and clock skew; binding must use trusted identity, not client timestamps. Maintain exact request_id record through token expiry + maximum in-flight/retry window, and delete only expired safe rows while holding existing per-specialist advisory lock. Unknown outcome stays retryable until token expiry; afterwards obtain fresh user consent and new token. Unpublish must invalidate previous publication intent using a monotonic intent generation and atomic comparison; transactions and rollback must never revive a prior generation. Evaluate whether a server-side epoch alone is enough with reliable client retry semantics before choosing a contract. This is a proposed contract change, not implemented or approved.
+
+Use parameterized window/cap and rate admission with deny and safe retry time; distinguish in-flight from final requests; fail closed on unavailable policy/clock and bound cleanup work per call. Keep existing hard cap as backstop until rollout is reviewed. Expired cleanup should recover capacity, with synthetic monitoring of global/per-profile counts, retention backlog, rejected/expired/replayed rates and alerts; no profile IDs in public metrics. Rate-limit only NEW intents, not valid same-token retries. Review owner decisions and operational recovery before defining values.
+
+## ACL preflight and postcheck
+Before CREATE OR REPLACE, in one transaction capture pg_proc OID, owner and proacl and effective has_function_privilege for PUBLIC/anon/authenticated/service_role, verify exact signatures, baseline definitions and expected ownership/forced RLS. Abort if absent/drift/owner not approved; snapshot and compare owner and ACL after replacements, abort entire transaction on difference. No GRANT/REVOKE statements. Default EXECUTE could be granted on newly created functions, hence never create missing functions. Validate guard itself against missing function, altered owner, inherited role and PUBLIC defaults; no ACL or OAuth changes. Code for guard requires review before execution.
+
+## Timeouts and status
+Set bounded runtime lock timeout on publish and emergency disable, not merely migration SET LOCAL. Review side effects on proconfig and enforce minimum approved parameter; inspect locks of disable and all paths before adding. Test cancellation/rollback and concurrent expiry; do not promise emergency disable always completes within timeout (it may fail closed with alert and needs a safe retry by operator). Delay from in-flight HTTP, replicas/cache remains separate policy.
+On slug change getter fails closed; publication status must expose safe is_current/actual published slug/version or safely transition state via established lock order. Require explicit user republish after rename; never re-enable automatically. Review races with read, rename and rollback. Backend contract is not changed here.
+
+## Disposable PG17 harness acceptance T1–T7
+Before SQL: new ephemeral GitHub-hosted VM, prove Docker context and container inventory clean, no remote credentials/endpoints, loopback-only local Supabase, fresh empty DB, correct exact HEAD and PG17, synthetic accounts and test-only keys. Abort on any failure; cleanup only own local containers. Existing prior hosted/production DBs never connect. Use 3+ genuinely separate PostgreSQL connections with explicit advisory/barrier handshakes, bounded lock and statement timeouts, record transaction IDs, outcome and elapsed time, not sleeps alone.
+T1 control disable/publish both commit orders, disabled state remains off; failures 55P03 handled and no unexpected new publication.
+T2 same token/request simultaneous: one mutation and one replay with same result.
+T3 two unique new intents at capacity boundary: exact cap, one succeeds, others reject; expired IDs pruned only after provable expiry, stale request cannot publish.
+T4 publish vs rename and unpublish: no stale slug output or resurrection, checked post-commit, no deadlocks.
+T5 publish vs suspend/erasure/delete: no publication after barrier, no orphans, proper replay denial, rollback verified.
+T6 hold advisory lock, concurrently publish then disable; measure bounded wait, allow timeout errors and prove rollback, independently test control row lock.
+T7 replay while suspended/erasing and after unpublish: deny/no resurrection; test clock skew, token expiry, generation changes and cleanup concurrency.
+Additional: non-superuser BYPASSRLS function owner, role without bypass, PUBLIC/anon/authenticated effective grants before and after, no new privilege, preflight missing/drifted routine, reserved/tombstone slug policy, rollback/restore, 320 UI separately. No production publisher: synthetic sentinel. A test suite implementation and actual isolated run remain outstanding.
