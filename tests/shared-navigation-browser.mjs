@@ -24,7 +24,7 @@ try{
   for(const width of [320,390,768,1280,1440]){
    await page.setViewportSize({width,height:900});
    await setup(kind,labels);
-   const toggle=page.getByRole('button',{name:'Открыть меню разделов'});
+   const toggle=page.locator('.shared-nav-toggle');
    const nav=page.locator('.shared-nav-shell>nav');
    const menu=page.locator('.shared-nav-menu');
    assert.equal(await nav.locator('a').count(),labels.length);
