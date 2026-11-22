@@ -231,7 +231,7 @@
     },
     {
       "file": "account-shared-navigation.js",
-      "sha256": "045783f101630268aaceff7a776ad3e391c6f4e299e59c3ce87cf07058bfce20"
+      "sha256": "cbea1287c919f79945119d6846fac21be9cead5fadab17576638d2b7c33e2e68"
     },
     {
       "file": "tests/company-navigation-browser.mjs",
