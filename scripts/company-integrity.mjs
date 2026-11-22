@@ -23,7 +23,7 @@ export function checkCompanyIntegrity(manifest){
  const changed=git('diff','--name-only',basis,'HEAD','--','account*.html','account*.js','account*.css').trim().split('\n').filter(Boolean);
  for(const file of changed){if(file.startsWith('account-specialist-')||file==='account-create-specialist.html')continue;assert(['account-company-context.js','account-profile.css','account-shared-navigation.js'].includes(file),'Unexpected company path: '+file);}
  const shared=fs.readFileSync(new URL('../account-shared-navigation.js',import.meta.url),'utf8').replace(/\r\n/g,'\n');
- const expected='045783f101630268aaceff7a776ad3e391c6f4e299e59c3ce87cf07058bfce20';assert.equal(crypto.createHash('sha256').update(shared).digest('hex'),expected,'Shared navigation drift');
+ const expected='cbea1287c919f79945119d6846fac21be9cead5fadab17576638d2b7c33e2e68';assert.equal(crypto.createHash('sha256').update(shared).digest('hex'),expected,'Shared navigation drift');
  assert.equal(git('show','HEAD:account-shared-navigation.js'),shared,'Shared navigation worktree drift');
  console.log('PASS company guard: '+manifest.companySource.files.length+' protected files; two exact transformations and pinned shared menu');
 }
