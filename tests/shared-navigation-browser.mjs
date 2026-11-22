@@ -7,7 +7,7 @@ await page.route('https://navigation.test/**',async route=>{
  const url=new URL(route.request().url());
  if(url.pathname==='/account-create-specialist.html'){
   const html=await fs.readFile(new URL('../account-create-specialist.html',import.meta.url),'utf8');
-  const clean=html.replace(/<script type="module">[\\s\\S]*?<\\/script>/,'');
+  const clean=html.replace(/<script type="module">[\s\S]*?<\/script>/,'');
   assert.notEqual(clean,html,'Expected to isolate specialist production module from test-only navigation bootstrap');
   return route.fulfill({contentType:'text/html; charset=utf-8',body:clean+'<script type="module">import{navigation}from "/account-specialist-ui.js";navigation(document.querySelector("nav.editor-nav"),"33333333-3333-4333-8333-333333333333","profile","UX специалист");window.ready=true</script>'});
  }
