@@ -9,7 +9,7 @@ export function installNavigation(nav){
   .shared-nav-shell{position:relative;min-width:0;max-width:100%}
   .shared-nav-shell>nav{display:flex;flex-direction:column;align-items:stretch;gap:4px;overflow:visible;max-width:100%;padding:8px;width:100%}
   .shared-nav-shell>nav a{display:block;flex:none;white-space:normal;overflow-wrap:anywhere;min-height:44px;padding:11px 13px;border-radius:9px;color:#475467;font:700 14px/1.5 system-ui;text-decoration:none}
-  .shared-nav-shell>nav a:hover{background:#f2f4f7;color:#101828}
+  .shared-nav-shell>nav a:hover{background:#f2f4f7;color:#101828}\n  .shared-nav-shell>nav a:active{background:#eaf2ff}\n  .shared-nav-shell>nav a[aria-current=page]{font-weight:800}
   .shared-nav-shell>nav a.active,.shared-nav-shell>nav a[aria-current=page]{background:#eaf2ff;color:#175cd3}
   .shared-nav-shell a:focus-visible,.shared-nav-toggle:focus-visible{outline:3px solid #175cd3;outline-offset:2px}
   .shared-nav-toggle{display:none;min-height:44px;padding:10px 14px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:#344054;font:700 14px system-ui;cursor:pointer}
@@ -33,10 +33,10 @@ export function installNavigation(nav){
  const menu=document.createElement('div');menu.className='shared-nav-menu';menu.id='shared-nav-menu-'+(++sequence);menu.hidden=true;button.setAttribute('aria-controls',menu.id);host.insertBefore(button,nav);host.insertBefore(menu,nav);
  function refresh(){menu.replaceChildren();for(const link of nav.querySelectorAll('a')){const copy=link.cloneNode(true);copy.removeAttribute('id');copy.removeAttribute('class');if(link.matches('.active,[aria-current="page"]'))copy.setAttribute('aria-current','page');menu.append(copy);}}
  function close(focus=false){menu.hidden=true;button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Открыть меню разделов');if(focus)button.focus();}
- function reveal(link){if(!link)return;const r=link.getBoundingClientRect(),n=nav.getBoundingClientRect();nav.scrollLeft+=r.left-n.left-(nav.clientWidth-link.offsetWidth)/2;}
- button.addEventListener('click',()=>{const opening=menu.hidden;refresh();menu.hidden=!opening;button.setAttribute('aria-expanded',String(opening));button.setAttribute('aria-label',opening?'Закрыть меню разделов':'Открыть меню разделов');});
- menu.addEventListener('click',e=>{const link=e.target.closest('a');if(!link)return;const links=[...menu.querySelectorAll('a')],original=nav.querySelectorAll('a')[links.indexOf(link)];close();});
- document.addEventListener('click',e=>{if(!host.contains(e.target))close();});host.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){e.preventDefault();close(true);}});
+ function open(){refresh();menu.hidden=false;button.setAttribute('aria-expanded','true');button.setAttribute('aria-label','Закрыть меню разделов');menu.querySelector('a[aria-current="page"],a')?.focus();}
+ button.addEventListener('click',()=>{if(menu.hidden)open();else close(true);});
+ menu.addEventListener('click',e=>{const link=e.target.closest('a');if(!link)return;close();});
+ document.addEventListener('click',e=>{if(!host.contains(e.target))close();});host.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){e.preventDefault();close(true);}if(e.key==='ArrowDown'&&document.activeElement===button&&!menu.hidden){e.preventDefault();menu.querySelector('a')?.focus();}});
  host.addEventListener('focusout',e=>{if(!host.contains(e.relatedTarget))close();});
  const observer=new MutationObserver(refresh);observer.observe(nav,{childList:true,subtree:true,attributes:true,characterData:true});refresh();
  window.addEventListener('resize',()=>{if(window.innerWidth>768)close();});
