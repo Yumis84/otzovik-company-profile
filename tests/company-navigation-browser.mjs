@@ -8,12 +8,12 @@ const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message)
 try{
  for(role of ['owner','admin','analyst'])for(const width of [320,390,768,1440]){
   await page.setViewportSize({width,height:900});await page.goto('https://cabinet.test/account-profile.html?company_id='+id);await page.locator('#active-company-name').filter({hasText:'Тестовая компания'}).waitFor();
-  assert.equal(await page.locator('.shared-nav-shell').count(),1);assert.equal(await page.getByRole('button',{name:'☰ Меню'}).count(),1);
+  assert.equal(await page.locator('.shared-nav-shell').count(),1);assert.equal(await page.locator('.shared-nav-toggle').count(),1);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),role+' '+width+' profile overflow');
-  const toggle=page.getByRole('button',{name:'☰ Меню'});await toggle.click();const menu=page.locator('.shared-nav-menu');const tabHrefs=await page.locator('main nav a').evaluateAll(xs=>xs.map(x=>x.href));const menuHrefs=await menu.locator('a').evaluateAll(xs=>xs.map(x=>x.href));assert.deepEqual(menuHrefs,tabHrefs);
+  const toggle=page.locator('.shared-nav-toggle');const menu=page.locator('.shared-nav-menu');if(width<=768){assert(await toggle.isVisible());await toggle.click();}else{assert.equal(await toggle.isVisible(),false);assert(await page.locator('.shared-nav-shell>nav').isVisible());}const tabHrefs=await page.locator('main nav a').evaluateAll(xs=>xs.map(x=>x.href));const menuHrefs=await menu.locator('a').evaluateAll(xs=>xs.map(x=>x.href));assert.deepEqual(menuHrefs,tabHrefs);
   assert.equal(menuHrefs.some(x=>x.includes('account-access.html')),role==='owner');assert.equal(menuHrefs.some(x=>x.includes('account-billing.html')),role==='owner');
   if(role==='owner')await page.screenshot({path:`navigation-screenshots/company-real-${width}.png`,fullPage:true});
-  await page.keyboard.press('Escape');assert.equal(await toggle.getAttribute('aria-expanded'),'false');assert(await toggle.evaluate(e=>document.activeElement===e));
+  if(width<=768){await page.keyboard.press('Escape');assert.equal(await toggle.getAttribute('aria-expanded'),'false');assert(await toggle.evaluate(e=>document.activeElement===e));}
  }
  assert.deepEqual(errors,[]);console.log('PASS company real HTML: owner/admin/analyst simulated Auth and role responses; 4 widths, menu/ARIA, no horizontal overflow');
 }finally{await context.close();await browser.close();}
