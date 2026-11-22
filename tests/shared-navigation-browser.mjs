@@ -70,13 +70,13 @@ try{
   const geometry=await page.evaluate(()=>{
    const rect=el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height}};
    const nav=document.querySelector('.shared-nav-shell'),content=document.querySelector('.specialist-editor'),main=document.querySelector('main.wrap');
-   return {nav:rect(nav),content:rect(content),main:rect(main),overflow:document.documentElement.scrollWidth-innerWidth,links:nav.querySelectorAll('nav a').length};
+   return {nav:rect(nav),content:rect(content),main:rect(main),overflow:document.documentElement.scrollWidth-innerWidth,mainPaddingTop:parseFloat(getComputedStyle(main).paddingTop)||0,links:nav.querySelectorAll('nav a').length};
   });
   assert.equal(geometry.links,5,'Real specialist should expose five navigation destinations');
   assert(geometry.overflow<=1,'Real specialist horizontal overflow at '+width+': '+geometry.overflow);
   if(width>768){
    assert(geometry.nav.right<=geometry.content.x,'Sidebar overlaps specialist content at '+width);
-   assert(Math.abs(geometry.nav.y-geometry.main.y)<=2,'Sidebar not aligned with main top at '+width);
+   assert(Math.abs(geometry.nav.y-(geometry.main.y+geometry.mainPaddingTop))<=2,'Sidebar not aligned with main top at '+width);
    assert(geometry.content.y>=geometry.main.y,'Specialist editor starts above main at '+width);
    assert(await page.locator('.shared-nav-shell>nav').isVisible());
   }else{
