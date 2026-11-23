@@ -62,7 +62,7 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   assert.equal((await gw(a,body)).status,409); // tombstone prevents resurrection
  });
  await test('strict real Storage quota at19: one winner, including concurrent Edge requests',async()=>{
-  for(let attempt=0;attempt<3;attempt++){
+  for(let attempt=0;attempt<20;attempt++){
    const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Gateway quota',p_slug:'gw-quota-'+attempt,p_profession:'Master'}));
    for(let i=0;i<19;i++)assert.equal((await gw(a,payload(profile.id))).status,200);
    // Diagnostic-only evidence on disposable PG17; no credentials or image payloads logged.
