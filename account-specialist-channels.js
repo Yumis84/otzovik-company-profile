@@ -83,9 +83,9 @@ export async function initChannels(id){
  }catch(e){render();for(const {input} of entries)input.disabled=true;other.disabled=true;note.textContent='Мессенджеры и соцсети пока недоступны. Остальные поля можно сохранить. '+message(e);}
  return {available,prepare,async save(payload){
   if(!available)return;
-  let data;try{data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});}catch(e){let checked;try{checked=await rpc('list_my_specialist_channels',{p_specialist_id:id});}catch{const uncertain=Error('Не удалось проверить результат сохранения. Обновите страницу.');uncertain.uncertainSave=true;throw uncertain;}if(checked?.version===version)throw e;data=checked;}
-  if(!data||!Number.isInteger(data.version)||!Array.isArray(data.channels)){
-   let verified;try{verified=await rpc('list_my_specialist_channels',{p_specialist_id:id});}catch(e){const uncertain=Error('Не удалось проверить сохранение контактов. Обновите страницу перед повторной попыткой.');uncertain.uncertainSave=true;throw uncertain;}
+  let data,reconciled=false;try{data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});}catch(e){let checked;try{checked=await rpc('list_my_specialist_channels',{p_specialist_id:id});}catch{const uncertain=Error('Не удалось проверить результат сохранения. Обновите страницу.');uncertain.uncertainSave=true;throw uncertain;}if(checked?.version===version)throw e;data=checked;reconciled=true;}
+  if(reconciled||!data||!Number.isInteger(data.version)||!Array.isArray(data.channels)){
+   let verified;try{verified=reconciled?data:await rpc('list_my_specialist_channels',{p_specialist_id:id});}catch(e){const uncertain=Error('Не удалось проверить сохранение контактов. Обновите страницу перед повторной попыткой.');uncertain.uncertainSave=true;throw uncertain;}
    const matches=verified&&Number.isInteger(verified.version)&&verified.version>version&&Array.isArray(verified.channels)&&verified.channels.length===payload.length&&payload.every(p=>verified.channels.some(r=>r.id===p.id&&r.kind===p.kind&&r.value_raw===p.value_raw));
    if(!matches){const e=Error('Не удалось подтвердить сохранение контактов. Обновите страницу перед повторной попыткой.');e.uncertainSave=true;throw e;}
    data=verified;
