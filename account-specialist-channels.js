@@ -87,7 +87,7 @@ export async function initChannels(id){
   if(!data||!Number.isInteger(data.version)||!Array.isArray(data.channels)){
    const verified=await rpc('list_my_specialist_channels',{p_specialist_id:id});
    const matches=verified&&Number.isInteger(verified.version)&&verified.version>version&&Array.isArray(verified.channels)&&verified.channels.length===payload.length&&payload.every(p=>verified.channels.some(r=>r.id===p.id&&r.kind===p.kind&&r.value_raw===p.value_raw));
-   if(!matches)throw Error('Не удалось подтвердить сохранение контактов. Обновите страницу перед повторной попыткой.');
+   if(!matches){const e=Error('Не удалось подтвердить сохранение контактов. Обновите страницу перед повторной попыткой.');e.uncertainSave=true;throw e;}
    data=verified;
   }
   version=data.version;rows=data.channels;custom=rows.filter(r=>r.kind==='website');renderCustom();state.textContent='';
