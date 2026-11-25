@@ -83,7 +83,13 @@ export async function initChannels(id){
  }catch(e){render();for(const {input} of entries)input.disabled=true;other.disabled=true;note.textContent='Мессенджеры и соцсети пока недоступны. Остальные поля можно сохранить. '+message(e);}
  return {available,prepare,async save(payload){
   if(!available)return;
-  const data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});
+  let data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});
+  if(!data||!Number.isInteger(data.version)||!Array.isArray(data.channels)){
+   const verified=await rpc('list_my_specialist_channels',{p_specialist_id:id});
+   const matches=verified&&Number.isInteger(verified.version)&&verified.version>version&&Array.isArray(verified.channels)&&verified.channels.length===payload.length&&payload.every(p=>verified.channels.some(r=>r.id===p.id&&r.kind===p.kind&&r.value_raw===p.value_raw));
+   if(!matches)throw Error('Не удалось подтвердить сохранение контактов. Обновите страницу перед повторной попыткой.');
+   data=verified;
+  }
   version=data.version;rows=data.channels;custom=rows.filter(r=>r.kind==='website');renderCustom();state.textContent='';
   for(const entry of entries){const stored=rows.find(r=>r.id===entry.row.id);if(stored){entry.row=stored;entry.input.value=stored.kind==='whatsapp'?phoneDisplayValue(stored.value_raw):stored.value_raw;}else{entry.row={...entry.row,value_raw:''};if(entry.row.kind==='whatsapp')entry.input.value='+7';}}
  }};
