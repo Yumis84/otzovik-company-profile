@@ -85,7 +85,7 @@ export async function initChannels(id){
   if(!available)return;
   let data=await rpc('save_my_specialist_channels',{p_specialist_id:id,p_version:version,p_channels:payload});
   if(!data||!Number.isInteger(data.version)||!Array.isArray(data.channels)){
-   const verified=await rpc('list_my_specialist_channels',{p_specialist_id:id});
+   let verified;try{verified=await rpc('list_my_specialist_channels',{p_specialist_id:id});}catch(e){const uncertain=Error('Не удалось проверить сохранение контактов. Обновите страницу перед повторной попыткой.');uncertain.uncertainSave=true;throw uncertain;}
    const matches=verified&&Number.isInteger(verified.version)&&verified.version>version&&Array.isArray(verified.channels)&&verified.channels.length===payload.length&&payload.every(p=>verified.channels.some(r=>r.id===p.id&&r.kind===p.kind&&r.value_raw===p.value_raw));
    if(!matches){const e=Error('Не удалось подтвердить сохранение контактов. Обновите страницу перед повторной попыткой.');e.uncertainSave=true;throw e;}
    data=verified;
