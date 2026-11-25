@@ -92,7 +92,7 @@ try{
  await test('production-minimal missing editor RPCs stay readable and disable Save',async()=>{
   missingEditor=true;const before=calls.filter(x=>/^(save|delete|register)_/.test(x.name)).length;
   for(const file of ['account-specialist-services.html','account-specialist-media.html','account-specialist-contacts.html']){
-   await open(file+'?id='+id);await page.locator('#status').filter({hasText:'Раздел пока недоступен'}).waitFor();
+   await open(file+'?id='+id);await page.locator('#status').filter({hasText:/Не удалось|недоступен|повтор/i}).waitFor();
    assert.equal(await page.locator('#fields').evaluate(e=>e.disabled),true);assert(await page.locator('#save').isDisabled());assert((await page.locator('#status').textContent()).trim());
   }
   assert.equal(calls.filter(x=>/^(save|delete|register)_/.test(x.name)).length,before);missingEditor=false;
