@@ -147,7 +147,7 @@
     },
     {
       "file": "account-specialist-media.js",
-      "sha256": "5b25cc19ed2552cb151a2de4032dab5e742c25e9384bad5307122c015982cb4e"
+      "sha256": "3ead676865b1dc8630a517b3cfab5dd3c611cf2a0ea19c9754678e0519bf7437"
     },
     {
       "file": "scripts/specialist-server-package.mjs",
@@ -291,11 +291,11 @@
     },
     {
       "file": "account-create-specialist.html",
-      "sha256": "8e41a6e42aefb9eb6d36e0072d3a2253b406c98a29e7d97079553de3ca1d582c"
+      "sha256": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e"
     },
     {
       "file": "tests/specialist-ux-browser.mjs",
-      "sha256": "82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9"
+      "sha256": "b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577"
     },
     {
       "file": "account-specialist-ui.js",
@@ -304,5 +304,28 @@
   ],
   "hostedApplyAuthorized": false,
   "remediationBase": "b6626a3169836be534a61aa1befecd26a5a55d43",
-  "pilotBase": "ad6101ef34812cce85f35c94ab0aa8fd0a8f0e99"
+  "pilotBase": "ad6101ef34812cce85f35c94ab0aa8fd0a8f0e99",
+  "uiRevision": {
+    "date": "2026-11-27",
+    "sourceCommit": "80132f6b4bf5f2dedf2f2e0326ef4f2b14a96e1e",
+    "scope": "Owner-requested specialist UI completion; no SQL/gateway/company pin changes",
+    "validation": "Real staging acceptance999ba51a/e6bd4d2a; isolated UX10groups+media/publication tests; company33 integrity; negative mutation rejected",
+    "changes": [
+      {
+        "file": "account-specialist-media.js",
+        "previous": "5b25cc19ed2552cb151a2de4032dab5e742c25e9384bad5307122c015982cb4e",
+        "sha256": "3ead676865b1dc8630a517b3cfab5dd3c611cf2a0ea19c9754678e0519bf7437"
+      },
+      {
+        "file": "account-create-specialist.html",
+        "previous": "8e41a6e42aefb9eb6d36e0072d3a2253b406c98a29e7d97079553de3ca1d582c",
+        "sha256": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e"
+      },
+      {
+        "file": "tests/specialist-ux-browser.mjs",
+        "previous": "82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9",
+        "sha256": "b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577"
+      }
+    ]
+  }
 }
