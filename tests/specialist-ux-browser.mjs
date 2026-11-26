@@ -79,7 +79,7 @@ try{
   fail='list_my_specialist_channels';await page.reload();await ready();await panel.getByText('Контакты: не удалось проверить.',{exact:true}).waitFor({state:'attached'});assert((await panel.textContent()).includes('Услуги: 1.'));fail=null;
  });
 
- await test('home edit entry and every menu destination at 320/390/768/1440',async()=>{
+ await test('home edit entry and every menu destination at 320/390/768/1280/1440',async()=>{
   user=A;await open('account-home.html');const card=page.locator('.specialist-card').filter({has:page.locator('a[href$="'+id+'"]')});await card.locator('a.edit-link').click();await ready();assert.equal(new URL(page.url()).searchParams.get('id'),id);
   for(const width of [320,390,768,1280,1440]){
    await page.setViewportSize({width,height:900});

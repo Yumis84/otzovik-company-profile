@@ -4,7 +4,7 @@ import {chromium} from 'playwright';
 const base='https://specialist-test.invalid',origin='https://salmcnhexlftrgtiryyo.supabase.co';
 const id='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64');
-const browser=await chromium.launch({headless:true,channel:'msedge'});
+const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})});
 let unavailable=false;
 const data={display_name:'Тест специалиста '+('Ж'.repeat(100)),profession:'Консультант',specialization:'Тестовая специализация',city:'Калининград',description:'Публичное описание',items:[{type:'service',name:'Консультация',description:'Описание',from:1200,currency:'RUB'},{type:'contact',label:'Связаться '+('x'.repeat(150)),href:'mailto:public@example.invalid'},{type:'photo',id,kind:'avatar'},{type:'photo',id:other,kind:'portfolio',caption:'Работа специалиста'}]};
 const context=await browser.newContext();const errors=[];
