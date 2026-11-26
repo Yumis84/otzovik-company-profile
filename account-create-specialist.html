@@ -59,7 +59,7 @@ async function loadPublicationOptions(id,load){
 }
 
 let publicationState=null,publicationDirty=false,publicationBusy=false,publicationLoad=0;
-function publicationButtons(){selection.disabled=publicationBusy||!publicationState;publicationConfirm.disabled=publicationBusy||!publicationState;publishButton.disabled=publicationBusy||publicationDirty||!publicationConfirm.checked||!publicationState?.public_enabled||publicationState?.state==='suspended';unpublishButton.disabled=publicationBusy||!publicationState||publicationState.state!=='published';}
+function publicationButtons(){publishButton.textContent=publicationState?.state==='published'?'Обновить публикацию':'Опубликовать';selection.disabled=publicationBusy||!publicationState;publicationConfirm.disabled=publicationBusy||!publicationState;publishButton.disabled=publicationBusy||publicationDirty||!publicationConfirm.checked||!publicationState?.public_enabled||publicationState?.state==='suspended';unpublishButton.disabled=publicationBusy||!publicationState||publicationState.state!=='published';}
 publicationConfirm.addEventListener('change',publicationButtons);
 form.addEventListener('input',()=>{publicationDirty=true;publicationConfirm.checked=false;publicationButtons();});
 async function loadPublication(id,item){

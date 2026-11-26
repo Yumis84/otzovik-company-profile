@@ -7,8 +7,8 @@ const handler=source.match(/unpublishButton.addEventListener\('click',async\(\)=
 let click;
 const context={publicationState:{state:'published',public_enabled:true},publicationBusy:false,publicationDirty:false,publicationConfirm:{checked:true},selection:{},publishButton:{},unpublishButton:{addEventListener:(_,f)=>click=f},publicationStatus:{},editId:'synthetic',sessionStorage:{length:0},s:{rpc:async()=>({data:{published:false}})}};
 vm.createContext(context);vm.runInContext(buttons+'\n'+handler,context);
-context.publicationButtons();assert.equal(context.unpublishButton.disabled,false);
-await click();assert.equal(context.publicationState.state,'unpublished');assert.equal(context.publicationConfirm.checked,false,'unpublish must invalidate previous publication consent');assert.equal(context.publishButton.disabled,true,'republishing requires fresh confirmation');
+context.publicationButtons();assert.equal(context.unpublishButton.disabled,false);assert.equal(context.publishButton.textContent,'Обновить публикацию');
+await click();assert.equal(context.publicationState.state,'unpublished');assert.equal(context.publishButton.textContent,'Опубликовать');assert.equal(context.publicationConfirm.checked,false,'unpublish must invalidate previous publication consent');assert.equal(context.publishButton.disabled,true,'republishing requires fresh confirmation');
 context.publicationState=null;context.publicationButtons();assert.equal(context.selection.disabled,true);assert.equal(context.publicationConfirm.disabled,true);
 context.publicationState={state:'published',public_enabled:true};context.publicationBusy=true;context.publicationButtons();assert.equal(context.publicationConfirm.disabled,true);assert.equal(context.selection.disabled,true);
 console.log('PASS publication controls: unpublish consent reset, unavailable and busy state');

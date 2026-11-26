@@ -50,3 +50,18 @@ Tested approved synthetic draft78151a87-a520-4c2a-8c43-947eedd883ad on the same 
 Final visual acceptance state: published original three services, synthetic public contact and two new synthetic photos. Description retains the explicit MVP update-test suffix. Existing original profiles/photos not deleted. New photo IDs: avatar2d1ed2b8-e2f0-4890-bd6e-6d61efa1b682; portfoliocc70894e-38b8-435f-8c76-2150ea00a2bf. Preserve these test fixtures for owner acceptance.
 
 GO for the tested staging publication/media/update/unpublish/republication acceptance scope. This does not authorize production release, PR merge or alias switch. PR51 head remains unchanged; runtime continuation is in ui/chat2-completion-20261125. No production, SQL, ACL, Storage policy, gateway or alias mutations by Work2.
+
+## Work2 final UI / PR51 preparation, 2026-11-27
+
+- REAL hosted public browser on pinned n99 deployment at320/390/768/1280/1440: scrollWidth equals viewport, both images decoded, three services and one contact, no page errors. 390px screenshot reviewed visually. This supersedes the previous public five-width MOCK-only limitation.
+- REAL new synthetic draft a61c712f-5bcc-46ef-819a-dff790e32b0c, slug work2-final-261127: create with name/profession/specialization/city/description, edit and reload persisted; no duplicate creation.
+- REAL new service create500-900 RUB, reopen after reload, update to500-1100 RUB, delete that exact newly created service; original services untouched.
+- REAL private synthetic email, Online+Visit-client formats, territory and qualifications saved/reloaded on new draft.
+- REAL initial publication of new profile shows saved name/specialization, zero public contacts and no private email. Then unpublish; retained new draft for evidence. It consumes the third draft slot.
+- MOCK/disposable local UX regression:10 groups PASS, all four cabinet section layouts/menu links at320/390/768/1280/1440, fail-closed foreign/malformed IDs and absent RPC, read failure handling. Mock cases remain distinct from real browser results above.
+- Corrected stale publication action label after unpublish; regression now asserts Update vs Publish state. This small change is source-only pending coordinated integrated staging build; do not claim it deployed on n99.
+- Company integrity33 and injected-change rejection PASS; diff whitespace PASS.
+- Real account home reports invitation load failure. Delegated to Work1 for underlying RPC classification, not hidden by UI.
+- Work1 reports exact combined-head quota concurrency evidence unresolved. Full release stays NO-GO until combined acceptance closes it.
+
+Integration: PR51 head8e27961 is ancestor of UI continuation (ahead35/behind0 atcfabdef). Existing PR51 can fast-forward without force or merge to main. Offline merge-tree against backend36e2679 (base9b25c918) yields only two content conflicts: account-create-specialist.html and account-specialist-services.js. Resolve those to Work2 source; preserve backend account-specialist-api.js startup timeout and other backend/SQL/gateway/recovery files. No backend branch changes or hosted SQL by Work2. Hub coordination89e6d0e9.
