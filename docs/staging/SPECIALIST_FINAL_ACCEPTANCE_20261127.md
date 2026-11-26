@@ -66,8 +66,8 @@ Auth leaked-password protection is disabled in staging. This is recorded for pro
 
 ## Remaining acceptance and integration work
 
-1. Work2 confirmed its exact integration order in Hub 89e6d0e. The combined candidate uses UI 80132f6 and Work1 server/recovery source. The original PR heads remain separate until this candidate is accepted.
-2. Integrate the candidate server/recovery sources and accepted UI into the agreed branch. Preserve the public-media gateway adapter configuration.
+1. Work2 confirmed its exact integration order in Hub 89e6d0e. The combined candidate uses UI 80132f6 and Work1 server/recovery source. PR #50 has been advanced to the integrated candidate through a fast-forward. Its target base and Draft status are retained.
+2. Integration is complete in PR #50. Preserve the public-media gateway adapter configuration during exact-artifact acceptance.
 3. Verify the integrated artifact's source/provenance and changed entry points. Earlier results apply only to their recorded sources and deployments.
 4. Obtain the outstanding independent SQL/security review and resolve any findings. Historical quota-concurrency failure must have an exact-head real PG17/Edge resolution before full release approval.
 5. Keep PR #50 Draft until the integrated source and remaining review evidence are accepted. No production release or merge is included.
@@ -92,3 +92,7 @@ Four stale pins were reviewed individually and refreshed. The manifest companySo
 ## Combined candidate checks
 
 Gateway integrity PASS for all 65 canonical hashes. Company guard PASS for 33 protected files, including injected-change rejection. Public media unit transport and publication consent/busy/unavailable controls PASS. Two browser-based media regression tests could not run in this Linux checkout because Playwright is not installed as a project dependency and the local Chromium executable is unavailable. Prior real accepted UI evidence is preserved with its source/deployment scope. Existing Work2 blank-line-at-EOF warnings in two test files are recorded without unrelated formatting changes.
+
+## Final UI source freeze
+
+Work2 froze UI at bdd9bdc12f1ade860ff3bc5e641e56ba4cfdbf5f. Its only differences from 80132f6 are the reviewed three UI/test pins and two report lines. The combined candidate preserves that uiRevision metadata and report, together with the reviewed deployed-handler pin. Runtime code is unchanged by this reconciliation. Work2 CI run 45911146903 had 14 successful gateway jobs and one real Edge job still in progress when this note was written. This run does not certify the combined PR #50 head.
