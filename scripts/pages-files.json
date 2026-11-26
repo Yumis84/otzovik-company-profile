@@ -60,5 +60,9 @@
   "account-specialist-contacts.js",
   "account-specialist-channel-rules.js",
   "account-specialist-channels.js",
-  "account-specialist-upload.js"
+  "account-specialist-upload.js",
+  "specialist-public.html",
+  "specialist-public.css",
+  "specialist-public.js",
+  "specialist-public-media.js"
 ]
