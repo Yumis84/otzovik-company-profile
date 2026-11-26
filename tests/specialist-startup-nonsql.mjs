@@ -8,12 +8,12 @@ assert(moduleSource);
 const source=moduleSource.replace(/^import\b.*$/gm,'').replace('ms=8000','ms=20');
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 const execute=new AsyncFunction('document','location','history','createClient','navigation','installValidation','validateForm','fieldError','createSavedSummary','sessionStorage','crypto','FormData','isUUID',source);
-function element(){return {disabled:false,hidden:true,textContent:'',checked:false,value:'',listeners:{},querySelectorAll(){return []},addEventListener(type,callback){this.listeners[type]=callback;},replaceChildren(){},append(){},setAttribute(){},removeAttribute(){}}}
+function element(){return {disabled:false,hidden:true,textContent:'',checked:false,value:'',listeners:{},querySelectorAll(){return []},after(){},addEventListener(type,callback){this.listeners[type]=callback;},replaceChildren(){},append(){},setAttribute(){},removeAttribute(){}}}
 async function run({session,rpc,id='',storage=new Map(),storageFault=''}){
  const nodes=new Map(),form=element(),inputs=new Map();
  form.elements={namedItem(name){if(!inputs.has(name))inputs.set(name,element());return inputs.get(name);}};
  const doc={getElementById(name){if(name==='preview')return form;if(!nodes.has(name))nodes.set(name,element());return nodes.get(name);},querySelector(){return element();},createElement(){return element();}};
- const location={search:id?'?id='+id:'',pathname:'/account-create-specialist.html',replace(value){this.redirect=value;}};
+ const location={href:'https://cabinet.test/account-create-specialist.html',search:id?'?id='+id:'',pathname:'/account-create-specialist.html',replace(value){this.redirect=value;}};
  const client={auth:{getSession:session},rpc:(name,args)=>name==='get_my_specialist_public_options_v1'?Promise.resolve({data:[]}):rpc(name,args)};
  const MockFormData=class{get(name){return inputs.get(name)?.value??null;}};
  let uuid=0;const fail=method=>{if(storageFault===method)throw Error('Storage unavailable')};const store={get length(){fail('length');return storage.size},key(i){fail('key');return [...storage.keys()][i]??null},getItem(k){fail('getItem');return storage.get(k)??null},setItem(k,v){fail('setItem');storage.set(k,v)},removeItem(k){fail('removeItem');storage.delete(k)}};
@@ -46,9 +46,9 @@ test('unpublish clears only this profile request keys and stale replay rotates r
  await new Promise(resolve=>setTimeout(resolve,0));
  await r.nodes.get('publication-unpublish').listeners.click();
  assert.equal(storage.has(prefix+'1'),false);assert.equal(storage.has(prefix+'2'),false);assert.equal(storage.get('specialist-publication:other:1'),'keep');
- storage.set(prefix+'1','stale');r.nodes.get('publication-confirm').checked=true;
+ storage.set(prefix+'1:[]','stale');r.nodes.get('publication-confirm').checked=true;
  await r.nodes.get('publication-publish').listeners.click();
- assert.match(r.nodes.get('publication-status').textContent,/Предыдущий запрос/);assert.equal(storage.has(prefix+'1'),false);
+ assert.match(r.nodes.get('publication-status').textContent,/Предыдущий запрос/);assert.equal(storage.has(prefix+'1:[]'),false);
  assert.equal(calls.filter(x=>x.name==='publish_my_specialist_details_v1').length,1);
 });
 test('stale replay reloads actual newer published revision',async()=>{
@@ -166,4 +166,21 @@ test('create, edit, reopen and deny an unrelated reader on the same UUID (synthe
  assert.equal(foreign.nodes.get('save').disabled,true);
  await foreign.form.listeners.submit({preventDefault(){}});
  assert.equal(writes,2);
+});
+
+test('update acknowledgement for another valid UUID never switches editor context',async()=>{
+ const id='12345678-1234-4234-8234-123456789012',other='22345678-1234-4234-8234-123456789012',calls=[];
+ const r=await run({id,session:async()=>({data:{session:{user:{id:'owner'}}}}),rpc:async(name,args)=>{
+  calls.push({name,args});
+  if(name==='get_my_specialists')return {data:[{id,profile_status:'draft',display_name:'Owner',slug:'owner-test',profession:'Master'}]};
+  if(name==='get_my_specialist_publication_v1')return {data:{version:1,state:'unpublished',public_enabled:true,preview:{}}};
+  if(name==='update_my_specialist_draft')return {data:{id:other,profile_status:'draft'}};
+  throw Error(name);
+ }});
+ r.inputs.get('display_name').value='Local unsaved name';
+ await r.form.listeners.submit({preventDefault(){}});
+ assert.match(r.nodes.get('save-note').textContent,/Не удалось подтвердить/);
+ assert.equal(r.inputs.get('display_name').value,'Local unsaved name');
+ assert.equal(calls.filter(x=>x.name==='update_my_specialist_draft').length,1);
+ assert.equal(calls.find(x=>x.name==='update_my_specialist_draft').args.p_id,id);
 });

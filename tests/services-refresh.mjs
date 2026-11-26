@@ -1,8 +1,8 @@
 import {readFileSync} from 'node:fs';
 async function check(source,mode){
 const nodes={},buttons=[],calls=[],messages=[];
-const node=()=>({value:'',children:[],append(...x){this.children.push(...x)},replaceChildren(){this.children=[]},reset(){},querySelectorAll(){return []}});
-const document={getElementById:k=>nodes[k]??=node()};
+const node=()=>({value:'',children:[],after(){},append(...x){this.children.push(...x)},replaceChildren(){this.children=[]},reset(){},querySelectorAll(){return []}});
+const document={createElement:()=>node(),getElementById:k=>nodes[k]??=node()};
 let reads=0, writes=0;
 async function rpc(name,args){calls.push(name);if(name.startsWith('get')){if(++reads===(mode==='initial'?1:2)&&['initial','delete','save'].includes(mode))throw Error('read');return [{id:'service',name:'service',version:1}]}
 writes++;if(mode==='reject'||mode==='deleteReject')throw Error('denied');}
@@ -18,7 +18,7 @@ else {await submit();if(mode==='save'||mode==='initial')await submit()}
 if(mode==='initial' && messages.some(m=>/Услуга (сохранена|удалена)/.test(m)))throw Error('False confirmation after initial read failure');
 if(mode==='ok' && (reads!==2||!messages.includes('Услуга сохранена в черновике.')))throw Error('Missing refreshed list or confirmation');
 const expected=mode==='initial'?0:1;
-if(writes!==expected||(['save','delete'].includes(mode)&&(!nodes.fields.disabled||!messages.some(m=>m.includes('Список не обновлён'))))||(mode==='reject'&&nodes.fields.disabled)||(mode==='ok'&&nodes.fields.disabled))throw Error(mode+' writes='+writes+' message='+messages.at(-1));
+if(writes!==expected||(['save','delete'].includes(mode)&&(!nodes.fields.disabled||!messages.some(m=>/Не удалось обновить список|Список не обновлён/.test(m))))||(mode==='reject'&&nodes.fields.disabled)||(mode==='ok'&&nodes.fields.disabled))throw Error(mode+' writes='+writes+' message='+messages.at(-1));
 }
 const source=readFileSync(process.argv[2] || 'account-specialist-services.js','utf8');
 for(const mode of ['initial','save','delete','reject','ok','double','deleteReject']){await check(source,mode);console.log(mode,'PASS');}

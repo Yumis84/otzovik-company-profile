@@ -291,7 +291,7 @@
     },
     {
       "file": "account-create-specialist.html",
-      "sha256": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e"
+      "sha256": "272ea0280081f8b5989fda2c73fcf55c26bd36135c3dee837205c470c7395526"
     },
     {
       "file": "tests/specialist-ux-browser.mjs",
@@ -333,5 +333,17 @@
     "reason": "Install public-details/options RPC required by accepted editor and assert fresh consent before republish",
     "previous": "d0c902a88244915d46a0ea5a1edd8f623e85241edf3c4b382e4e41d45fe8715d",
     "sha256": "69c6bb4fdc8741892c0ca7156e4df4d5b732650d36768d360eb406cf03dbf88f"
+  },
+  "uiCompatibilityReview": {
+    "base": "d6f0ded8ca461b37601406487717b7248259d59d",
+    "change": "Reject malformed/foreign creation or update acknowledgement UUID; preserve editor fields on failure",
+    "validation": "18 startup cases (17 retained plus foreign-UUID update) and7 services-refresh cases PASS",
+    "pins": [
+      {
+        "file": "account-create-specialist.html",
+        "previous": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e",
+        "sha256": "272ea0280081f8b5989fda2c73fcf55c26bd36135c3dee837205c470c7395526"
+      }
+    ]
   }
 }
