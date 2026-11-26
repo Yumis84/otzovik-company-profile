@@ -263,7 +263,7 @@
     },
     {
       "file": "tests/erasure-local-checks.mjs",
-      "sha256": "d0c902a88244915d46a0ea5a1edd8f623e85241edf3c4b382e4e41d45fe8715d"
+      "sha256": "69c6bb4fdc8741892c0ca7156e4df4d5b732650d36768d360eb406cf03dbf88f"
     },
     {
       "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
@@ -327,5 +327,11 @@
         "sha256": "b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577"
       }
     ]
+  },
+  "erasureFixtureRevision": {
+    "basis": "8677708f5251e932022dd5a8186f3cb6aaa1e8de",
+    "reason": "Install public-details/options RPC required by accepted editor and assert fresh consent before republish",
+    "previous": "d0c902a88244915d46a0ea5a1edd8f623e85241edf3c4b382e4e41d45fe8715d",
+    "sha256": "69c6bb4fdc8741892c0ca7156e4df4d5b732650d36768d360eb406cf03dbf88f"
   }
 }

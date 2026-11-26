@@ -96,3 +96,7 @@ Gateway integrity PASS for all 65 canonical hashes. Company guard PASS for 33 pr
 ## Final UI source freeze
 
 Work2 froze UI at bdd9bdc12f1ade860ff3bc5e641e56ba4cfdbf5f. Its only differences from 80132f6 are the reviewed three UI/test pins and two report lines. The combined candidate preserves that uiRevision metadata and report, together with the reviewed deployed-handler pin. Runtime code is unchanged by this reconciliation. Work2 CI run 45911146903 had 14 successful gateway jobs and one real Edge job still in progress when this note was written. This run does not certify the combined PR #50 head.
+
+## Disposable Edge test correction
+
+Work2 CI 45911146903 completed with 14 gateway matrix jobs passing and one real-edge job failing at erasure-local-checks.mjs:25. Its logs explicitly show real Edge concurrent quota PASS LOCAL15, auth/foreign-owner/Origin PASS10, and real gateway browser PASS21. The failure occurred later because erasure setup installed only v1 publication while the accepted editor also requests get_my_specialist_public_options_v1. The fixture now installs the existing 20261122 public-details migration in its disposable database. It additionally asserts that unpublish clears consent and disables republish, then supplies fresh consent. No UI, production, hosted SQL or security assertion was weakened. Only this reviewed test pin was refreshed. The original job failure remains recorded until the corrected fixture passes.

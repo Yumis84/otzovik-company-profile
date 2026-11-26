@@ -6,7 +6,7 @@ import {operatorFixture} from './operator-fixture.mjs';
 import {planSpecialistErasure,prepareSpecialistErasure} from '../server/specialist-media-operator.js';
 export async function erasureLocalChecks({admin,db,api,anon,jwtSecret,ok,test,page,open}){
  assert(['127.0.0.1','localhost'].includes(new URL(api).hostname));
- for(const f of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_erasure_barrier_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql','20261112_specialist_public_getter_CANDIDATE.sql','20261112_specialist_public_operator_CANDIDATE.sql','20261112_specialist_public_owner_status_CANDIDATE.sql'])
+ for(const f of ['20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_erasure_barrier_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql','20261112_specialist_public_getter_CANDIDATE.sql','20261112_specialist_public_operator_CANDIDATE.sql','20261112_specialist_public_owner_status_CANDIDATE.sql','20261122_specialist_public_details_CANDIDATE.sql'])
   await db.query(await fs.readFile(new URL('../sql/'+f,import.meta.url),'utf8'));
  await db.query("NOTIFY pgrst,'reload schema'"); await new Promise(r=>setTimeout(r,1500));
  await test('real local Auth, Edge and Storage erasure barrier with operator retirement',async()=>{
@@ -28,6 +28,9 @@ export async function erasureLocalChecks({admin,db,api,anon,jwtSecret,ok,test,pa
   assert.equal(ok(await anonymous.rpc('get_public_specialist_v1',{p_slug:slug})).display_name,'Barrier test');
   await page.locator('#publication-unpublish').click();await page.locator('#publication-status').filter({hasText:'снят с публикации'}).waitFor();
   assert.equal(ok(await anonymous.rpc('get_public_specialist_v1',{p_slug:slug})),null);
+  assert.equal(await page.locator('#publication-confirm').isChecked(),false,'unpublish clears consent');
+  assert.equal(await page.locator('#publication-publish').isEnabled(),false,'republish needs fresh consent');
+  await page.locator('#publication-confirm').check();
   await page.locator('#publication-publish').click();await page.locator('#publication-status').filter({hasText:'Профиль опубликован'}).waitFor();
   const session=ok(await owner.auth.getSession()).session;
   const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64');
