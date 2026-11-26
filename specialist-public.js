@@ -17,6 +17,12 @@ try{
  else continue;
  document.getElementById(item.type==='service'?'service-items':'contact-items').append(card);
  }
+ for(const [sectionId,itemsId] of [['services','service-items'],['contacts','contact-items'],['media','portfolio']]){
+ const empty=!document.getElementById(itemsId).childElementCount;
+ document.getElementById(sectionId).hidden=empty;
+ const link=document.querySelector('.profile-nav a[href="#'+sectionId+'"]');
+ if(link)link.hidden=empty;
+ }
  profile.hidden=false;status.hidden=true;document.title=data.display_name+' — Отзыв.com';
  }
 }catch(e){status.textContent=e.message;}
