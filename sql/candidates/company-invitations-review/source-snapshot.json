@@ -1,0 +1,160 @@
+{
+  "collected_at": "2026-11-27",
+  "source_project": "rzhlcszqtuhkhfibygnk",
+  "source_mode": "read-only catalog; no application or auth rows exported",
+  "functions": [
+    {
+      "signature": "accept_company_access_invitation(text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.accept_company_access_invitation(p_token text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth', 'extensions'\nAS $function$\ndeclare\n  v_uid uuid := auth.uid();\n  v_email text;\n  v_hash text;\n  v_inv public.company_access_invitations%rowtype;\n  v_existing_role text;\nbegin\n  if v_uid is null then raise exception 'Authentication required'; end if;\n  if p_token is null or char_length(p_token) < 32 then raise exception 'Invalid invitation token'; end if;\n\n  select lower(email) into v_email from auth.users where id=v_uid;\n  if v_email is null then raise exception 'Authenticated email required'; end if;\n\n  v_hash := encode(digest(p_token, 'sha256'), 'hex');\n  select * into v_inv from public.company_access_invitations\n   where token_hash=v_hash and status='pending'\n   for update;\n  if not found then raise exception 'Invitation not found or no longer pending'; end if;\n\n  if v_inv.expires_at <= now() then\n    update public.company_access_invitations\n       set status='expired', updated_at=now()\n     where id=v_inv.id;\n    return jsonb_build_object('status','expired');\n  end if;\n\n  if lower(v_inv.email) <> v_email then raise exception 'Invitation email does not match authenticated user'; end if;\n\n  select role into v_existing_role\n    from public.company_memberships\n   where company_id=v_inv.company_id and user_id=v_uid;\n\n  if v_existing_role is not null then\n    if v_existing_role='owner' then raise exception 'Company owner cannot accept delegated invitation'; end if;\n    raise exception 'User already has access to this company';\n  end if;\n\n  insert into public.company_memberships(company_id,user_id,role,verification_status,verification_method,verified_at)\n  values(v_inv.company_id,v_uid,v_inv.role,'verified','email_invitation',now());\n\n  update public.company_access_invitations\n     set status='accepted', accepted_by=v_uid, accepted_at=now(), updated_at=now()\n   where id=v_inv.id;\n\n  return jsonb_build_object('company_id',v_inv.company_id,'role',v_inv.role,'status','accepted');\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "accept_my_company_invitation(uuid)",
+      "definition": "CREATE OR REPLACE FUNCTION public.accept_my_company_invitation(p_invitation_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare v_uid uuid:=auth.uid(); v_email text; v_inv public.company_access_invitations%rowtype;\nbegin\n if v_uid is null then raise exception 'Authentication required'; end if;\n select lower(email) into v_email from auth.users where id=v_uid;\n select * into v_inv from public.company_access_invitations where id=p_invitation_id and status='pending' for update;\n if not found then raise exception 'Invitation not found or no longer pending'; end if;\n if lower(v_inv.email)<>v_email then raise exception 'Invitation email does not match authenticated user'; end if;\n if v_inv.expires_at<=now() then update public.company_access_invitations set status='expired',updated_at=now() where id=v_inv.id; return jsonb_build_object('status','expired'); end if;\n if exists(select 1 from public.company_memberships where company_id=v_inv.company_id and user_id=v_uid) then raise exception 'User already has access to this company'; end if;\n insert into public.company_memberships(company_id,user_id,role,verification_status,verification_method,verified_at) values(v_inv.company_id,v_uid,v_inv.role,'verified','account_invitation',now());\n update public.company_access_invitations set status='accepted',accepted_by=v_uid,accepted_at=now(),updated_at=now() where id=v_inv.id;\n return jsonb_build_object('status','accepted','company_id',v_inv.company_id,'role',v_inv.role);\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "decline_my_company_invitation(uuid)",
+      "definition": "CREATE OR REPLACE FUNCTION public.decline_my_company_invitation(p_invitation_id uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare v_uid uuid:=auth.uid(); v_email text;\nbegin\n if v_uid is null then raise exception 'Authentication required'; end if;\n select lower(email) into v_email from auth.users where id=v_uid;\n update public.company_access_invitations set status='revoked',updated_at=now()\n where id=p_invitation_id and status='pending' and lower(email)=v_email;\n return found;\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "get_my_company_access(uuid)",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_my_company_access(p_company_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare v_uid uuid:=auth.uid();\nbegin\n if v_uid is null then raise exception using errcode='42501',message='Authentication required'; end if;\n if not exists(select 1 from public.company_memberships where company_id=p_company_id and user_id=v_uid and role='owner' and verification_status='verified')\n then raise exception using errcode='42501',message='Verified owner required'; end if;\n return jsonb_build_object(\n  'members',coalesce((select jsonb_agg(jsonb_build_object('user_id',m.user_id,'role',m.role,'verification_status',m.verification_status) order by m.created_at)\n    from public.company_memberships m where m.company_id=p_company_id),'[]'::jsonb),\n  'invitations',coalesce((select jsonb_agg(jsonb_build_object('id',i.id,'email',i.email,'role',i.role,'status',i.status,'expires_at',i.expires_at,'created_at',i.created_at) order by i.created_at desc)\n    from public.company_access_invitations i where i.company_id=p_company_id and i.status='pending'),'[]'::jsonb)\n );\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "get_my_pending_company_invitations()",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_my_pending_company_invitations()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare v_uid uuid:=auth.uid(); v_email text;\nbegin\n if v_uid is null then raise exception 'Authentication required'; end if;\n select lower(email) into v_email from auth.users where id=v_uid;\n update public.company_access_invitations set status='expired',updated_at=now() where status='pending' and expires_at<=now() and lower(email)=v_email;\n return coalesce((select jsonb_agg(jsonb_build_object('id',i.id,'company_id',i.company_id,'company_name',c.name,'company_slug',c.slug,'role',i.role,'created_at',i.created_at,'expires_at',i.expires_at) order by i.created_at desc)\n from public.company_access_invitations i join public.companies c on c.id=i.company_id\n where i.status='pending' and lower(i.email)=v_email),'[]'::jsonb);\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "revoke_company_access_invitation(uuid)",
+      "definition": "CREATE OR REPLACE FUNCTION public.revoke_company_access_invitation(p_invitation_id uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth'\nAS $function$\ndeclare v_uid uuid:=auth.uid(); v_company uuid;\nbegin\n if v_uid is null then raise exception using errcode='42501',message='Authentication required'; end if;\n select company_id into v_company from public.company_access_invitations where id=p_invitation_id and status='pending';\n if v_company is null then return false; end if;\n if not exists(select 1 from public.company_memberships where company_id=v_company and user_id=v_uid and role='owner' and verification_status='verified')\n then raise exception using errcode='42501',message='Verified owner required'; end if;\n update public.company_access_invitations set status='revoked',updated_at=now() where id=p_invitation_id and status='pending';\n return found;\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "owner_invite_existing_company_user(uuid,text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.owner_invite_existing_company_user(p_company_id uuid, p_email text, p_role text DEFAULT 'manager'::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'auth', 'extensions'\nAS $function$\ndeclare v_owner uuid:=auth.uid(); v_target uuid; v_email text:=lower(btrim(p_email)); v_token text; v_hash text; v_inv uuid;\nbegin\n if v_owner is null then raise exception 'Authentication required'; end if;\n if p_role not in ('admin','manager','analyst') then raise exception 'Invalid role'; end if;\n if not exists(select 1 from public.company_memberships where company_id=p_company_id and user_id=v_owner and role='owner' and verification_status='verified') then raise exception 'Owner required'; end if;\n select id into v_target from auth.users where lower(email)=v_email limit 1;\n if v_target is null then return jsonb_build_object('existing_user',false); end if;\n if v_target=v_owner then raise exception 'Cannot invite yourself'; end if;\n if exists(select 1 from public.company_memberships where company_id=p_company_id and user_id=v_target) then raise exception 'User already has access to this company'; end if;\n update public.company_access_invitations set status='revoked',updated_at=now() where company_id=p_company_id and lower(email)=v_email and status='pending';\n v_token:=gen_random_uuid()::text||replace(gen_random_uuid()::text,'-','');\n v_hash:=encode(digest(v_token,'sha256'),'hex');\n insert into public.company_access_invitations(company_id,email,role,invited_by,token_hash)\n values(p_company_id,v_email,p_role,v_owner,v_hash) returning id into v_inv;\n return jsonb_build_object('existing_user',true,'invitation_id',v_inv,'token',v_token);\nend $function$\n",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    }
+  ],
+  "columns": [
+    {
+      "attname": "id",
+      "type": "uuid",
+      "attnotnull": true,
+      "default_expr": "gen_random_uuid()"
+    },
+    {
+      "attname": "company_id",
+      "type": "uuid",
+      "attnotnull": true,
+      "default_expr": null
+    },
+    {
+      "attname": "email",
+      "type": "text",
+      "attnotnull": true,
+      "default_expr": null
+    },
+    {
+      "attname": "role",
+      "type": "text",
+      "attnotnull": true,
+      "default_expr": null
+    },
+    {
+      "attname": "invited_by",
+      "type": "uuid",
+      "attnotnull": true,
+      "default_expr": null
+    },
+    {
+      "attname": "token_hash",
+      "type": "text",
+      "attnotnull": true,
+      "default_expr": null
+    },
+    {
+      "attname": "status",
+      "type": "text",
+      "attnotnull": true,
+      "default_expr": "'pending'::text"
+    },
+    {
+      "attname": "expires_at",
+      "type": "timestamp with time zone",
+      "attnotnull": true,
+      "default_expr": "(now() + '7 days'::interval)"
+    },
+    {
+      "attname": "accepted_by",
+      "type": "uuid",
+      "attnotnull": false,
+      "default_expr": null
+    },
+    {
+      "attname": "accepted_at",
+      "type": "timestamp with time zone",
+      "attnotnull": false,
+      "default_expr": null
+    },
+    {
+      "attname": "created_at",
+      "type": "timestamp with time zone",
+      "attnotnull": true,
+      "default_expr": "now()"
+    },
+    {
+      "attname": "updated_at",
+      "type": "timestamp with time zone",
+      "attnotnull": true,
+      "default_expr": "now()"
+    }
+  ],
+  "schema": {
+    "rls": {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "forced": false,
+      "enabled": true
+    },
+    "indexes": [
+      "CREATE UNIQUE INDEX company_access_invitations_pkey ON public.company_access_invitations USING btree (id)",
+      "CREATE UNIQUE INDEX company_access_invitations_token_hash_key ON public.company_access_invitations USING btree (token_hash)",
+      "CREATE UNIQUE INDEX company_access_invitations_pending_email_idx ON public.company_access_invitations USING btree (company_id, lower(email)) WHERE (status = 'pending'::text)"
+    ],
+    "policies": [],
+    "triggers": [],
+    "constraints": [
+      {
+        "name": "company_access_invitations_accepted_by_fkey",
+        "definition": "FOREIGN KEY (accepted_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+      },
+      {
+        "name": "company_access_invitations_company_id_fkey",
+        "definition": "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"
+      },
+      {
+        "name": "company_access_invitations_invited_by_fkey",
+        "definition": "FOREIGN KEY (invited_by) REFERENCES auth.users(id) ON DELETE CASCADE"
+      },
+      {
+        "name": "company_access_invitations_pkey",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "name": "company_access_invitations_role_check",
+        "definition": "CHECK ((role = ANY (ARRAY['admin'::text, 'manager'::text, 'analyst'::text])))"
+      },
+      {
+        "name": "company_access_invitations_status_check",
+        "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'expired'::text, 'revoked'::text])))"
+      },
+      {
+        "name": "company_access_invitations_token_hash_key",
+        "definition": "UNIQUE (token_hash)"
+      }
+    ]
+  }
+}
