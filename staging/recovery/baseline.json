@@ -1,0 +1,198 @@
+{
+  "routines": [
+    {
+      "sig": "can_manage_specialist_object(text)",
+      "body_md5": "16f5ea0aa52d44679841c1faea59ab55",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "can_upload_specialist_object(text)",
+      "body_md5": "3341d5b3f32d2409dbecf1a2873c1828",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "create_my_specialist_draft(text,text,text,text,text,text)",
+      "body_md5": "0e90747794f0b277b2ee05dec6995ab1",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "delete_my_specialist_draft(uuid)",
+      "body_md5": "426bb5edd42849ce94ad301a37235dcd",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "delete_my_specialist_media(uuid,uuid)",
+      "body_md5": "8163724ccd9f17b2c3ff90c2314f80a5",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "delete_my_specialist_service(uuid,uuid,integer)",
+      "body_md5": "53e4be7f84df01386f71092ca723cd2b",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "get_my_specialist_media(uuid)",
+      "body_md5": "6f220ef8e020a8d97a995c28815623b0",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "get_my_specialist_services(uuid)",
+      "body_md5": "182ee4edec39178460d671aade236e68",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "get_my_specialist_settings(uuid)",
+      "body_md5": "d7b2aee80631c376108a35beec46d0a8",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "get_my_specialists()",
+      "body_md5": "0d93dd213725342dfe7c772f9e830baa",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "list_my_specialist_channels(uuid)",
+      "body_md5": "83659785b75239b3370c4a73b4f757aa",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "sig": "register_my_specialist_media(uuid,text,text,text)",
+      "body_md5": "8c667a7f910fbc9617501c487c8e20b2",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "save_my_specialist_channels(uuid,integer,jsonb)",
+      "body_md5": "e4b2ab66073a0db48168fde337640bd4",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "sig": "save_my_specialist_service(uuid,uuid,text,text,numeric,numeric,text,integer,boolean,integer)",
+      "body_md5": "92730bcebec6212b38057e4bb53beee5",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "save_my_specialist_settings(uuid,text,text,text,text[],text,text,integer)",
+      "body_md5": "5296d3e8eb9c9b08bf7a82024fc3d184",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    },
+    {
+      "sig": "specialist_channel_normalize(text,text)",
+      "body_md5": "b221b1c6b1765893a019c0f57bedea84",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "sig": "update_my_specialist_draft(uuid,text,text,text,text,text)",
+      "body_md5": "492dda32c085093d3b9a5db990e799b3",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}"
+    }
+  ],
+  "policies": [
+    [
+      "anon_read_published_company_media",
+      "r",
+      true,
+      "4709e41e4680b3c57d6ded29ffd6db34",
+      [
+        "anon"
+      ]
+    ],
+    [
+      "company_media_owner_delete",
+      "d",
+      true,
+      "f1fc0df7e8796b140278ed549b17500e",
+      [
+        "authenticated"
+      ]
+    ],
+    [
+      "company_media_owner_insert",
+      "a",
+      true,
+      "2f3967043ef13195db2a74d50887d700",
+      [
+        "authenticated"
+      ]
+    ],
+    [
+      "company_media_owner_read",
+      "r",
+      true,
+      "b29470c10d85de2a66e71fbc205cccfe",
+      [
+        "authenticated"
+      ]
+    ],
+    [
+      "specialist_object_delete",
+      "d",
+      true,
+      "ba6860a657c17983bfb04ca76a897a5c",
+      [
+        "authenticated"
+      ]
+    ],
+    [
+      "specialist_object_insert",
+      "a",
+      true,
+      "242fce7859222cfd0301819f886b4ae3",
+      [
+        "authenticated"
+      ]
+    ],
+    [
+      "specialist_object_read",
+      "r",
+      true,
+      "ba6860a657c17983bfb04ca76a897a5c",
+      [
+        "authenticated"
+      ]
+    ]
+  ],
+  "specialist_policies": [
+    {
+      "policyname": "specialist_object_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+      "with_check": null,
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "policyname": "specialist_object_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "qual": null,
+      "with_check": "((bucket_id = 'specialist-media'::text) AND can_upload_specialist_object(name))",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "policyname": "specialist_object_read",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "qual": "((bucket_id = 'specialist-media'::text) AND can_manage_specialist_object(name))",
+      "with_check": null,
+      "permissive": "PERMISSIVE"
+    }
+  ],
+  "profile_check": "CHECK ((profile_status = 'draft'::text))"
+}

@@ -1,0 +1,305 @@
+{
+  "tables": [
+    "specialist_erasure_authorizations",
+    "specialist_erasure_confirmations",
+    "specialist_operator_identities",
+    "specialist_public_control",
+    "specialist_public_operator_audit_v1",
+    "specialist_public_revisions",
+    "specialist_publication_state",
+    "specialist_publish_requests_v1",
+    "specialist_reserved_slugs_v1",
+    "specialist_revision_details_v1",
+    "specialist_slug_tombstones_v1",
+    "specialist_upload_audit",
+    "specialist_upload_control",
+    "specialist_upload_reservations"
+  ],
+  "functions": [
+    {
+      "sig": "can_operator_remove_specialist_object(text)",
+      "hash": "8c1f0b86b330fa8adc48ddc655e4083d",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "confirm_my_specialist_erasure(uuid,uuid)",
+      "hash": "2ba38e51e548229647c10d645c77e192",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "get_my_specialist_public_options_v1(uuid)",
+      "hash": "c116226294bc6ce315f19086b0bfc35b",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "get_my_specialist_publication_v1(uuid)",
+      "hash": "278267e6032076f7b589eb96f9e1c8bc",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "get_my_specialist_upload_capability(uuid)",
+      "hash": "f0bbb770588fa1deb2e946fbdb080522",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "get_public_specialist_v1(text)",
+      "hash": "050fa6d4082e2545689af72b9f0b70ab",
+      "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "publish_my_specialist_details_v1(uuid,integer,uuid,jsonb)",
+      "hash": "2fb26208c797d01b277e454a8b82c061",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "publish_my_specialist_v1(uuid,integer,uuid)",
+      "hash": "f7d5fd1b5974e0d2659b9b7b2b5fd153",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\"",
+        "lock_timeout=2s"
+      ]
+    },
+    {
+      "sig": "resolve_public_specialist_photo_v1(text,uuid)",
+      "hash": "1b41e3997efc54dc5cdfb5424f5f1018",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_disable_public_v1(text)",
+      "hash": "32d0d66c1ac62cd54e7d9940d3a3523a",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\"",
+        "lock_timeout=2s"
+      ]
+    },
+    {
+      "sig": "specialist_gateway_begin_delete(uuid,uuid,text)",
+      "hash": "a8ac8af33d44553f5bab66b4f69da2ec",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_erasure_inventory(uuid,uuid)",
+      "hash": "6ec5769dc00282ffb8556ffde3a3eaff",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_finish(uuid,uuid,uuid)",
+      "hash": "f150a624ae6f14c64d7b320d15a7bbf4",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_finish_delete(uuid,uuid,uuid)",
+      "hash": "19bf6f71ddd0f6970dfaa87f7cd4aa94",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_force_retire(uuid,uuid,uuid,text,text,text,jsonb)",
+      "hash": "34e45c34cbcb770a7fd5d36e767a50bc",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_metrics()",
+      "hash": "290a725fa63ab08b885d45eb0f96567a",
+      "acl": "{postgres=X/postgres,service_role=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_reconcile(uuid,uuid)",
+      "hash": "50f651972f6bbada2adb0368c5ff1525",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_reject(uuid,uuid,uuid,integer)",
+      "hash": "327d3986cb0453efe23d55f86307ba32",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_gateway_reserve(uuid,uuid,uuid,text,text,text,integer,text)",
+      "hash": "f323c7dd7cae1ef821d4d6e45d0376a5",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_operator_authorize(uuid,uuid,uuid,text,text)",
+      "hash": "d353383fef4589d9568344eef127fe34",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_operator_check(uuid,uuid,uuid,text,boolean)",
+      "hash": "543550e3c24e642c64c4e4acf0001d31",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_operator_cleanup_orphan(uuid,text,jsonb)",
+      "hash": "a149ae591302fb105542eb39d8a9c951",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_operator_plan_erasure(uuid,uuid,uuid)",
+      "hash": "d5e264a931ec3803369ad82feed122ab",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_public_fields_version_v1()",
+      "hash": "778983be1d92d9ffd3eea9dca311a9a6",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_revision_immutable_v1()",
+      "hash": "93e0ac847188cd32e2f24d00bb5c39b5",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_revision_insert_lock_v1()",
+      "hash": "a2703dec102567404f11ea4d25b3724f",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_revision_retention_v1()",
+      "hash": "98597fb5dfbad324ab1a8e87133daf72",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_slug_policy_v1()",
+      "hash": "e7c2e104993ddc17bc46939a10b166c2",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_slug_quarantine_purge_v1()",
+      "hash": "24f414de6c3cef36901f5db1bdbdc19b",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_slug_quarantine_v1()",
+      "hash": "0d64dceaa1bc56955d9f78728e7edd58",
+      "acl": "{postgres=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "specialist_suspend_public_v1(uuid,text)",
+      "hash": "9bf6f63caa3ee4ff1f52728f7e3f98fc",
+      "acl": "{postgres=X/postgres,specialist_operator=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    {
+      "sig": "unpublish_my_specialist_v1(uuid)",
+      "hash": "66b796bd1f02afabf3c655b46a039c06",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "tgname": "company_quarantine_claim_v1",
+      "tab": "companies"
+    },
+    {
+      "tgname": "specialist_public_fields_version_v1",
+      "tab": "specialist_profiles"
+    },
+    {
+      "tgname": "specialist_quarantine_claim_v1",
+      "tab": "specialist_profiles"
+    },
+    {
+      "tgname": "specialist_slug_policy_v1",
+      "tab": "specialist_profiles"
+    }
+  ],
+  "policies": [
+    "specialist_gateway_delete_only",
+    "specialist_gateway_insert_only",
+    "specialist_gateway_update_only",
+    "specialist_operator_read",
+    "specialist_operator_remove",
+    "specialist_operator_scope_read",
+    "specialist_operator_scope_remove"
+  ]
+}

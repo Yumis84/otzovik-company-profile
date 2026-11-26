@@ -1,0 +1,20 @@
+# Specialist public details on staging
+
+Target project salmcnhexlftrgtiryyo only. No steps in this runbook have been performed against the hosted project.
+
+## Artifact and scope
+The existing publish transaction creates an immutable revision. The new owner RPC validates every selected item against the same owner's current preview and attaches an allowlisted snapshot to that revision within the transaction. Existing revisions remain text-only. Selection is opt-in on each publication. Unselected contacts, account identifiers, original inputs and storage paths are excluded. Guest photos are resolved by slug plus photo ID through the same specialist-media-gateway, only while the matching revision is public and the object is ready. A downloaded image cannot be recalled.
+
+## Preflight for owner
+Record previous function revision, preview artifact, publication switch state and the definition/absence of the guest getter. Verify trusted function ownership and prerequisites: profile/owner tables, public revision/state/control, registry, slug quarantine and retention, owner status, publish/unpublish v1, services, channels, private specialist-media bucket, metadata and ready upload reservations. Verify all owner gateway RPCs and Storage limits using the existing gateway runbook. A missing prerequisite needs a separate reviewed migration set. Preserve the existing public switch, JWT verification and bucket policies.
+
+The Edge ingress must support the guest POST carrying only this project's publishable apikey. Confirm the platform configuration supports it without relaxing authentication on the owner gateway. No service key or owner token belongs in a browser. HTTP access to the deployed Edge runtime has not been tested. The preview must remain closed to the owner/test audience; the same audience can exercise the guest page without a Supabase user session.
+
+## Ordered operations after explicit GO
+1. Take staging schema/config recovery evidence and confirm rollback ownership. Apply only the reviewed 20261122 candidate in a transaction after prerequisites pass. Refresh the PostgREST schema cache via the normal operator mechanism if necessary. Verify the getter returns null for an absent slug. Do not activate a global public feature flag as a side effect.
+2. Stage the supplied index.ts and specialist-media-gateway.js together under specialist-media-gateway. Set SPECIALIST_ALLOWED_ORIGINS to the single approved private preview origin. Use only platform-provided server credentials. Deploy this version to the specified staging project after permission. Confirm guest and owner ingress separately. Stop if either fails.
+3. Publish the checksum-verified frontend under the approved private preview. Provision two confirmed synthetic staging users through Dashboard Authentication / Users. Transfer sessions or credentials through the approved secure channel.
+4. If global public reads are disabled, obtain scoped authorization after inventorying other published staging records. With synthetic data, verify owner upload, selected and unselected details, repeated request, owner relogin, second-user denial, guest photo, unpublish and guest denial, including requests from a fresh browser session. Capture origin/status/UUID checks without tokens. Delete only this run's objects and accounts after retaining evidence.
+
+## Rollback
+Stop synthetic changes and unpublish only the test profile. Restore the previous preview and gateway version (or remove only the newly introduced function if previously absent, after reconciling test reservations). Execute the supplied rollback to restore the v1 text getter and remove the new callable functions. It deliberately retains private snapshots with cascade deletion for recovery. If the getter was originally absent, restore that recorded baseline, including removing the getter, under the same approved rollback. Preserve other schemas, policies, accounts and storage. Archive or drop retained snapshots only after a separate retention decision; inspect the retained table before reapplying the candidate.
