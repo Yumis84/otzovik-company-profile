@@ -9,7 +9,7 @@ try{
  if(error)throw Error('Не удалось загрузить профиль. Обновите страницу.');
  if(!data){status.textContent='Профиль пока недоступен.';}
  else{
- for(const [id,key] of [['name','display_name'],['profession','profession'],['city','city'],['description','description']])document.getElementById(id).textContent=data[key]??'';document.getElementById('avatar').textContent=(data.display_name||'').slice(0,1);
+ for(const [id,key] of [['name','display_name'],['profession','profession'],['specialization','specialization'],['city','city'],['description','description']])document.getElementById(id).textContent=data[key]??'';document.getElementById('avatar').textContent=(data.display_name||'').slice(0,1);
  for(const item of data.items??[]){
  const card=document.createElement('article');
  if(item.type==='service'){card.append(text('h2',item.name),text('p',item.description));if(item.from!=null||item.to!=null)card.append(text('p',[item.from!=null?'от '+item.from:'',item.to!=null?'до '+item.to:'',item.currency].filter(Boolean).join(' ')));}
