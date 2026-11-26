@@ -1,0 +1,1 @@
+.layout{grid-template-columns:minmax(0,1fr)}#description{white-space:pre-wrap;overflow-wrap:anywhere}.identity-main{min-width:0}#name{overflow-wrap:anywhere}#avatar{overflow:hidden}#avatar img{width:100%;height:100%;object-fit:cover}#service-items article{width:100%}#portfolio img{width:100%;height:220px;object-fit:cover;border-radius:12px}#status{padding:32px 0}

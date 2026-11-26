@@ -9,13 +9,13 @@ try{
  if(error)throw Error('?? ??????? ????????? ???????. ???????? ????????.');
  if(!data){status.textContent='??????? ???? ??????????.';}
  else{
- profile.append(text('h1',data.display_name),text('p',data.profession),text('p',data.specialization),text('p',data.city),text('p',data.description));
+ for(const [id,key] of [['name','display_name'],['profession','profession'],['city','city'],['description','description']])document.getElementById(id).textContent=data[key]??'';document.getElementById('avatar').textContent=(data.display_name||'').slice(0,1);
  for(const item of data.items??[]){
  const card=document.createElement('article');
  if(item.type==='service'){card.append(text('h2',item.name),text('p',item.description));if(item.from!=null||item.to!=null)card.append(text('p',[item.from!=null?'?? '+item.from:'',item.to!=null?'?? '+item.to:'',item.currency].filter(Boolean).join(' ')));}
  else if(item.type==='contact'){try{const url=new URL(item.href);if(!['https:','mailto:','tel:'].includes(url.protocol))continue;const a=text('a',item.label);a.href=url.href;a.rel='noopener noreferrer';card.append(a);}catch{continue;}}
  else continue;
- profile.append(card);
+ document.getElementById(item.type==='service'?'service-items':'contact-items').append(card);
  }
  profile.hidden=false;status.hidden=true;document.title=data.display_name+' ? ?????.com';
  }
