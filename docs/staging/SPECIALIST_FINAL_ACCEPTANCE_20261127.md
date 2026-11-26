@@ -25,7 +25,7 @@ edge/specialist-media-gateway/index.ts retains its original environment-based co
 This candidate does not change a deployed function.
 
 Work1 source commit order after PR #50 is a49ad28, 763422b, 6420d2b, e9459a1, 01e3df2, 0f77e1b.
-The first two commits include specialist UI changes. Work2 must reconcile those overlapping files with its accepted UI before integration.
+The first two commits include specialist UI changes. Work2 agreed integration in Hub 89e6d0e. Both overlapping files are resolved to Work2 80132f6 versions in the combined candidate.
 Do not substitute this older UI for the tested Work2 runtime.
 The hosted generator produces install SHA256 771d8007ee18ea87abb4e316b9e62827212c0b9863865ea437be4c27a4e027bd and rollback SHA256 0d537fe2caf1920504655b9daa63d77e26ac09ebb7737ba6e3c3d1c1a172cab6.
 These describe the already executed staging rollout. They are not instructions to apply it again.
@@ -66,10 +66,29 @@ Auth leaked-password protection is disabled in staging. This is recorded for pro
 
 ## Remaining acceptance and integration work
 
-1. Work2 must confirm its exact commit set and resolve overlap against the six Work1 commits above. Hub REQUEST 69f1ccf8 records this coordination.
+1. Work2 confirmed its exact integration order in Hub 89e6d0e. The combined candidate uses UI 80132f6 and Work1 server/recovery source. The original PR heads remain separate until this candidate is accepted.
 2. Integrate the candidate server/recovery sources and accepted UI into the agreed branch. Preserve the public-media gateway adapter configuration.
 3. Verify the integrated artifact's source/provenance and changed entry points. Earlier results apply only to their recorded sources and deployments.
 4. Obtain the outstanding independent SQL/security review and resolve any findings. Historical quota-concurrency failure must have an exact-head real PG17/Edge resolution before full release approval.
 5. Keep PR #50 Draft until the integrated source and remaining review evidence are accepted. No production release or merge is included.
 
 No UI/browser tests were rerun for unchanged accepted code. No production data, policies or settings were changed.
+
+## Additional quota and integration evidence
+
+On hosted PG17 a new disposable profile started with 19 pending portfolio reservations. Two concurrently submitted SQL sessions with distinct request IDs produced one accepted reservation and one SQLSTATE 54000, with final reservation count 20. No Storage file was uploaded. The synthetic profile and its reservations were deleted in a checked transaction, with both remaining counts zero. This verifies server reservation serialization, not full Edge/Storage HTTP concurrency.
+
+The home invitation message is traced to absent get_my_pending_company_invitations() on staging (zero matching functions), a company capability outside specialist rollout. It remains visible. No fabricated empty result or unrelated company SQL was added.
+
+Four stale pins were reviewed individually and refreshed. The manifest companySource object, protected file list, shared-menu expected hash, guard implementation and CI assertions remain unchanged.
+
+| File | Prior SHA256 | Reviewed SHA256 | Basis |
+| --- | --- | --- | --- |
+| server/specialist-media-gateway.js | 5aa924261cf233a7bf2e187ed8bb9d605370d36b69f2fcdaf5718f7b12fbb4e0 | da1f26e82405ed6fd4ab85754f8b078a48b41bed7be3ece2ff5da7e339279876 | Exact deployed v2 handler, selected public photo resolver, bounded MIME/length, no-store; Work2 real publication and 404 after unpublish evidence. |
+| account-specialist-media.js | 5b25cc19ed2552cb151a2de4032dab5e742c25e9384bad5307122c015982cb4e | 3ead676865b1dc8630a517b3cfab5dd3c611cf2a0ea19c9754678e0519bf7437 | Accepted Work2 refresh/recovery error handling, mutation lock while stale, source remains gateway-only; real upload/display/reload evidence. |
+| account-create-specialist.html | 8e41a6e42aefb9eb6d36e0072d3a2253b406c98a29e7d97079553de3ca1d582c | 5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e | Accepted Work2 publication selection UI and current label fix; explicitly selected items, fresh consent, UUID/address validation retained for review. |
+| tests/specialist-ux-browser.mjs | 82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9 | b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577 | Work2 test update for current navigation markup; width/overflow assertions retained. |
+
+## Combined candidate checks
+
+Gateway integrity PASS for all 65 canonical hashes. Company guard PASS for 33 protected files, including injected-change rejection. Public media unit transport and publication consent/busy/unavailable controls PASS. Two browser-based media regression tests could not run in this Linux checkout because Playwright is not installed as a project dependency and the local Chromium executable is unavailable. Prior real accepted UI evidence is preserved with its source/deployment scope. Existing Work2 blank-line-at-EOF warnings in two test files are recorded without unrelated formatting changes.

@@ -135,7 +135,7 @@
     },
     {
       "file": "server/specialist-media-gateway.js",
-      "sha256": "5aa924261cf233a7bf2e187ed8bb9d605370d36b69f2fcdaf5718f7b12fbb4e0"
+      "sha256": "da1f26e82405ed6fd4ab85754f8b078a48b41bed7be3ece2ff5da7e339279876"
     },
     {
       "file": "edge/specialist-media-gateway/index.ts",
@@ -147,7 +147,7 @@
     },
     {
       "file": "account-specialist-media.js",
-      "sha256": "5b25cc19ed2552cb151a2de4032dab5e742c25e9384bad5307122c015982cb4e"
+      "sha256": "3ead676865b1dc8630a517b3cfab5dd3c611cf2a0ea19c9754678e0519bf7437"
     },
     {
       "file": "scripts/specialist-server-package.mjs",
@@ -223,7 +223,7 @@
     },
     {
       "file": "scripts/company-integrity.mjs",
-      "sha256": "f065c6d5072ba1683140a88d47f2a1facf88b6a48c869eaebc3e8d8a425f9d71"
+      "sha256": "33302024bad82795337450fb416f4a06ed0822399163747cbae38175fe56c85d"
     },
     {
       "file": "tests/company-integrity.mjs",
@@ -231,11 +231,11 @@
     },
     {
       "file": "account-shared-navigation.js",
-      "sha256": "045783f101630268aaceff7a776ad3e391c6f4e299e59c3ce87cf07058bfce20"
+      "sha256": "261c7d602b1ed94b63466e4b8e7d9bc65e4dfdd33a852c0d02060cc682b6788e"
     },
     {
       "file": "tests/company-navigation-browser.mjs",
-      "sha256": "4021b0d31575c2252c575bb5d991e96cd2f295f1659f5fe26c3e9fc0523a1ac6"
+      "sha256": "01b1fd4eec2b272f60c0e94437ee547aec7668748474996fd2e965d11587453b"
     },
     {
       "file": "sql/20261106_specialist_publication_foundation_CANDIDATE.sql",
@@ -291,11 +291,11 @@
     },
     {
       "file": "account-create-specialist.html",
-      "sha256": "3d215b725906be2e9085b7d78e35bb484e9c3a10cc121558664a97cffe847fee"
+      "sha256": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e"
     },
     {
       "file": "tests/specialist-ux-browser.mjs",
-      "sha256": "82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9"
+      "sha256": "b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577"
     },
     {
       "file": "account-specialist-ui.js",

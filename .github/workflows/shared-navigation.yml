@@ -25,6 +25,9 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - run: node tests/pages-artifact.mjs
+      - run: node tests/specialist-publication-controls.mjs
+      - run: node tests/specialist-public-media.mjs
+      - run: node tests/specialist-public-browser.mjs
       - run: node tests/shared-navigation-browser.mjs
       - run: node tests/company-navigation-browser.mjs
       - run: node tests/specialist-ux-browser.mjs
