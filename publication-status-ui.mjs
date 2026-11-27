@@ -1,13 +1,21 @@
 // Pure, read-only presentation of the publication status RPC; no synthetic success.
 const LABELS=Object.freeze({"queued":"В очереди на публикацию","building":"Профиль обновляется","published":"Опубликовано","failed":"Ошибка публикации"});
+// Route activation requires a separately reviewed code change; never trust RPC-supplied origins.
+const APPROVED_PUBLIC_ORIGIN=null;
+export function validatePublicProfileUrl(value,approvedOrigin=null){
+ if(typeof value!=='string'||!approvedOrigin)return null;
+ try{const u=new URL(value);if(u.protocol!=='https:'||u.origin!==approvedOrigin||u.username||u.password||u.search||u.hash)return null;
+ if(!/^\/functions\/v1\/company-public-profile\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/.test(u.pathname))return null;
+ return u.href===value?u.href:null;}catch{return null;}
+}
 export function publicationView(result){
  if(!result||typeof result!=='object'||!Object.hasOwn(LABELS,result.status))return {state:'unknown',label:'Статус публикации неизвестен',success:false,retry:false};
  const state=result.status;
  const published=state==='published';
  // No approved public origin/path contract yet; the server candidate returns NULL.
  // Fail closed until an independently reviewed allowlist is available.
- const validUrl=false;
- return {state,label:LABELS[state],success:published,retry:state==='failed',publicUrl:published&&validUrl?result.public_url:null};
+ const validUrl=validatePublicProfileUrl(result.public_url,APPROVED_PUBLIC_ORIGIN);
+ return {state,label:LABELS[state],success:published,retry:state==='failed',publicUrl:published?validUrl:null};
 }
 export function renderPublicationStatus(node,result){
  const view=publicationView(result);node.replaceChildren();
