@@ -27,6 +27,8 @@ with tempfile.TemporaryDirectory() as tmp:
         assert "rzhlcszqtuhkhfibygnk" not in fallback
         analytics = archive.read("account-analytics.html").decode("utf-8")
         assert "company-public-unavailable.html?slug=" in analytics
+        assert "sb_publishable_SYNTHETIC_BUILD_ONLY" in analytics
+        assert "salmcnhexlftrgtiryyo.supabase.co" in analytics
         assert "account-preview.html?company_id=" not in analytics
         manifest = archive.read("SHA256SUMS").decode("ascii")
         expected = {line.split("  ", 1)[1]: line.split("  ", 1)[0]
@@ -41,4 +43,6 @@ with tempfile.TemporaryDirectory() as tmp:
                 assert "xn--b1ajuq0c.com" not in body, name
                 assert "https://\u043e\u0442\u0437\u044b\u0432.com/" not in body, name
                 assert "rzhlcszqtuhkhfibygnk" not in body, name
+                assert "__PUBLIC_KEY__" not in body, name
+                assert "https://cdn.jsdelivr.net/npm/@supabase/supabase-js" not in body, name
         print(f"PASS offline staging ZIP: {len(names)} files, verified SHA256SUMS, no private company route, no production backend")
