@@ -42,3 +42,13 @@ The fixture uses PGlite with pgcrypto and simplified company/auth dependencies. 
 GO for independent review of this isolated candidate.
 NO-GO for installation or production release pending scope approval, audit and target integration checks.
 The specialist PR's existing green CI remains valid for its exact source. It does not certify this separate invitation candidate.
+
+## Owner authorization and supplemental rollback evidence
+
+Owner decision 9ca92460-1c05-49d7-a6ed-cf97cf3fb7b1 authorizes restoration of candidate abb113e on staging salmcnhexlftrgtiryyo and necessary module-only ACL changes AFTER independent audit. It supersedes the earlier missing-scope-approval blocker. Independent audit is still pending in task fc27169a-e4f1-4730-868a-bab23d6c27f8; no installation has occurred.
+
+The SQL candidate, rollback and source snapshot are byte-identical to abb113e. Only this review note and the disposable regression test have changed. The original eleven scenarios were rerun as part of the extended test, because the same fixture now also exercises the token contract and destructive rollback boundary.
+
+All 14 disposable groups PASS. Added cases demonstrate foreign/missing-email token rejection, matching-token acceptance within a rolled-back transaction, and successful empty-module removal. The successful rollback removes all seven module RPCs and its table while preserving the fixture's companies and memberships exactly. The existing rollback guard still refuses to remove a nonempty invitation table.
+
+These checks are local PGlite evidence. Hosted staging installation, actual JWT/API invitation flows and hosted rollback rehearsal remain pending the independent audit. Production data and configuration are outside the authorization.

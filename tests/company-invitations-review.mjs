@@ -98,6 +98,17 @@ try {
     assert.equal(await rpc(owner,'revoke_company_access_invitation',[invitation.invitation_id]),true);
     invitation=await issue();
   });
+  await test('token acceptance denies foreign and missing-email recipients', async () => {
+    await assert.rejects(rpc(stranger,'accept_company_access_invitation',[invitation.token]));
+    await assert.rejects(rpc(noEmail,'accept_company_access_invitation',[invitation.token]));
+    assert.equal((await rpc(recipient,'get_my_pending_company_invitations')).length,1);
+  });
+  await test('matching token recipient receives role inside a rolled-back fixture', async () => {
+    const result = await session(recipient,'SELECT public.accept_company_access_invitation($1) AS data',[invitation.token],'authenticated',true);
+    assert.equal(result.status,'accepted');
+    assert.equal(result.role,'manager');
+    assert.equal((await db.query('SELECT count(*)::int n FROM company_memberships WHERE user_id=$1',[recipient])).rows[0].n,0);
+  });
   await test('matching recipient accepts once and receives invited role', async () => {
     assert.equal((await rpc(recipient,'accept_my_company_invitation',[invitation.invitation_id])).status,'accepted');
     await assert.rejects(rpc(recipient,'accept_my_company_invitation',[invitation.invitation_id]));
@@ -113,6 +124,21 @@ try {
     const rollback = await fs.readFile(new URL('90-rollback.sql',root),'utf8');
     await assert.rejects(db.exec(rollback)); await db.exec('ROLLBACK');
     assert((await db.query("SELECT to_regclass('public.company_access_invitations') AS t")).rows[0].t);
+  });
+  await test('empty-module rollback preserves original companies and memberships', async () => {
+    const companiesBefore=(await db.query('SELECT * FROM companies ORDER BY id')).rows;
+    const membersBefore=(await db.query('SELECT * FROM company_memberships ORDER BY company_id,user_id')).rows;
+    // Discard only rows in this disposable in-memory fixture to meet rollback's empty-module boundary.
+    await db.exec('DELETE FROM public.company_access_invitations');
+    const rollback=await fs.readFile(new URL('90-rollback.sql',root),'utf8');
+    await db.exec(rollback);
+    assert.equal((await db.query("SELECT to_regclass('public.company_access_invitations') AS table_name")).rows[0].table_name,null);
+    for(const item of snapshot.functions){
+      const row=(await db.query('SELECT to_regprocedure($1) AS fn',['public.'+item.signature])).rows[0];
+      assert.equal(row.fn,null,item.signature+' removed');
+    }
+    assert.deepEqual((await db.query('SELECT * FROM companies ORDER BY id')).rows,companiesBefore);
+    assert.deepEqual((await db.query('SELECT * FROM company_memberships ORDER BY company_id,user_id')).rows,membersBefore);
   });
   console.log('PASS '+passed+' disposable invitation regression groups');
 } finally { await db.close(); }
