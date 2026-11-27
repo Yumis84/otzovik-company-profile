@@ -4,7 +4,9 @@ export function publicationView(result){
  if(!result||typeof result!=='object'||!Object.hasOwn(LABELS,result.status))return {state:'unknown',label:'Статус публикации неизвестен',success:false,retry:false};
  const state=result.status;
  const published=state==='published';
- const validUrl=typeof result.public_url==='string'&&/^https:\/\/[a-z0-9.-]+(?:\/[a-zA-Z0-9_~!$&'()*+,;=:@%./-]*)?$/.test(result.public_url);
+ // No approved public origin/path contract yet; the server candidate returns NULL.
+ // Fail closed until an independently reviewed allowlist is available.
+ const validUrl=false;
  return {state,label:LABELS[state],success:published,retry:state==='failed',publicUrl:published&&validUrl?result.public_url:null};
 }
 export function renderPublicationStatus(node,result){
