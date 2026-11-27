@@ -1,0 +1,156 @@
+{
+  "base": "a125702242f1b1c66a5318c3904c59ab02c99d15",
+  "reviewOnly": true,
+  "edits": [
+    {
+      "path": "account-branches.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=new URLSearchParams(location.search).has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=new URLSearchParams(location.search).has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=new URLSearchParams(location.search).has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 2
+    },
+    {
+      "path": "account-media.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "const pickCompanyRow=rows=>{const list=rows||[];const found=requestedCompanyId?list.find(row=>row?.company?.id===requestedCompanyId||row?.company_id===requestedCompanyId):null;const row=found||list[0]||null;if(row?.company?.id)saveCompanyId(row.company.id);return row};",
+      "new": "const pickCompanyRow=rows=>selectVerifiedCompanyRow(rows,requestedCompanyId,{explicit:urlCompanyId!==null});",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';const urlCompanyId=",
+      "new": "import {selectVerifiedCompanyRow} from './company-context-selector.mjs';\nimport{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm';const urlCompanyId=",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "requestedCompanyId=urlCompanyId||savedCompanyId",
+      "new": "requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:urlCompanyId!==null}",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "const requestedCompanyId=params.get('company_id')||localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id');",
+      "new": "const explicitCompanyId=params.has('company_id');const requestedCompanyId=explicitCompanyId?params.get('company_id'):(localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id'));",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "{explicit:new URLSearchParams(location.search).has('company_id')}",
+      "new": "{explicit:explicitCompanyId}",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "let requestedCompanyId=urlCompanyId||savedCompanyId;",
+      "new": "let requestedCompanyId=params.has('company_id')?urlCompanyId:savedCompanyId;",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "{explicit:!!urlCompanyId}",
+      "new": "{explicit:params.has('company_id')}",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "localStorage.removeItem('otzovik_active_company_id');sessionStorage.removeItem('otzovik_active_company_id');requestedCompanyId=null;const u=new URL(location.href);if(u.searchParams.has('company_id')){u.searchParams.delete('company_id');history.replaceState(null,'',u.pathname+u.search+u.hash)}",
+      "new": "requestedCompanyId=null;",
+      "count": 1
+    }
+  ]
+}
