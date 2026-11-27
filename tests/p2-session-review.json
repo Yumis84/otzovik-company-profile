@@ -1,0 +1,60 @@
+{
+  "base": "f2a73b7c6463ab5c461e6f7f1fc909bd67a61d2c",
+  "reviewOnly": true,
+  "edits": [
+    {
+      "path": "account-qna.html",
+      "old": "const requested=new URLSearchParams(location.search).get('company_id')||localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id');",
+      "new": "import {selectVerifiedCompanyRow} from './company-context-selector.mjs';\nconst companyParams=new URLSearchParams(location.search),explicitCompany=companyParams.has('company_id');const requested=explicitCompany?companyParams.get('company_id'):(localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id'));",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "mine.data||[],row=(requested&&rows.find(r=>r?.company?.id===requested||r?.company_id===requested))||rows[0]",
+      "new": "mine.data,row=selectVerifiedCompanyRow(rows,requested,{explicit:explicitCompany})",
+      "count": 1
+    },
+    {
+      "path": "account-home.html",
+      "old": "logout.addEventListener('click',async()=>{logout.disabled=true;await s.auth.signOut();location.replace('account-login.html')});",
+      "new": "logout.addEventListener('click',async()=>{logout.disabled=true;try{localStorage.removeItem('otzovik_active_company_id');sessionStorage.removeItem('otzovik_active_company_id');const result=await s.auth.signOut();if(result.error)throw result.error;location.replace('account-login.html')}catch{logout.disabled=false;document.getElementById('status').textContent='Не удалось выйти из аккаунта. Повторите попытку.'}});",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "const SUPABASE_URL=",
+      "new": "import {createSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst sessionFence=createSessionFence();\nconst SUPABASE_URL=",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "const auth=await sb.auth.getSession();",
+      "new": "let authChanged=false;sb.auth.onAuthStateChange((event,session)=>{if(event==='INITIAL_SESSION'||event==='TOKEN_REFRESHED')return;authChanged=true;sessionFence.transition(null);clearCompanyStorage(localStorage,sessionStorage);document.querySelector('main')?.setAttribute('hidden','');location.replace(session?'account-home.html':'account-login.html')});const auth=await sb.auth.getSession();if(authChanged)return;sessionFence.transition(auth.data.session?.user?.id);const ticket=sessionFence.capture();",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "const mine=await sb.rpc('get_my_companies');",
+      "new": "const mine=await sb.rpc('get_my_companies');if(!sessionFence.current(ticket))return;",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "if(!media.error&&media.data?.storage_object_name)",
+      "new": "if(!sessionFence.current(ticket))return;if(!media.error&&media.data?.storage_object_name)",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "if(!signed.error&&signed.data?.signedUrl)",
+      "new": "if(!sessionFence.current(ticket))return;if(!signed.error&&signed.data?.signedUrl)",
+      "count": 1
+    },
+    {
+      "path": "account-company-context.js",
+      "old": "}catch{nameEl.textContent='Компания не определена';avatar.textContent='К'}}",
+      "new": "}catch{if(!document.querySelector('main')?.hasAttribute('hidden')){nameEl.textContent='Компания не определена';avatar.textContent='К'}}}",
+      "count": 1
+    }
+  ]
+}
