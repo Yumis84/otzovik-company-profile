@@ -420,6 +420,372 @@
       "old": "esc(e.message||'Не удалось загрузить источники.')+'</div>'}",
       "new": "esc(e.message||'Не удалось загрузить источники.')+'</div>'}}",
       "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "const client=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const client=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(client.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "async function load(){try{",
+      "new": "async function load(){try{if(!await pageFence.start())return;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(!session){location.replace",
+      "new": "if(!pageFence.current())return;if(!session){location.replace",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(result.error)throw result.error;",
+      "new": "if(!pageFence.current())return;if(result.error)throw result.error;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "await loadPublicationStatus();const profile",
+      "new": "await loadPublicationStatus();if(!pageFence.current())return;const profile",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(!profile.error&&profile.data)",
+      "new": "if(!pageFence.current())return;if(!profile.error&&profile.data)",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(!media.error)text",
+      "new": "if(!pageFence.current())return;if(!media.error)text",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "function publicationUI(result){",
+      "new": "function publicationUI(result){if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(!activeCompanyId)return;",
+      "new": "if(!pageFence.current()||!activeCompanyId)return;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "rpc:(name,args)=>client.rpc(name,args)",
+      "new": "rpc:(name,args)=>pageFence.current()?client.rpc(name,args):Promise.reject(Error('Session changed'))",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "catch(error){text('publication-state'",
+      "new": "catch(error){if(pageFence.current())text('publication-state'",
+      "count": 2
+    },
+    {
+      "path": "account-profile.html",
+      "old": "async()=>{\n if(!canPublish",
+      "new": "async()=>{\n if(!pageFence.current()||!canPublish",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "function syncSaveState(){",
+      "new": "function syncSaveState(){if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "e.preventDefault();if(!activeCompanyId)",
+      "new": "e.preventDefault();if(!pageFence.current()||!canEdit)return;if(!activeCompanyId)",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(error)throw error;render(data.company)",
+      "new": "if(!pageFence.current())return;if(error)throw error;render(data.company)",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "catch(e){text(",
+      "new": "catch(e){if(!pageFence.current())return;text(",
+      "count": 2
+    },
+    {
+      "path": "account-billing.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "try{const session=await s.auth.getSession();",
+      "new": "if(await pageFence.start())try{const session=await s.auth.getSession();if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "if(mine.error)throw mine.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(mine.error)throw mine.error;",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "if(plansResult.error)throw plansResult.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(plansResult.error)throw plansResult.error;",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "if(subResult.error)throw subResult.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(subResult.error)throw subResult.error;",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "catch(e){el('company-context')",
+      "new": "catch(e){if(pageFence.current()){el('company-context')",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "el('data-note').textContent='Не удалось получить данные текущей компании.'}",
+      "new": "el('data-note').textContent='Не удалось получить данные текущей компании.'}}",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "if(!activeCompany)return;",
+      "new": "if(!pageFence.current()||!activeCompany||activeMembership?.role!=='owner')return;",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "if(planError)throw planError;",
+      "new": "if(!pageFence.current())return;if(planError)throw planError;",
+      "count": 1
+    },
+    {
+      "path": "account-billing.html",
+      "old": "if(error)throw error",
+      "new": "if(!pageFence.current())return;if(error)throw error",
+      "count": 2
+    },
+    {
+      "path": "account-billing.html",
+      "old": "catch(e){console.error(e);",
+      "new": "catch(e){if(!pageFence.current())return;console.error(e);",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 2
+    },
+    {
+      "path": "account-media.html",
+      "old": "e.preventDefault();const st=",
+      "new": "e.preventDefault();if(!await pageFence.start())return;const st=",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(!a.data.session)",
+      "new": "if(!pageFence.current())return;if(!a.data.session)",
+      "count": 2
+    },
+    {
+      "path": "account-media.html",
+      "old": "const file=await optimizeImage(source,kind),m=await s.rpc",
+      "new": "const file=await optimizeImage(source,kind);if(!pageFence.current())return;const m=await s.rpc",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(m.error)throw m.error;",
+      "new": "if(!pageFence.current())return;if(m.error)throw m.error;",
+      "count": 2
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(previous.error)throw previous.error;",
+      "new": "if(!pageFence.current())return;if(previous.error)throw previous.error;",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(u.error)throw u.error;",
+      "new": "if(!pageFence.current())return;if(u.error)throw u.error;",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(rows.error)throw rows.error;",
+      "new": "if(!pageFence.current())return;if(rows.error)throw rows.error;",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(reg.error){",
+      "new": "if(!pageFence.current())return;if(reg.error){",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "uploadedPath=null;throw reg.error",
+      "new": "if(!pageFence.current())return;uploadedPath=null;throw reg.error",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "cleanupWarning=!!removed.error",
+      "new": "if(!pageFence.current())return;cleanupWarning=!!removed.error",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "catch(x){if(uploadedPath)",
+      "new": "catch(x){if(!pageFence.current())return;if(uploadedPath)",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "remove([uploadedPath]);st.textContent",
+      "new": "remove([uploadedPath]);if(!pageFence.current())return;st.textContent",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "async function listMedia(){try{",
+      "new": "async function listMedia(){try{if(!await pageFence.start())return;",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(signed.error||",
+      "new": "if(!pageFence.current())return;if(signed.error||",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "catch(e){document.getElementById('media-state')",
+      "new": "catch(e){if(pageFence.current())document.getElementById('media-state')",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(!b)return;e.preventDefault()",
+      "new": "if(!b||!pageFence.current())return;e.preventDefault()",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(unpub.error){",
+      "new": "if(!pageFence.current())return;if(unpub.error){",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "remove([path]);document.getElementById('media-state')",
+      "new": "remove([path]);if(!pageFence.current())return;document.getElementById('media-state')",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(sb.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "async function session(){const x=await sb.auth.getSession();return x.data.session}",
+      "new": "async function session(){if(!await pageFence.start())return null;const x=await sb.auth.getSession();return pageFence.current()?x.data.session:null}",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(r.error)",
+      "new": "if(!pageFence.current())return;if(r.error)",
+      "count": 4
+    },
+    {
+      "path": "account-access.html",
+      "old": "async function refresh(id,s){",
+      "new": "async function refresh(id,s){if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "b.onclick=async()=>{",
+      "new": "b.onclick=async()=>{if(!pageFence.current())return;",
+      "count": 2
+    },
+    {
+      "path": "account-access.html",
+      "old": "x.onchange=async()=>{",
+      "new": "x.onchange=async()=>{if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "});refresh(id,s)",
+      "new": "});if(!pageFence.current())return;refresh(id,s)",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(!id||!s||!email)return;",
+      "new": "if(!pageFence.current()||!id||!s||!email)return;",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(existing.error)",
+      "new": "if(!pageFence.current())return;if(existing.error)",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "const d=await res.json();",
+      "new": "if(!pageFence.current())return;const d=await res.json();if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "catch(e){$('invite-status')",
+      "new": "catch(e){if(pageFence.current())$('invite-status')",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "setTimeout(()=>location.href='account-home.html',1200)",
+      "new": "setTimeout(()=>{if(pageFence.current())location.href='account-home.html'},1200)",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "finally{button.disabled=!canPublish}",
+      "new": "finally{if(pageFence.current())button.disabled=!canPublish}",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(mine.error)throw mine.error;",
+      "new": "if(!pageFence.current())return;if(mine.error)throw mine.error;",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "catch{verifiedCompanyId=null;",
+      "new": "catch{if(!pageFence.current())return;verifiedCompanyId=null;",
+      "count": 1
     }
   ]
 }
