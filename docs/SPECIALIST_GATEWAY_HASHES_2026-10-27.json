@@ -223,11 +223,11 @@
     },
     {
       "file": "scripts/company-integrity.mjs",
-      "sha256": "33302024bad82795337450fb416f4a06ed0822399163747cbae38175fe56c85d"
+      "sha256": "d8bfae9ab8c9be530ef8d1985ff4e61051d8b4ce79c0c634094fddab39d64f53"
     },
     {
       "file": "tests/company-integrity.mjs",
-      "sha256": "63114ecd4fba8bb106f73ce4ee2411bb6c16a4f8f0a6d093d1558601e13135ba"
+      "sha256": "f8700a91d4bb5eb68c778a106ce93c644a28006cf20a5be9c9e3e1c0349ba02e"
     },
     {
       "file": "account-shared-navigation.js",
