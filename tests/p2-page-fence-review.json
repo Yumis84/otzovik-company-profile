@@ -786,6 +786,12 @@
       "old": "catch{verifiedCompanyId=null;",
       "new": "catch{if(!pageFence.current())return;verifiedCompanyId=null;",
       "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "const s=await session();if(!s){",
+      "new": "const s=await session();if(!pageFence.current())return;if(!s){",
+      "count": 2
     }
   ]
 }
