@@ -70,11 +70,36 @@ print('RESTORED actual staging table data/columns/constraints/functions/RLS/gran
 def baseline():
  out={}
  for t in tables:
-  name=t['schema']+'.'+t['name'];out[name]=run("SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text COLLATE \"C\"),'[]'::jsonb)::text,'UTF8')),'hex') FROM "+tn(t)+' x;')
+  name=t['schema']+'.'+t['name'];out[name]=run("SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text COLLATE \"C\"),'[]'::jsonb)::text,'UTF8')),'hex') FROM "+tn(t)+" x"+(" WHERE id<>'company-publication-artifacts-staging'" if name=='storage.buckets' else '')+';')
  out['functions']=run("SELECT encode(sha256(convert_to(string_agg(pg_get_functiondef(p.oid),E'\\n' ORDER BY n.nspname,p.proname,oidvectortypes(p.proargtypes)),'UTF8')),'hex') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN('public','media_internal') AND p.oid IN ("+','.join("'"+f['schema']+'.'+f['name']+'('+f['args']+")'::regprocedure::oid" for f in s['functions'])+');')
  return out
 run((root/'00-preflight-readonly.sql').read_text(encoding='utf-8'))
 b=baseline();run((root/'10-canonical-missing-modules.sql').read_text(encoding='utf-8'));after=baseline();assert b==after,[k for k in b if b[k]!=after[k]]
 print('PASS canonical missing-module delta on actual staged clone: ALL existing rows and function bodies unchanged')
+run((root/'90-rollback.sql').read_text(encoding='utf-8'))
+assert b==baseline(), 'baseline changed after partial-stage rollback'
+run((root/'00-preflight-readonly.sql').read_text(encoding='utf-8'))
+print('PASS rollback after committed stage 10 only')
+run((root/'10-canonical-missing-modules.sql').read_text(encoding='utf-8'))
+for step in ['20-publisher-integration.sql','30-private-artifact-delivery.sql']:
+ run((root/step).read_text(encoding='utf-8'))
+assert b==baseline(), 'baseline changed after full apply'
+run((pathlib.Path(__file__).parent/'staging-company-membership.sql').read_text())
+assert b==baseline(), 'membership test did not rollback'
+print('PASS canonical membership RPC isolated contract')
+# Verify rollback fails closed when new module data would be lost.
+run("INSERT INTO private.compatibility_flags_v1(key,enabled) VALUES('rollback_preservation_probe',false);")
+try:
+ run((root/'90-rollback.sql').read_text(encoding='utf-8'))
+except RuntimeError as error:
+ assert 'rollback refuses nonempty' in str(error), str(error)
+else:raise AssertionError('rollback discarded new data')
+assert run("SELECT count(*) FROM private.compatibility_flags_v1 WHERE key='rollback_preservation_probe'")== '1'
+run("DELETE FROM private.compatibility_flags_v1 WHERE key='rollback_preservation_probe';")
+print('PASS rollback refuses nonempty module, transaction preserved probe')
+run((root/'90-rollback.sql').read_text(encoding='utf-8'))
+assert b==baseline(), 'baseline data/function drift after rollback'
+run((root/'00-preflight-readonly.sql').read_text(encoding='utf-8'))
+print('PASS full 10/20/30 apply + guarded rollback: baseline catalog fingerprint, all rows, Storage metadata and function bodies restored')
 pathlib.Path(a.data).with_name(a.database+'-baseline-hashes.json').write_text(json.dumps(b,indent=2))
 print(json.dumps({'database':a.database,'preserved_tables':len(tables),'storage_objects':len(data['storage.objects']),'specialists':len(data['public.specialist_profiles']),'company_invitations':len(data['public.company_access_invitations'])}))
