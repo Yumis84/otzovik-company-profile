@@ -11,12 +11,22 @@ export function clearCompanyStorage(local,session){
  for(const storage of [local,session])storage.removeItem('otzovik_active_company_id');
 }
 
+// Identity is a local invalidation hint, never an authorization decision.
+export function sessionIdentity(session){
+ if(!session?.user?.id||typeof session.access_token!=='string')return null;
+ try{
+  const part=session.access_token.split('.')[1];
+  const claims=JSON.parse(atob(part.replace(/-/g,'+').replace(/_/g,'/')));
+  if(claims.sub!==session.user.id||typeof claims.session_id!=='string'||!claims.session_id)return null;
+  return JSON.stringify([claims.sub,claims.session_id]);
+ }catch{return null;}
+}
 export function createAuthSessionObserver(onChange){
  let initialized=false,identity=null;
  return (event,session)=>{
-  const next=session?.user?.id??null;
+  const next=sessionIdentity(session);
   if(!initialized){initialized=true;identity=next;if(event!=='SIGNED_OUT')return false;}
-  if(event!=='SIGNED_OUT'&&next===identity)return false;
+  if(event!=='SIGNED_OUT'&&next!==null&&next===identity)return false;
   identity=next;onChange(next);return true;
  };
 }
