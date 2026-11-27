@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {publicationView,renderPublicationStatus,createPublicationController} from '../publication-status-ui.mjs';
-for(const [status,label,success,retry] of [['queued','? ??????? ?? ??????????',false,false],['building','????????? ???????',false,false],['published','????????????',true,false],['failed','?????? ??????????',false,true]]){
+for(const [status,label,success,retry] of [["queued", "В очереди на публикацию", false, false], ["building", "Профиль обновляется", false, false], ["published", "Опубликовано", true, false], ["failed", "Ошибка публикации", false, true]]){
  const v=publicationView({status});assert.deepEqual([v.label,v.success,v.retry],[label,success,retry]);
 }
 for(const payload of [null,{}, {status:'published-ish'},{status:'published',public_url:'javascript:alert(1)'},{status:'queued',public_url:'https://valid.example/'}]){
