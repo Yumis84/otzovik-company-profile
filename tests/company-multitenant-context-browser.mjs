@@ -5,13 +5,13 @@ const A='4616c65b-5ebb-4c13-b2ef-24e2bc40d623',B='f1d3c93b-20e6-4a3c-9a54-36a947
 const browser=await chromium.launch({headless:true,...(process.env.CI?{}:{channel:'msedge'})});
 const cases=[
  {label:'explicit B overrides stored A',requested:B,stored:A,role:'owner',expected:B,access:true},
- {label:'invalid requested ID falls back to owned A',requested:'invalid-id',stored:B,role:'owner',expected:A,access:true},
- {label:'foreign requested ID falls back to owned A',requested:foreign,stored:B,role:'owner',expected:A,access:true},
+ {label:'invalid explicit ID denied without fallback',requested:'invalid-id',stored:B,role:'owner',expected:null,access:false,denied:true},
+ {label:'foreign explicit ID denied without fallback',requested:foreign,stored:B,role:'owner',expected:null,access:false,denied:true},
  {label:'analyst B hides Access',requested:B,stored:A,role:'analyst',expected:B,access:false},
  {label:'signed out clears unverified context',requested:B,stored:A,role:'owner',expected:null,access:false,signedOut:true},
  {label:'RPC denial clears unverified context',requested:B,stored:A,role:'owner',expected:null,access:false,rpcError:true},
  {label:'zero memberships clears unverified context',requested:B,stored:A,role:'owner',expected:null,access:false,noCompanies:true},
- {label:'pending RPC does not propagate unverified company',requested:foreign,stored:A,role:'owner',expected:A,access:true,delayed:true},
+ {label:'pending RPC does not propagate foreign company',requested:foreign,stored:A,role:'owner',expected:null,access:false,delayed:true,denied:true},
  {label:'malformed RPC response clears unverified context',requested:foreign,stored:A,role:'owner',expected:null,access:false,malformed:true},
  {label:'logo fetch exception preserves verified B',requested:B,stored:A,role:'owner',expected:B,access:true,logoThrow:true}
 ];
@@ -32,7 +32,7 @@ try{
   });
   await page.goto('https://company-context.test/account-profile.html?company_id='+encodeURIComponent(t.requested));
   if(t.delayed){const premature=await page.locator('nav a[href^="account-profile.html"]').getAttribute('href');assert.equal(new URL(premature,page.url()).searchParams.has('company_id'),false,'unverified company must not reach navigation while RPC pending');}
-  if(t.signedOut||t.rpcError||t.noCompanies||t.malformed){await page.waitForFunction(()=>!localStorage.getItem('otzovik_active_company_id')&&!sessionStorage.getItem('otzovik_active_company_id'));assert.equal(new URL(page.url()).searchParams.has('company_id'),false);assert.equal(await page.locator('nav a[href^="account-access.html"]').count(),0);assert.deepEqual(errors,[],t.label);console.log('PASS',t.label);await context.close();continue;}
+  if(t.signedOut||t.rpcError||t.noCompanies||t.malformed||t.denied){await page.waitForFunction(()=>!localStorage.getItem('otzovik_active_company_id')&&!sessionStorage.getItem('otzovik_active_company_id'));assert.equal(new URL(page.url()).searchParams.has('company_id'),false);assert.equal(await page.locator('nav a[href^="account-access.html"]').count(),0);if(t.denied)assert.equal(await page.locator('#active-company-name').textContent(),'??? ??????? ? ????????? ????????');assert.deepEqual(errors,[],t.label);console.log('PASS',t.label);await context.close();continue;}
   await page.waitForFunction(expected=>document.querySelector('#active-company-name')?.textContent===expected,t.expected===B?'Owned B':'Owned A');
   const selected=await page.evaluate(()=>({url:new URL(location.href).searchParams.get('company_id'),local:localStorage.getItem('otzovik_active_company_id'),session:sessionStorage.getItem('otzovik_active_company_id')}));
   assert.deepEqual(selected,{url:t.expected,local:t.expected,session:t.expected},t.label);
