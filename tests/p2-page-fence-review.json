@@ -150,6 +150,138 @@
       "old": "catch(error){if(pageFence.current())document.getElementById('company-context').textContent='Компания не определена';document.getElementById('rating-list').innerHTML='<div class=\"rating-empty\">Не удалось загрузить источники.</div>';document.getElementById('state').textContent=error.message||'Не удалось загрузить состояние профиля. Недоступные показатели не заменяются вымышленными значениями.'}",
       "new": "catch(error){if(pageFence.current()){document.getElementById('company-context').textContent='Компания не определена';document.getElementById('rating-list').innerHTML='<div class=\"rating-empty\">Не удалось загрузить источники.</div>';document.getElementById('state').textContent=error.message||'Не удалось загрузить состояние профиля. Недоступные показатели не заменяются вымышленными значениями.'}}",
       "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(sb.auth,()=>{company=null;document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "const auth=await sb.auth.getSession();",
+      "new": "if(!await pageFence.start())return;const auth=await sb.auth.getSession();if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "if(result.error)throw result.error;",
+      "new": "if(!pageFence.current())return;if(result.error)throw result.error;",
+      "count": 4
+    },
+    {
+      "path": "account-branches.html",
+      "old": "companyContext.catch(error=>{",
+      "new": "companyContext.catch(error=>{if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "event.preventDefault();const button",
+      "new": "event.preventDefault();if(!pageFence.current()||!company)return;const button",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "await companyContext;",
+      "new": "await companyContext;if(!pageFence.current()||!company)return;",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "async event=>{const button",
+      "new": "async event=>{if(!pageFence.current()||!company)return;const button",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "catch(error){state.textContent",
+      "new": "catch(error){if(!pageFence.current())return;state.textContent",
+      "count": 2
+    },
+    {
+      "path": "account-branches.html",
+      "old": "finally{button.disabled=false}",
+      "new": "finally{if(pageFence.current())button.disabled=false}",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "await loadLocations();el(",
+      "new": "await loadLocations();if(!pageFence.current())return;el(",
+      "count": 1
+    },
+    {
+      "path": "account-branches.html",
+      "old": "const syncSubmitState=()=>{",
+      "new": "const syncSubmitState=()=>{if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const sb=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(sb.auth,()=>{company=null;document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "const auth=await sb.auth.getSession();",
+      "new": "if(!await pageFence.start())return;const auth=await sb.auth.getSession();if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "if(r.error)throw r.error;",
+      "new": "if(!pageFence.current())return;if(r.error)throw r.error;",
+      "count": 4
+    },
+    {
+      "path": "account-services.html",
+      "old": "companyContext.catch(error=>{",
+      "new": "companyContext.catch(error=>{if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "event.preventDefault();const button",
+      "new": "event.preventDefault();if(!pageFence.current()||!company)return;const button",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "await companyContext;",
+      "new": "await companyContext;if(!pageFence.current()||!company)return;",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "async event=>{const button",
+      "new": "async event=>{if(!pageFence.current()||!company)return;const button",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "catch(error){state.textContent",
+      "new": "catch(error){if(!pageFence.current())return;state.textContent",
+      "count": 2
+    },
+    {
+      "path": "account-services.html",
+      "old": "finally{button.disabled=false}",
+      "new": "finally{if(pageFence.current())button.disabled=false}",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "await loadServices();el(",
+      "new": "await loadServices();if(!pageFence.current())return;el(",
+      "count": 1
+    },
+    {
+      "path": "account-services.html",
+      "old": "const syncSubmitState=()=>{",
+      "new": "const syncSubmitState=()=>{if(!pageFence.current())return;",
+      "count": 1
     }
   ]
 }
