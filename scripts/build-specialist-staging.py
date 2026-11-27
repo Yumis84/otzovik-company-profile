@@ -30,6 +30,8 @@ for path in sorted([*Path('.').glob('account-*'), Path('staging/specialist/publi
         data = data.replace("urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';","const url=new URL('public.html',location.href);url.searchParams.set('slug',slug);urlPreview.textContent=url.href;urlPreview.href=url.href;")
         data = data.replace('<strong id="specialist-url">https://master-ivan.отзыв.com/</strong>','<a id="specialist-url">Профиль</a>').replace('<span class="slug-part">https://</span>','').replace('<span class="slug-part">.отзыв.com</span>','')
     if path.suffix=='.html':
+        # The isolated preview ships no favicon asset; omit the production icon link.
+        data = re.sub(r'<link\s+rel=["\']icon["\'][^>]*>', '', data, flags=re.I)
         data, count = re.subn(r'<head>',lambda _: '<head><meta http-equiv="Content-Security-Policy" content="'+escape(csp,quote=True)+'">',data,count=1,flags=re.I)
         if count!=1: raise ValueError(path)
     if re.search(r'rzhlcszqtuhkhfibygnk|https?://[^/\s]*отзыв\.com|xn--b1ajuq0c\.com|https://cdn\.jsdelivr\.net|eyJ[A-Za-z0-9_-]{16,}\.',data):

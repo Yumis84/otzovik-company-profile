@@ -1,6 +1,7 @@
 """Offline packaging regression: no staging company link may expose a private preview."""
 import hashlib
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -44,6 +45,9 @@ with tempfile.TemporaryDirectory() as tmp:
             if name.endswith((".html", ".js")):
                 body = archive.read(name).decode("utf-8")
                 assert "account-preview.html?company_id=" not in body, name
+                if name.endswith(".html"):
+                    assert "account-home.htmlfavicon.svg" not in body, name
+                    assert not re.search(r"<link\s+rel=[\"\']icon[\"\']", body, re.I), name
                 assert "xn--b1ajuq0c.com" not in body, name
                 assert "https://\u043e\u0442\u0437\u044b\u0432.com/" not in body, name
                 assert "rzhlcszqtuhkhfibygnk" not in body, name
