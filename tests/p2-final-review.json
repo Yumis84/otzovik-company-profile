@@ -60,6 +60,66 @@
       "old": "await listMedia()});window.addEventListener",
       "new": "await listMedia()}catch(error){if(pageFence.current()){b.disabled=false;b.textContent='Удалить';document.getElementById('media-state').textContent=error?.message||'Ошибка удаления.'}}});window.addEventListener",
       "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "async function session(){if(!await pageFence.start())return null;const x=await sb.auth.getSession();return pageFence.current()?x.data.session:null}",
+      "new": "async function session(){try{if(!await pageFence.start())return null;const x=await sb.auth.getSession();return pageFence.current()?x.data.session:null}catch{if(pageFence.current())$('access-denied').hidden=false;return null}}",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "async function refresh(id,s){if(!pageFence.current())return;const r=",
+      "new": "async function refresh(id,s){if(!pageFence.current())return;try{const r=",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "refresh(id,s)})}",
+      "new": "refresh(id,s)})}catch(error){if(pageFence.current())$('members').textContent=error?.message||'Ошибка загрузки доступа.'}}",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(!pageFence.current())return;await sb.rpc('revoke_company_access_invitation'",
+      "new": "if(!pageFence.current())return;try{await sb.rpc('revoke_company_access_invitation'",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(!pageFence.current())return;refresh(id,s)});",
+      "new": "if(!pageFence.current())return;await refresh(id,s)}catch(error){if(pageFence.current())$('members').textContent=error?.message||'Ошибка изменения доступа.'}});",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "const r=await sb.rpc('owner_update_company_member_role'",
+      "new": "try{const r=await sb.rpc('owner_update_company_member_role'",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "const r=await sb.rpc('owner_remove_company_member'",
+      "new": "try{const r=await sb.rpc('owner_remove_company_member'",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(r.error)alert(r.error.message);refresh(id,s)}",
+      "new": "if(r.error)alert(r.error.message);await refresh(id,s)}catch(error){if(pageFence.current())$('members').textContent=error?.message||'Ошибка изменения доступа.'}}",
+      "count": 2
+    },
+    {
+      "path": "account-access.html",
+      "old": "const existing=await sb.rpc('owner_invite_existing_company_user'",
+      "new": "try{const existing=await sb.rpc('owner_invite_existing_company_user'",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "return}try{const res=await fetch",
+      "new": "return}const res=await fetch",
+      "count": 1
     }
   ]
 }
