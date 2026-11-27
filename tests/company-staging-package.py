@@ -20,6 +20,8 @@ with tempfile.TemporaryDirectory() as tmp:
         assert "company-public-unavailable.html" in names
         fallback = archive.read("company-public-unavailable.html").decode("utf-8")
         assert 'name="robots" content="noindex,nofollow"' in fallback
+        assert sum(0x0400 <= ord(ch) <= 0x04ff for ch in fallback) > 100
+        assert "???" not in fallback
         assert "get_my_companies" not in fallback
         assert "get_public_company_profile_v2" not in fallback
         assert "rzhlcszqtuhkhfibygnk" not in fallback
