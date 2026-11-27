@@ -12,7 +12,7 @@ for p in subprocess.check_output(['git','ls-files','-z'],cwd=root).decode('utf8'
         assert archived.replace(b'\r\n',b'\n')==blob,('unexpected archive transformation',p)
         (dest/p).write_bytes(blob)
     assert (dest/p).read_bytes()==blob,p
-for name in ('p2-company-race-review.json','p2-session-review.json','p2-owner-review.json','p2-builder-review.json'):
+for name in ('p2-company-race-review.json','p2-session-review.json','p2-owner-review.json','p2-builder-review.json','p2-page-fence-review.json'):
     for e in json.loads((dest/'tests'/name).read_text(encoding='utf8'))['edits']:
         p=dest/e['path']
         s=p.read_bytes().decode('utf8')
