@@ -54,6 +54,102 @@
       "old": "await load()});",
       "new": "await load()}catch(error){if(pageFence.current())$('state').textContent=error?.message||'Ошибка сохранения.'}finally{if(pageFence.current())$('save').disabled=!canWrite}});",
       "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "try{const result=await s.auth.getSession(),session=result.data.session,user=session?.user;",
+      "new": "if(await pageFence.start())try{const result=await s.auth.getSession(),session=result.data.session,user=session?.user;if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "const mine=await s.rpc('get_my_companies');",
+      "new": "const mine=await s.rpc('get_my_companies');if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "catch(e){document.getElementById('company-context')",
+      "new": "catch(e){if(pageFence.current())document.getElementById('company-context')",
+      "count": 1
+    },
+    {
+      "path": "account-notifications.html",
+      "old": "catch(e){if(pageFence.current())document.getElementById('company-context').textContent='Компания не определена';document.getElementById('email-status').textContent='НЕДОСТУПНА';document.getElementById('email-note').textContent=e.message||'Не удалось получить данные аккаунта.';document.getElementById('data-note').textContent='Настройки уведомлений недоступны без выбранной компании и авторизации.'}",
+      "new": "catch(e){if(pageFence.current()){document.getElementById('company-context').textContent='Компания не определена';document.getElementById('email-status').textContent='НЕДОСТУПНА';document.getElementById('email-note').textContent=e.message||'Не удалось получить данные аккаунта.';document.getElementById('data-note').textContent='Настройки уведомлений недоступны без выбранной компании и авторизации.'}}",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "try{const a=await s.auth.getSession();",
+      "new": "if(await pageFence.start())try{const a=await s.auth.getSession();if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "const m=await s.rpc('get_my_companies');",
+      "new": "const m=await s.rpc('get_my_companies');if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "catch(e){document.getElementById('company-context')",
+      "new": "catch(e){if(pageFence.current())document.getElementById('company-context')",
+      "count": 1
+    },
+    {
+      "path": "account-ai-assistant.html",
+      "old": "catch(e){if(pageFence.current())document.getElementById('company-context').textContent=e.message||'Компания не определена'}",
+      "new": "catch(e){if(pageFence.current()){document.getElementById('company-context').textContent=e.message||'Компания не определена'}}",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "try{const session=await s.auth.getSession();",
+      "new": "if(await pageFence.start())try{const session=await s.auth.getSession();if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "const mine=await s.rpc('get_my_companies');",
+      "new": "const mine=await s.rpc('get_my_companies');if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "if(profile.error)throw profile.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(profile.error)throw profile.error;",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "catch(error){document.getElementById('company-context')",
+      "new": "catch(error){if(pageFence.current())document.getElementById('company-context')",
+      "count": 1
+    },
+    {
+      "path": "account-analytics.html",
+      "old": "catch(error){if(pageFence.current())document.getElementById('company-context').textContent='Компания не определена';document.getElementById('rating-list').innerHTML='<div class=\"rating-empty\">Не удалось загрузить источники.</div>';document.getElementById('state').textContent=error.message||'Не удалось загрузить состояние профиля. Недоступные показатели не заменяются вымышленными значениями.'}",
+      "new": "catch(error){if(pageFence.current()){document.getElementById('company-context').textContent='Компания не определена';document.getElementById('rating-list').innerHTML='<div class=\"rating-empty\">Не удалось загрузить источники.</div>';document.getElementById('state').textContent=error.message||'Не удалось загрузить состояние профиля. Недоступные показатели не заменяются вымышленными значениями.'}}",
+      "count": 1
     }
   ]
 }
