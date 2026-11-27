@@ -5,7 +5,7 @@ out=root.parent/'otzovik-protected-review'
 out.mkdir(exist_ok=True)
 original={}
 candidate={}
-for name in ('p2-company-race-review.json','p2-session-review.json'):
+for name in ('p2-company-race-review.json','p2-session-review.json','p2-owner-review.json'):
     for e in json.loads((root/'tests'/name).read_text(encoding='utf8'))['edits']:
         p=e['path']
         if p not in original:
@@ -18,4 +18,7 @@ diff=''.join(''.join(difflib.unified_diff(original[p].splitlines(True),candidate
 manifest={p:{'old':hashlib.sha256(original[p].encode()).hexdigest(),'new':hashlib.sha256(candidate[p].encode()).hexdigest()} for p in sorted(candidate)}
 (out/'manifest.json').write_bytes(json.dumps(manifest,indent=2).encode())
 print('REVIEW ONLY',len(candidate),'files',hashlib.sha256(diff.encode()).hexdigest())
+for p in ('company-context-selector.mjs','publication-status-ui.mjs','company-session-fence.mjs'):
+    raw=subprocess.check_output(['git','show','HEAD:'+p],cwd=root)
+    print(p,hashlib.sha256(raw).hexdigest())
 print(json.dumps(manifest))
