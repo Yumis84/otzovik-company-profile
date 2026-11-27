@@ -11,6 +11,11 @@ export function approvedCompanyVersion(file,original){
   return contextImport+original.replace(anchor,anchor+install);
  }
  if(file==='account-profile.css')return original+cssAddition;
+ if(file==='account-home.html'){
+  const old='<span class="status">Черновик · только вам</span>';
+  assert.equal(original.split(old).length,2,'Specialist status replacement must be unique');
+  return original.replace(old,'<span class="status">Публикация — в редакторе</span>');
+ }
  return original;
 }
 export function checkCompanyBytes(file,original,actual){assert.equal(actual,approvedCompanyVersion(file,original),'Unexpected company change: '+file);}
@@ -21,9 +26,9 @@ export function checkCompanyIntegrity(manifest){
  assert.deepEqual(manifest.companySource,protectedSource.companySource,'Protected company file list cannot be weakened');
  for(const file of manifest.companySource.files){const original=git('show',basis+':'+file),actual=git('show','HEAD:'+file);checkCompanyBytes(file,original,actual);assert.equal(fs.readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/\r\n/g,'\n'),actual,'Worktree differs from HEAD: '+file);}
  const changed=git('diff','--name-only',basis,'HEAD','--','account*.html','account*.js','account*.css').trim().split('\n').filter(Boolean);
- for(const file of changed){if(file.startsWith('account-specialist-')||file==='account-create-specialist.html')continue;assert(['account-company-context.js','account-profile.css','account-shared-navigation.js'].includes(file),'Unexpected company path: '+file);}
+ for(const file of changed){if(file.startsWith('account-specialist-')||file==='account-create-specialist.html')continue;assert(['account-company-context.js','account-profile.css','account-shared-navigation.js','account-home.html'].includes(file),'Unexpected company path: '+file);}
  const shared=fs.readFileSync(new URL('../account-shared-navigation.js',import.meta.url),'utf8').replace(/\r\n/g,'\n');
- const expected='045783f101630268aaceff7a776ad3e391c6f4e299e59c3ce87cf07058bfce20';assert.equal(crypto.createHash('sha256').update(shared).digest('hex'),expected,'Shared navigation drift');
+ const expected='261c7d602b1ed94b63466e4b8e7d9bc65e4dfdd33a852c0d02060cc682b6788e';assert.equal(crypto.createHash('sha256').update(shared).digest('hex'),expected,'Shared navigation drift');
  assert.equal(git('show','HEAD:account-shared-navigation.js'),shared,'Shared navigation worktree drift');
- console.log('PASS company guard: '+manifest.companySource.files.length+' protected files; two exact transformations and pinned shared menu');
+ console.log('PASS company guard: '+manifest.companySource.files.length+' protected files; three exact transformations and pinned shared menu');
 }

@@ -34,7 +34,7 @@ export function validateChannels(rows){
  if(!Array.isArray(rows)||rows.length>20)throw Error('Можно добавить до 20 контактов.');
  const seen=new Set(),ids=new Set();let preferred=0;
  return rows.map(row=>{
-  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(row.id)||ids.has(row.id))throw Error('Некорректный идентификатор контакта.');ids.add(row.id);
+  if(typeof row.id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(row.id)||ids.has(row.id.toLowerCase()))throw Error('Некорректный идентификатор контакта.');ids.add(row.id.toLowerCase());
   const value=prepareChannelValue(row.value_raw??''),href=normalizeChannel(row.kind,value),label=String(row.label??'').trim();
   if([...label].length>40||/[\x00-\x1f\x7f]/.test(label))throw Error('Название контакта — до 40 символов, без переносов.');
   if(row.is_public===true)throw Error('Публичные контакты пока недоступны.');

@@ -39,6 +39,19 @@ export function createMediaGateway({url,anonKey,serviceKey,origins=[],fetcher=fe
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...cors,'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS'}});
   if(request.method!=='POST')return response(405,{error:'POST required'});
   try{
+   if(new URL(request.url).searchParams.get('view')==='published'){
+    const url=new URL(request.url),slug=url.searchParams.get('slug')||'',photo=url.searchParams.get('photo')||'';
+    if(!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug)||slug.includes('--')||!uuid.test(photo))return response(404,{error:'Photo unavailable'});
+    const path=await rpc('resolve_public_specialist_photo_v1',{p_slug:slug,p_photo:photo});
+    const segments=typeof path==='string'?path.split('/'):[];
+    if(segments.length!==3||!uuid.test(segments[0])||!['avatar','portfolio'].includes(segments[1])||!/^([a-f0-9-]{36})[.](png|jpg|jpeg|webp)$/i.test(segments[2]))return response(404,{error:'Photo unavailable'});
+    const file=await fetcher(endpoint+'/storage/v1/object/authenticated/specialist-media/'+path,{headers:serviceHeaders,redirect:'error',signal:AbortSignal.timeout(10000)});
+    const type=file.headers.get('content-type');
+    if(!file.ok||!['image/png','image/jpeg','image/webp'].includes(type))return response(404,{error:'Photo unavailable'});
+    const size=Number(file.headers.get('content-length'));
+    if(!Number.isSafeInteger(size)||size<=0||size>LIMIT)return response(502,{error:'Invalid image size'});
+    return new Response(file.body,{headers:{...cors,'Content-Type':type,'Content-Length':String(size),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+   }
    const authorization=request.headers.get('authorization')||'';if(!/^Bearer [A-Za-z0-9_.-]+$/.test(authorization))return response(401,{error:'Authentication required'});
    const auth=await fetcher(endpoint+'/auth/v1/user',{headers:{apikey:anonKey,Authorization:authorization},signal:AbortSignal.timeout(10000)});
    if(!auth.ok)return response(401,{error:'Authentication required'});const user=await auth.json();if(!uuid.test(user.id||'')||user.is_anonymous)return response(401,{error:'Verified account required'});

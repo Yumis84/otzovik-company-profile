@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {randomUUID} from 'node:crypto';
+import {database,A,B} from './database.mjs';
+if(process.env.TEST_DATABASE_URL)throw Error('In-memory fixtures only');
+const db=await database({editor:true});
+const sql=file=>readFile(new URL('../sql/'+file,import.meta.url),'utf8');
+try{
+ // Simulate gateway ready inventory only; no Storage provider is contacted.
+ await db.exec('CREATE TABLE public.specialist_upload_reservations(specialist_id uuid,object_name text,state text)');
+ for(const f of ['20261027_specialist_channels_CANDIDATE.sql','20261106_specialist_publication_foundation_CANDIDATE.sql','20261106_specialist_slug_quarantine_CANDIDATE.sql','20261112_specialist_revision_retention_CANDIDATE.sql','20261112_specialist_publish_CANDIDATE.sql','20261112_specialist_public_getter_CANDIDATE.sql','20261122_specialist_public_details_CANDIDATE.sql'])await db.exec(await sql(f));
+ const slug='public-test',id=(await db.call(A,'create_my_specialist_draft',['Owner',slug,'Master'])).id;
+ const photo=randomUUID(),path=id+'/portfolio/'+randomUUID()+'.png';
+ await db.query("insert into specialist_media(id,specialist_id,object_name,kind) values($1,$2,$3,'portfolio')",[photo,id,path]);
+ await db.query("insert into specialist_upload_reservations values($1,$2,'ready')",[id,path]);
+ await db.query("insert into specialist_services(specialist_id,name,price_from) values ($1,'Consultation',15)",[id]);
+ await db.query("insert into specialist_channel_sets(specialist_id,version) values($1,1)",[id]);
+ await db.query("insert into specialist_contact_channels(id,specialist_id,kind,value_raw,href,label,sort_order) values(gen_random_uuid(),$1,'website','private-input','https://example.org','Public contact',0)",[id]);
+ await db.query('update specialist_public_control set enabled=true');
+ const get=()=>db.session(null,async c=>(await c.query('select get_public_specialist_v1($1) doc',[slug])).rows[0].doc,'anon');
+ const resolve=()=>db.query('select resolve_public_specialist_photo_v1($1,$2) p',[slug,photo]).then(v=>v.rows[0].p);
+ assert.equal(await get(),null);assert.equal(await resolve(),null);
+ const options=await db.call(A,'get_my_specialist_public_options_v1',[id]);
+ assert.equal(options.length,3);
+ await assert.rejects(db.call(B,'get_my_specialist_public_options_v1',[id]),e=>e.code==='42501');
+ const req=randomUUID(),publish=(uid,r,items)=>db.call(uid,'publish_my_specialist_details_v1',[id,1,r,JSON.stringify(items)]);
+ await assert.rejects(publish(B,req,options),e=>e.code==='42501');
+ await assert.rejects(publish(A,req,[{type:'photo',id:randomUUID()}]),e=>e.code==='40001');
+ assert.equal(await get(),null);
+ const receipt=await publish(A,req,options);assert(receipt.published);
+ assert.deepEqual((await get()).items,options);assert.equal(await resolve(),path);
+ assert(!JSON.stringify(await get()).includes('private-input'));assert(!JSON.stringify(await get()).includes(id));
+ await assert.rejects(db.call(B,'resolve_public_specialist_photo_v1',[slug,photo]),e=>e.code==='42501');
+ assert((await publish(A,req,options)).replayed);
+ await assert.rejects(publish(A,req,[]),e=>e.code==='PT409');
+ await db.query("update specialist_services set name='Edited private' where specialist_id=$1",[id]);
+ assert.deepEqual((await get()).items,options);
+ await db.call(A,'unpublish_my_specialist_v1',[id]);assert.equal(await resolve(),null);assert.equal(await get(),null);
+ assert.equal((await publish(A,req,options)).published,false);
+ await publish(A,randomUUID(),[]);assert.deepEqual((await get()).items,[]);assert.equal(await resolve(),null);
+ await db.exec(await sql('20261122_specialist_public_details_ROLLBACK.sql'));assert(!('items' in await get()));
+ console.log('PASS ephemeral PostgreSQL: draft, owner/foreign access, selection, rollback on stale input, publication, snapshot, replay, private fields, photo gating, unpublish, empty selection and rollback');
+}finally{await db.close();}

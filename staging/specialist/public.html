@@ -1,0 +1,53 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Профиль специалиста</title><link rel="stylesheet" href="account-preview.css"></head>
+<body><main><h1>Профиль специалиста</h1><p role="status">Загрузка…</p><dl></dl></main><script type="module">
+import {createClient} from './staging-sdk.js';
+const slug=new URLSearchParams(location.search).get('slug');
+const status=document.querySelector('[role=status]');
+let generation=0;
+const urls=new Set();
+function clearPhotos(){for(const url of urls)URL.revokeObjectURL(url);urls.clear();}
+async function show(){
+ const run=++generation;clearPhotos();
+ document.querySelector('dl').replaceChildren();
+ document.querySelector('h1').textContent='Профиль специалиста';
+ status.textContent='Загрузка…';
+ if(!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug||'')||slug.includes('--')){status.textContent='Профиль недоступен.';return;}
+ const guest=createClient('https://salmcnhexlftrgtiryyo.supabase.co','__PUBLIC_KEY__',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+ const {data,error}=await guest.rpc('get_public_specialist_v1',{p_slug:slug});
+ if(run!==generation)return;
+ if(error)throw error;
+ if(!data||data.slug!==slug){status.textContent='Профиль недоступен.';return;}
+ document.querySelector('h1').textContent=data.display_name;
+ for(const [label,field] of [['Профессия','profession'],['Специализация','specialization'],['Город','city'],['Описание','description']]){
+  if(!data[field])continue;
+  const term=document.createElement('dt'),value=document.createElement('dd');
+  term.textContent=label;value.textContent=data[field];document.querySelector('dl').append(term,value);
+ }
+ status.textContent='';
+ for(const item of data.items||[]){
+  const term=document.createElement('dt'),value=document.createElement('dd');
+  if(item.type==='service'){
+   term.textContent=item.name;
+   value.textContent=[item.description,item.from!=null?'от '+item.from:null,item.to!=null?'до '+item.to:null,item.from!=null||item.to!=null?item.currency:null].filter(Boolean).join(' · ');
+  }else if(item.type==='contact'){
+   let link;try{link=new URL(item.href);}catch{continue;}
+   if(link.protocol!=='https:'||link.username||link.password)continue;
+   const a=document.createElement('a');a.href=link.href;a.rel='noopener noreferrer';a.textContent=item.label||link.hostname;
+   term.textContent='Контакт';value.append(a);
+  }else if(item.type==='photo'){
+   term.textContent=item.caption||'Фотография';value.textContent='Загрузка…';
+   const query=new URLSearchParams({view:'published',slug,photo:item.id});
+   fetch('https://salmcnhexlftrgtiryyo.supabase.co/functions/v1/specialist-media-gateway?'+query,{method:'POST',headers:{apikey:'__PUBLIC_KEY__'},cache:'no-store',credentials:'omit'}).then(async response=>{
+    if(!response.ok)throw Error();
+    const blob=await response.blob();
+    if(run!==generation)return;
+    if(!(blob instanceof Blob)||!['image/png','image/jpeg','image/webp'].includes(blob.type))throw Error();
+    const image=document.createElement('img'),url=URL.createObjectURL(blob);urls.add(url);
+    image.src=url;image.alt=item.caption||'Фотография специалиста';image.style.maxWidth='100%';value.replaceChildren(image);
+   }).catch(()=>{if(run===generation)value.textContent='Фотография недоступна.';});
+  }else continue;
+  document.querySelector('dl').append(term,value);
+ }
+}
+addEventListener('pageshow',()=>show().catch(()=>{status.textContent='Не удалось загрузить профиль.';}));
+</script></body></html>

@@ -82,6 +82,8 @@ try{
   assert.equal(validateChannels([row('telegram','@valid')])[0].href,'https://t.me/valid');
   assert.throws(()=>validateChannels([row('telegram','@valid'),row('telegram','https://t.me/valid')]));
   assert.throws(()=>validateChannels([row('website','https://one.ru',{is_public:true})]));
+  const duplicate=row('website','https://one.ru',{id:'abcdefab-cdef-4abc-8def-abcdefabcdef'});
+  assert.throws(()=>validateChannels([duplicate,{...duplicate,id:duplicate.id.toUpperCase(),value_raw:'https://two.ru'}]));
  });
  await test('cosmetic HTTPS case and edge spaces normalize before server save; path case retained',async()=>{
   const cases=[['telegram',' Https://T.ME/Yumis_test ','https://t.me/yumis_test'],['vk','Https://VK.com/Yumis','https://vk.com/yumis'],['max','HTTPS://MAX.ru/u/AbC123','https://max.ru/u/AbC123'],['whatsapp','HTTPS://WA.ME/79991234567','https://wa.me/79991234567'],['ok','HtTpS://OK.RU/profile/123','https://ok.ru/profile/123'],['website',' HtTpS://Example.ru/CaseSensitive?A=B ','https://example.ru/CaseSensitive?A=B'],['portfolio','https://Portfolio.ru/MyWork','https://portfolio.ru/MyWork']];

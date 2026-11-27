@@ -135,7 +135,7 @@
     },
     {
       "file": "server/specialist-media-gateway.js",
-      "sha256": "5aa924261cf233a7bf2e187ed8bb9d605370d36b69f2fcdaf5718f7b12fbb4e0"
+      "sha256": "da1f26e82405ed6fd4ab85754f8b078a48b41bed7be3ece2ff5da7e339279876"
     },
     {
       "file": "edge/specialist-media-gateway/index.ts",
@@ -147,7 +147,7 @@
     },
     {
       "file": "account-specialist-media.js",
-      "sha256": "5b25cc19ed2552cb151a2de4032dab5e742c25e9384bad5307122c015982cb4e"
+      "sha256": "3ead676865b1dc8630a517b3cfab5dd3c611cf2a0ea19c9754678e0519bf7437"
     },
     {
       "file": "scripts/specialist-server-package.mjs",
@@ -175,7 +175,7 @@
     },
     {
       "file": "tests/gateway-local-checks.mjs",
-      "sha256": "4573fe4f84c3f5c18ab8fa63e1b4caf160be87c00d89e0d6b3f172dcd6031beb"
+      "sha256": "aa12e369c769523c5adc88a7669131599219be183a97e3e8e01c54ca4adaae22"
     },
     {
       "file": "tests/gateway-integrity.mjs",
@@ -191,7 +191,7 @@
     },
     {
       "file": ".github/workflows/specialist-gateway.yml",
-      "sha256": "9e9bd397db94aa985ec5bfdf054c8400f017b2ad7e2c4d90f9a2d9de1e507c81"
+      "sha256": "be852e74920dedc99272da889ef736a28facea6e71bc78502974c45ab144fe71"
     },
     {
       "file": "tests/specialist-gateway-sql.mjs",
@@ -199,7 +199,7 @@
     },
     {
       "file": "tests/local-stack.mjs",
-      "sha256": "86dfb268707b6e98cf2c7c33dc31f7bc99bd955a8b337854217c3c3974cec016"
+      "sha256": "872c5471261a1500ff9caecd4304b3c0a26d43ac5418549fdca8ed803e5fbfe4"
     },
     {
       "file": "docs/SPECIALIST_PILOT_DRAIN_SOP_2026-10-28.md",
@@ -223,22 +223,127 @@
     },
     {
       "file": "scripts/company-integrity.mjs",
-      "sha256": "f065c6d5072ba1683140a88d47f2a1facf88b6a48c869eaebc3e8d8a425f9d71"
+      "sha256": "d8bfae9ab8c9be530ef8d1985ff4e61051d8b4ce79c0c634094fddab39d64f53"
     },
     {
       "file": "tests/company-integrity.mjs",
-      "sha256": "63114ecd4fba8bb106f73ce4ee2411bb6c16a4f8f0a6d093d1558601e13135ba"
+      "sha256": "f8700a91d4bb5eb68c778a106ce93c644a28006cf20a5be9c9e3e1c0349ba02e"
     },
     {
       "file": "account-shared-navigation.js",
-      "sha256": "045783f101630268aaceff7a776ad3e391c6f4e299e59c3ce87cf07058bfce20"
+      "sha256": "261c7d602b1ed94b63466e4b8e7d9bc65e4dfdd33a852c0d02060cc682b6788e"
     },
     {
       "file": "tests/company-navigation-browser.mjs",
-      "sha256": "4021b0d31575c2252c575bb5d991e96cd2f295f1659f5fe26c3e9fc0523a1ac6"
+      "sha256": "01b1fd4eec2b272f60c0e94437ee547aec7668748474996fd2e965d11587453b"
+    },
+    {
+      "file": "sql/20261106_specialist_publication_foundation_CANDIDATE.sql",
+      "sha256": "11087ab84a7ce6298a01756b951a2d309a482c3c6a727dde27ce656cd685d2ef"
+    },
+    {
+      "file": "tests/specialist-publication-foundation.mjs",
+      "sha256": "7fbf600645d79c8f0b476177c98420611d4f9cb7a78283a37dd7376d370b28f1"
+    },
+    {
+      "file": "sql/20261106_specialist_slug_quarantine_CANDIDATE.sql",
+      "sha256": "8946dfc6547e5c8b13384f577830db9c9ed649730a9e9099365266bdd6a600bf"
+    },
+    {
+      "file": "docs/SPECIALIST_PUBLICATION_DEPLOYMENT_PLAN_2026-11-06.md",
+      "sha256": "06f2b37270941dd34d0e8205510c23f11b23f4569be8ea746345eb1ca15bea14"
+    },
+    {
+      "file": "sql/20261112_specialist_erasure_barrier_CANDIDATE.sql",
+      "sha256": "3d8622a05ad07c7e1b1854fc4e81c50574f57c0a319bca9c8822c315df25d29e"
+    },
+    {
+      "file": "tests/specialist-erasure-barrier.mjs",
+      "sha256": "3464c5768fd57ad708d2178cb779903e65d8004371820e6cd31a23d5f1d41b45"
+    },
+    {
+      "file": "tests/erasure-local-checks.mjs",
+      "sha256": "69c6bb4fdc8741892c0ca7156e4df4d5b732650d36768d360eb406cf03dbf88f"
+    },
+    {
+      "file": "sql/20261112_specialist_revision_retention_CANDIDATE.sql",
+      "sha256": "7249487c5cbcd4c96c7913be1e17a88b7ad4d7a3c4046f38c714447cbd335e9b"
+    },
+    {
+      "file": "sql/20261112_specialist_publish_CANDIDATE.sql",
+      "sha256": "e9e40261d5e88460eb2ae1746b97e4f39fded7a4ec4dba81b59c923b1d65f731"
+    },
+    {
+      "file": "tests/specialist-publish.mjs",
+      "sha256": "9beda9407dd9057ecc5084db800da14fe84c942912bede918151ea54f024753a"
+    },
+    {
+      "file": "sql/20261112_specialist_public_getter_CANDIDATE.sql",
+      "sha256": "a3ffc0f3a04d75c1c5f9c52a6a9c98a4a0c33d069b16a38c319985c6302f81ed"
+    },
+    {
+      "file": "sql/20261112_specialist_public_operator_CANDIDATE.sql",
+      "sha256": "b373805c2cc556bdfc49cde5b3b7b0867f2dcbb8c260a6505c260dfa59dee75e"
+    },
+    {
+      "file": "sql/20261112_specialist_public_owner_status_CANDIDATE.sql",
+      "sha256": "3f27285ac53fe74be0f2b0baa0261d55ff0c8c0667b38889eb1ee85709a0dea1"
+    },
+    {
+      "file": "account-create-specialist.html",
+      "sha256": "272ea0280081f8b5989fda2c73fcf55c26bd36135c3dee837205c470c7395526"
+    },
+    {
+      "file": "tests/specialist-ux-browser.mjs",
+      "sha256": "b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577"
+    },
+    {
+      "file": "account-specialist-ui.js",
+      "sha256": "baf94615b74786b0aac834ac1d3671fee207da708aec3b98e7cd727f1c74c630"
     }
   ],
   "hostedApplyAuthorized": false,
   "remediationBase": "b6626a3169836be534a61aa1befecd26a5a55d43",
-  "pilotBase": "ad6101ef34812cce85f35c94ab0aa8fd0a8f0e99"
+  "pilotBase": "ad6101ef34812cce85f35c94ab0aa8fd0a8f0e99",
+  "uiRevision": {
+    "date": "2026-11-27",
+    "sourceCommit": "80132f6b4bf5f2dedf2f2e0326ef4f2b14a96e1e",
+    "scope": "Owner-requested specialist UI completion; no SQL/gateway/company pin changes",
+    "validation": "Real staging acceptance999ba51a/e6bd4d2a; isolated UX10groups+media/publication tests; company33 integrity; negative mutation rejected",
+    "changes": [
+      {
+        "file": "account-specialist-media.js",
+        "previous": "5b25cc19ed2552cb151a2de4032dab5e742c25e9384bad5307122c015982cb4e",
+        "sha256": "3ead676865b1dc8630a517b3cfab5dd3c611cf2a0ea19c9754678e0519bf7437"
+      },
+      {
+        "file": "account-create-specialist.html",
+        "previous": "8e41a6e42aefb9eb6d36e0072d3a2253b406c98a29e7d97079553de3ca1d582c",
+        "sha256": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e"
+      },
+      {
+        "file": "tests/specialist-ux-browser.mjs",
+        "previous": "82c184370bd445f45b530ded027d070b865d63eb3e8d5a7102299f775bf94ad9",
+        "sha256": "b38c2703b4a1aa9a49a85a0c8b227df107ccf59f14ee890f75092eddf685f577"
+      }
+    ]
+  },
+  "erasureFixtureRevision": {
+    "basis": "8677708f5251e932022dd5a8186f3cb6aaa1e8de",
+    "reason": "Install public-details/options RPC required by accepted editor and assert fresh consent before republish",
+    "previous": "d0c902a88244915d46a0ea5a1edd8f623e85241edf3c4b382e4e41d45fe8715d",
+    "sha256": "69c6bb4fdc8741892c0ca7156e4df4d5b732650d36768d360eb406cf03dbf88f"
+  },
+  "uiCompatibilityReview": {
+    "base": "d6f0ded8ca461b37601406487717b7248259d59d",
+    "change": "Reject malformed/foreign creation or update acknowledgement UUID; preserve editor fields on failure",
+    "validation": "18 startup cases (17 retained plus foreign-UUID update) and7 services-refresh cases PASS",
+    "pins": [
+      {
+        "file": "account-create-specialist.html",
+        "previous": "5472e42465f6273fd308d83c2573fb654c50c7fc4b156aacc81f5563153cc83e",
+        "sha256": "272ea0280081f8b5989fda2c73fcf55c26bd36135c3dee837205c470c7395526"
+      }
+    ]
+  }
 }

@@ -1,5 +1,6 @@
 import {serverPackage} from '../scripts/specialist-server-package.mjs';
 import {gatewayChecks} from './gateway-local-checks.mjs';
+import {erasureLocalChecks} from './erasure-local-checks.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
@@ -172,6 +173,9 @@ try{
   await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[0]);
   await open('account-create-specialist.html?id='+row.id);await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
   await page.reload();await page.locator('#save:not([disabled])').waitFor();assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await open('account-profile.html?company_id='+company.id);await page.locator('#profile-fields:not([disabled])').waitFor();
+  await open('account-home.html');await page.locator('.specialist-card').filter({hasText:'Browser Specialist'}).locator('a.edit-link').click();await page.locator('#save:not([disabled])').waitFor();
+  assert.equal(new URL(page.url()).searchParams.get('id'),row.id);assert.equal(await page.locator('[name=description]').inputValue(),'Browser persisted');
   await open('account-home.html');await page.locator('#logout').click();await page.waitForURL('**/account-login.html');await login(emails[1]);await open('account-create-specialist.html?id='+row.id);await page.getByText(/Черновик не найден или недоступен/).waitFor();assert(await page.locator('#save').isDisabled());
  });
  await test('real browser company edit, branch/service save and photo upload',async()=>{
@@ -195,5 +199,6 @@ try{
   assert((await a.rpc('get_my_specialists')).error);assert.equal((await db.query('SELECT count(*)::int n FROM specialist_profiles')).rows[0].n,before);
   await db.query('GRANT EXECUTE ON FUNCTION public.get_my_specialists() TO authenticated');
  });
+ await erasureLocalChecks({admin,db,api,anon,jwtSecret:cfg.JWT_SECRET,ok,test,page,open});
  console.log(`PASS LOCAL ${count} real Supabase groups. Hosted email deliverability/CDN/publisher: NOT RUN.`);
 }finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));await db.end();}

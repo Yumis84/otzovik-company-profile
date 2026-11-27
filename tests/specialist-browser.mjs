@@ -131,7 +131,7 @@ await test('company sections keep company_id and use upper menu without swipe na
  const beforeSwipe=page.url();
  await page.evaluate(()=>{const target=document.querySelector('main');const touch=(x)=>({identifier:1,target,clientX:x,clientY:250});for(const [type,x] of [['touchstart',280],['touchend',70]]){const e=new Event(type,{bubbles:true});Object.defineProperties(e,{touches:{value:type==='touchstart'?[touch(x)]:[]},changedTouches:{value:[touch(x)]}});target.dispatchEvent(e);}});
  assert.equal(page.url(),beforeSwipe);
- await page.locator('main nav[aria-label="Навигация кабинета"] a[href^="account-services.html"]').click();await page.waitForURL('**/account-services.html?company_id='+id);
+ await page.locator('.shared-nav-toggle:visible').click();await page.locator('.shared-nav-menu:not([hidden]) a[href^="account-services.html"]').click();await page.waitForURL('**/account-services.html?company_id='+id);
  await page.locator('#svc-name').fill('Test Service');await page.locator('#svc-submit').click();await page.locator('#services').getByText('Test Service',{exact:true}).waitFor();
  assert.equal(records.locations[0].company_id,id);assert.equal(records.services[0].company_id,id);
  await open('account-media.html?company_id='+id);await page.locator('#active-company-name').filter({hasText:'Company Edited'}).waitFor();assert.equal(await page.locator('#media-file').count(),1);

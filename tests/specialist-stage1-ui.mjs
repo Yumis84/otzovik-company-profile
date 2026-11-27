@@ -39,12 +39,12 @@ try{
  await page.locator('[name=slug]').fill('test-specialist');
  await page.locator('[name=profession]').fill('Photographer');
  await page.locator('[name=description]').fill('<img src=x onerror=alert(1)>');
- await page.locator('#save').click();await page.waitForURL('**/account-home.html');
- assert.equal(rows.length,1);assert.equal(calls.at(-1).name,'create_my_specialist_draft');console.log('PASS create and return to list');
+ await page.locator('#save').click();await page.waitForURL('**/account-create-specialist.html?id=*');
+ assert.equal(rows.length,1);assert(calls.some(c=>c.name==='create_my_specialist_draft'));console.log('PASS create and stay in editor with saved id');
  await open('?id='+id);await ready();assert.equal(await page.locator('[name=slug]').getAttribute('readonly'),'');
  assert.equal(await page.locator('[name=description]').inputValue(),'<img src=x onerror=alert(1)>');
  await page.locator('[name=description]').fill('Saved revision');
- await page.locator('#save').click();await page.waitForURL('**/account-home.html');
+ await page.locator('#save').click();await page.waitForURL('**/account-create-specialist.html?id=*');
  await open('?id='+id);await ready();assert.equal(await page.locator('[name=description]').inputValue(),'Saved revision');
  assert.equal(rows.length,1);console.log('PASS update and reopen; literal HTML; no duplicate');
  fail='get_my_specialists';await page.reload();await page.getByText('Не удалось загрузить черновик.',{exact:false}).waitFor();assert(await page.locator('#save').isDisabled());fail=null;

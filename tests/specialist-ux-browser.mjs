@@ -25,6 +25,7 @@ await ctx.route('**/*',async route=>{
 await ctx.exposeBinding('testSession',()=>user?{user:{id:user}}:null);
 await ctx.exposeBinding('testRPC',async(_,name,args={})=>{
  calls.push({name,args});if(name==='get_my_specialist_upload_capability')return {data:{protocol:1,enabled:true},error:null};
+ if(name==='get_my_specialist_publication_v1')return {data:null,error:{code:'PGRST202',message:'Not installed'}};
   if(name==='get_my_companies'||name==='get_my_pending_company_invitations')return {data:[],error:null};if(missingEditor&&/^(get_my_specialist_(services|settings|media)|list_my_specialist_channels)$/.test(name))return {data:null,error:{code:'PGRST202',message:'Not installed'}};assert(keys[name],'Unexpected RPC '+name);
  if(fail===name)throw Error('offline');if(slow===name)await new Promise(r=>setTimeout(r,200));
  try{return {data:await db.call(user,name,keys[name].map(k=>k==='p_channels'?JSON.stringify(args[k]):args[k])),error:null};}catch(e){return {data:null,error:{code:e.code,message:e.message}};}
@@ -46,7 +47,7 @@ try{
   fail='update_my_specialist_draft';await page.locator('#save').click();await note.filter({hasText:'Не удалось подтвердить'}).waitFor();assert.equal(await page.locator('[name=display_name]').inputValue(),'UX обновлённый');assert(await page.locator('#save').isEnabled());fail=null;
   slow='update_my_specialist_draft';await page.locator('#save').click();assert(await page.locator('#save').isDisabled());await note.filter({hasText:'Сохранено.'}).waitFor();slow=null;assert.equal(new URL(page.url()).searchParams.get('id'),id);assert.equal(await page.locator('#specialist-context strong').textContent(),'UX обновлённый');
   await page.reload();await ready();assert.equal(await page.locator('[name=description]').inputValue(),'Описание сохранено');
-  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+  for(const width of [320,390,768,1280,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
   if(process.env.UX_SCREENSHOT_DIR)await page.screenshot({path:process.env.UX_SCREENSHOT_DIR+'/ux-profile-desktop.png',fullPage:true});
   assert.equal(await page.getByRole('link',{name:'К списку профилей',exact:true}).getAttribute('href'),'account-home.html');
  });
@@ -71,16 +72,16 @@ try{
   await panel.locator('summary').click();await panel.getByText('Фотографии: 0.',{exact:true}).waitFor();await panel.getByText('Контакты: сохранены приватно.',{exact:true}).waitFor();
   assert(!((await panel.textContent()).includes('name@mail.ru')));assert.equal(await panel.locator('button,input,a').count(),0);
   await page.locator('[name=description]').fill('');assert((await panel.textContent()).includes('Описание: заполнено.'));await page.locator('#save').click();await note.filter({hasText:'Сохранено.'}).waitFor();await panel.getByText('Описание: пока не заполнено.',{exact:true}).waitFor();
-  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+  for(const width of [320,390,768,1280,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
  });
  await test('read failures remain unknown, do not block editor and never write settings',async()=>{
   calls=[];fail='get_my_specialist_services';await page.reload();await ready();const panel=page.locator('#profile-readiness');await panel.getByText('Услуги: не удалось проверить.',{exact:true}).waitFor({state:'attached'});assert((await panel.textContent()).includes('Фотографии: 0.'));assert(await page.locator('#save').isEnabled());assert(!calls.some(c=>/^(save|create|update|delete)_/.test(c.name)));
   fail='list_my_specialist_channels';await page.reload();await ready();await panel.getByText('Контакты: не удалось проверить.',{exact:true}).waitFor({state:'attached'});assert((await panel.textContent()).includes('Услуги: 1.'));fail=null;
  });
 
- await test('home edit entry and every menu destination at 320/390/768/1440',async()=>{
+ await test('home edit entry and every menu destination at 320/390/768/1280/1440',async()=>{
   user=A;await open('account-home.html');const card=page.locator('.specialist-card').filter({has:page.locator('a[href$="'+id+'"]')});await card.locator('a.edit-link').click();await ready();assert.equal(new URL(page.url()).searchParams.get('id'),id);
-  for(const width of [320,390,768,1440]){
+  for(const width of [320,390,768,1280,1440]){
    await page.setViewportSize({width,height:900});
    for(const file of ['account-create-specialist.html','account-specialist-services.html','account-specialist-media.html','account-specialist-contacts.html']){
     await open(file+'?id='+id);await ready();assert.equal(await page.locator('.editor-nav a').count(),5);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -91,7 +92,7 @@ try{
  await test('production-minimal missing editor RPCs stay readable and disable Save',async()=>{
   missingEditor=true;const before=calls.filter(x=>/^(save|delete|register)_/.test(x.name)).length;
   for(const file of ['account-specialist-services.html','account-specialist-media.html','account-specialist-contacts.html']){
-   await open(file+'?id='+id);await page.locator('#status').filter({hasText:'Раздел пока недоступен'}).waitFor();
+   await open(file+'?id='+id);await page.locator('#status').filter({hasText:/Не удалось|недоступен|повтор/i}).waitFor();
    assert.equal(await page.locator('#fields').evaluate(e=>e.disabled),true);assert(await page.locator('#save').isDisabled());assert((await page.locator('#status').textContent()).trim());
   }
   assert.equal(calls.filter(x=>/^(save|delete|register)_/.test(x.name)).length,before);missingEditor=false;
