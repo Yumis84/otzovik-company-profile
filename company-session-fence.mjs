@@ -35,3 +35,21 @@ export async function settleForSession(fence,ticket,promise,onSuccess,onError){
  try{value=await promise;}catch(error){if(fence.current(ticket))onError(error);return;}
  if(fence.current(ticket))onSuccess(value);
 }
+
+/** Page lifetime fence. A changed identity permanently invalidates this document. */
+export function createPageSessionFence(auth,onInvalidate){
+ let identity=null,initialized=false,invalid=false;
+ const invalidate=()=>{if(invalid)return;invalid=true;onInvalidate();};
+ const observe=(event,session)=>{
+  const next=sessionIdentity(session);
+  if(event==='SIGNED_OUT'||!next){invalidate();return;}
+  if(!initialized){initialized=true;identity=next;return;}
+  if(identity!==next)invalidate();
+ };
+ auth.onAuthStateChange(observe);
+ return Object.freeze({
+  async start(){const result=await auth.getSession();observe('INITIAL_SESSION',result.data?.session);return !invalid&&initialized;},
+  current(){return !invalid&&initialized;},
+  invalidate
+ });
+}
