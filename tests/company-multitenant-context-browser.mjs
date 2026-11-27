@@ -7,7 +7,8 @@ const cases=[
  {label:'explicit B overrides stored A',requested:B,stored:A,role:'owner',expected:B,access:true},
  {label:'invalid requested ID falls back to owned A',requested:'invalid-id',stored:B,role:'owner',expected:A,access:true},
  {label:'foreign requested ID falls back to owned A',requested:foreign,stored:B,role:'owner',expected:A,access:true},
- {label:'analyst B hides Access',requested:B,stored:A,role:'analyst',expected:B,access:false}
+ {label:'analyst B hides Access',requested:B,stored:A,role:'analyst',expected:B,access:false},
+ {label:'signed out clears unverified context',requested:B,stored:A,role:'owner',expected:null,access:false,signedOut:true}
 ];
 try{
  for(const t of cases){
@@ -19,12 +20,13 @@ try{
    const p=new URL(route.request().url()).pathname;
    if(p==='/sdk.js'){
     const rows=[{company:{id:A,name:'Owned A'},membership:{role:'owner'}},{company:{id:B,name:'Owned B'},membership:{role:t.role}}];
-    return route.fulfill({contentType:'text/javascript',body:`export function createClient(){return {auth:{getSession:async()=>({data:{session:{user:{id:'synthetic-owner'}}}})},rpc:async()=>({data:${JSON.stringify(rows)}}),from:()=>({select(){return this},eq(){return this},limit(){return this},maybeSingle:async()=>({data:null})})}}`});
+    return route.fulfill({contentType:'text/javascript',body:`export function createClient(){return {auth:{getSession:async()=>({data:{session:${t.signedOut?'null':"{user:{id:'synthetic-owner'}}"}}})},rpc:async()=>({data:${JSON.stringify(rows)}}),from:()=>({select(){return this},eq(){return this},limit(){return this},maybeSingle:async()=>({data:null})})}}`});
    }
    if(p.endsWith('.js')){let data=await fs.readFile(new URL('..'+p,import.meta.url),'utf8');data=data.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm','./sdk.js');return route.fulfill({contentType:'text/javascript',body:data});}
    return route.fulfill({contentType:'text/html; charset=utf-8',body:'<!doctype html><html lang="ru"><main><nav aria-label="Навигация кабинета"><a href="account-home.html">Все компании</a><a class="active" href="account-profile.html">Профиль</a><a href="account-billing.html">Тариф</a></nav></main><script type="module" src="account-company-context.js"></script></html>'});
   });
   await page.goto('https://company-context.test/account-profile.html?company_id='+encodeURIComponent(t.requested));
+  if(t.signedOut){await page.waitForFunction(()=>!localStorage.getItem('otzovik_active_company_id')&&!sessionStorage.getItem('otzovik_active_company_id'));assert.equal(new URL(page.url()).searchParams.has('company_id'),false);assert.equal(await page.locator('nav a[href^="account-access.html"]').count(),0);assert.deepEqual(errors,[],t.label);console.log('PASS',t.label);await context.close();continue;}
   await page.waitForFunction(expected=>document.querySelector('#active-company-name')?.textContent===expected,t.expected===B?'Owned B':'Owned A');
   const selected=await page.evaluate(()=>({url:new URL(location.href).searchParams.get('company_id'),local:localStorage.getItem('otzovik_active_company_id'),session:sessionStorage.getItem('otzovik_active_company_id')}));
   assert.deepEqual(selected,{url:t.expected,local:t.expected,session:t.expected},t.label);
