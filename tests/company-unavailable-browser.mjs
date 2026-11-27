@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 const source=await fs.readFile('staging/specialist/company-public-unavailable.html','utf8');
-const browser=await chromium.launch({headless:true,channel:'msedge'});
+const browser=await chromium.launch({headless:true,...(process.env.CI?{}:{channel:'msedge'})});
 try{
  for(const width of [320,390,1280]){
   const page=await browser.newPage({viewport:{width,height:800}});

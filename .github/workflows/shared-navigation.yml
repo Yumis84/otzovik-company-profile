@@ -31,6 +31,7 @@ jobs:
       - run: node tests/shared-navigation-browser.mjs
       - run: node tests/company-navigation-browser.mjs
       - run: node tests/company-multitenant-context-browser.mjs
+      - run: node tests/company-unavailable-browser.mjs
       - run: python tests/company-staging-package.py
       - run: node tests/specialist-ux-browser.mjs
         env:
