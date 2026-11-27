@@ -1,0 +1,65 @@
+{
+  "reviewOnly": true,
+  "edits": [
+    {
+      "path": "account-access.html",
+      "old": "const pageFence=createPageSessionFence(sb.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "new": "const pageFence=createPageSessionFence(sb.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)},{allowAnonymous:true});",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(!pageFence.current())return;if(!s){sessionStorage.setItem",
+      "new": "if(!s&&pageFence.anonymous()){sessionStorage.setItem",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "return}$('accept-status').textContent='Подтверждаем доступ…';",
+      "new": "return}if(!pageFence.current()||!s)return;try{$('accept-status').textContent='Подтверждаем доступ…';",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "},1200)}}",
+      "new": "},1200)}catch(error){if(pageFence.current())$('accept-status').textContent=error?.message||'Ошибка принятия приглашения.'}}}",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "if(!pageFence.current())return;if(!s){if(!token)",
+      "new": "if(!s&&pageFence.anonymous()){if(!token)",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "return}try{const mine=await sb.rpc",
+      "new": "return}if(!pageFence.current()||!s)return;try{const mine=await sb.rpc",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "function publicationUI(result){if(!pageFence.current())return;",
+      "new": "function publicationUI(result){if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "if(uploadedPath)await s.storage.from('company-media').remove([uploadedPath]);",
+      "new": "if(uploadedPath)try{await s.storage.from('company-media').remove([uploadedPath])}catch{/* cleanup failure must not mask original error */}",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "const unpub=await s.rpc('unpublish_my_company_media'",
+      "new": "try{const unpub=await s.rpc('unpublish_my_company_media'",
+      "count": 1
+    },
+    {
+      "path": "account-media.html",
+      "old": "await listMedia()});window.addEventListener",
+      "new": "await listMedia()}catch(error){if(pageFence.current()){b.disabled=false;b.textContent='Удалить';document.getElementById('media-state').textContent=error?.message||'Ошибка удаления.'}}});window.addEventListener",
+      "count": 1
+    }
+  ]
+}
