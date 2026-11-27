@@ -1,0 +1,18 @@
+BEGIN;
+SET LOCAL lock_timeout='3s';
+LOCK TABLE private.company_publish_attempt_candidate,private.company_publish_request_keys_candidate,private.company_publish_artifact_candidate IN ACCESS EXCLUSIVE MODE;
+DO $$ BEGIN IF EXISTS(SELECT 1 FROM private.company_publish_attempt_candidate) OR EXISTS(SELECT 1 FROM private.company_publish_request_keys_candidate) OR EXISTS(SELECT 1 FROM private.company_publish_artifact_candidate) THEN RAISE EXCEPTION 'rollback refused: publication data exists'; END IF; END $$;
+DROP FUNCTION IF EXISTS public.request_my_company_publication(uuid,uuid);
+DROP FUNCTION IF EXISTS public.get_my_company_publication_status(uuid);
+DROP FUNCTION IF EXISTS private.resolve_company_artifact_candidate(text);
+DROP FUNCTION private.transition_publish_candidate(uuid,uuid,text,text);
+DROP FUNCTION private.heartbeat_publish_candidate(uuid,uuid);
+DROP FUNCTION private.expire_publish_candidates();
+DROP FUNCTION private.claim_publish_candidate(uuid);
+DROP FUNCTION private.enqueue_company_publish_candidate(uuid,uuid);
+DROP TABLE private.company_publish_artifact_candidate;
+DROP TABLE private.company_publish_request_keys_candidate;
+DROP TABLE private.company_publish_attempt_candidate;
+DROP FUNCTION IF EXISTS private.guard_publish_artifact_candidate();
+DROP FUNCTION IF EXISTS private.publish_snapshot_complete_candidate(jsonb);
+COMMIT;
