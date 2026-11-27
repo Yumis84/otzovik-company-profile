@@ -16,8 +16,8 @@ with tempfile.TemporaryDirectory() as tmp:
     assets[sdk.name] = sdk.read_bytes()
 origin = 'https://' + target + '.supabase.co'
 csp = f"default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src {origin} wss://{target}.supabase.co; img-src 'self' data: blob: {origin}; font-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'"
-for path in sorted([*Path('.').glob('account-*'), Path('staging/specialist/public.html'), Path('staging/specialist/company-public-unavailable.html')]):
-    if path.suffix not in {'.html','.js','.css'}:
+for path in sorted([*Path('.').glob('account-*'), Path('company-context-selector.mjs'), Path('publication-status-ui.mjs'), Path('staging/specialist/public.html'), Path('staging/specialist/company-public-unavailable.html')]):
+    if path.suffix not in {'.html','.js','.css','.mjs'}:
         continue
     data = path.read_text(encoding='utf-8').replace('__PUBLIC_KEY__',key)
     data = data.replace('rzhlcszqtuhkhfibygnk',target).replace('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',key)

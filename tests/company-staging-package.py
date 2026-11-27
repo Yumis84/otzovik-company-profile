@@ -36,6 +36,8 @@ with tempfile.TemporaryDirectory() as tmp:
         assert "company-public-unavailable.html" in names
         assert "account-home.html" in names
         assert "staging-sdk.js" in names
+        assert "company-context-selector.mjs" in names
+        assert "publication-status-ui.mjs" in names
         assert "https://salmcnhexlftrgtiryyo.supabase.co" in analytics
         assert "account-preview.html?company_id=" not in analytics
         manifest = archive.read("SHA256SUMS").decode("ascii")
