@@ -26,7 +26,7 @@ ensureMediaDecoder();
 ensureHomeNav();
 ensureSourcesNav();
 installNavigation(document.querySelector('main nav[aria-label="Навигация кабинета"]'));
-keepContext();
+// Wait for verified membership before propagating company_id to links.
 mount();
 revealActiveNav();
 
