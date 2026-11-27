@@ -12,7 +12,8 @@ const cases=[
  {label:'RPC denial clears unverified context',requested:B,stored:A,role:'owner',expected:null,access:false,rpcError:true},
  {label:'zero memberships clears unverified context',requested:B,stored:A,role:'owner',expected:null,access:false,noCompanies:true},
  {label:'pending RPC does not propagate unverified company',requested:foreign,stored:A,role:'owner',expected:A,access:true,delayed:true},
- {label:'malformed RPC response clears unverified context',requested:foreign,stored:A,role:'owner',expected:null,access:false,malformed:true}
+ {label:'malformed RPC response clears unverified context',requested:foreign,stored:A,role:'owner',expected:null,access:false,malformed:true},
+ {label:'logo fetch exception preserves verified B',requested:B,stored:A,role:'owner',expected:B,access:true,logoThrow:true}
 ];
 try{
  for(const t of cases){
@@ -24,7 +25,7 @@ try{
    const p=new URL(route.request().url()).pathname;
    if(p==='/sdk.js'){
     const rows=[{company:{id:A,name:'Owned A'},membership:{role:'owner'}},{company:{id:B,name:'Owned B'},membership:{role:t.role}}];
-    return route.fulfill({contentType:'text/javascript',body:`export function createClient(){return {auth:{getSession:async()=>({data:{session:${t.signedOut?'null':"{user:{id:'synthetic-owner'}}"}}})},rpc:async()=>{${t.delayed?"await new Promise(resolve=>setTimeout(resolve,1000));":''}return ({data:${t.malformed?"{unexpected:true}":t.noCompanies?'[]':JSON.stringify(rows)},error:${t.rpcError?"{message:'permission denied'}":'null'}})},from:()=>({select(){return this},eq(){return this},limit(){return this},maybeSingle:async()=>({data:null})})}}`});
+    return route.fulfill({contentType:'text/javascript',body:`export function createClient(){return {auth:{getSession:async()=>({data:{session:${t.signedOut?'null':"{user:{id:'synthetic-owner'}}"}}})},rpc:async()=>{${t.delayed?"await new Promise(resolve=>setTimeout(resolve,1000));":''}return ({data:${t.malformed?"{unexpected:true}":t.noCompanies?'[]':JSON.stringify(rows)},error:${t.rpcError?"{message:'permission denied'}":'null'}})},from:()=>({select(){return this},eq(){return this},limit(){return this},maybeSingle:async()=>{${t.logoThrow?"throw Error('logo network timeout')":'return ({data:null})'}}})}}`});
    }
    if(p.endsWith('.js')){let data=await fs.readFile(new URL('..'+p,import.meta.url),'utf8');data=data.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm','./sdk.js');return route.fulfill({contentType:'text/javascript',body:data});}
    return route.fulfill({contentType:'text/html; charset=utf-8',body:'<!doctype html><html lang="ru"><main><nav aria-label="Навигация кабинета"><a href="account-home.html">Все компании</a><a class="active" href="account-profile.html">Профиль</a><a href="account-billing.html">Тариф</a></nav></main><script type="module" src="account-company-context.js"></script></html>'});
