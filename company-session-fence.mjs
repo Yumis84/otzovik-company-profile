@@ -37,19 +37,21 @@ export async function settleForSession(fence,ticket,promise,onSuccess,onError){
 }
 
 /** Page lifetime fence. A changed identity permanently invalidates this document. */
-export function createPageSessionFence(auth,onInvalidate){
+export function createPageSessionFence(auth,onInvalidate,{allowAnonymous=false}={}){
  let identity=null,initialized=false,invalid=false;
  const invalidate=()=>{if(invalid)return;invalid=true;onInvalidate();};
  const observe=(event,session)=>{
   const next=sessionIdentity(session);
-  if(event==='SIGNED_OUT'||!next){invalidate();return;}
+  if(event==='SIGNED_OUT'){invalidate();return;}
+  if(!next&&(!allowAnonymous||session||identity!==null)){invalidate();return;}
   if(!initialized){initialized=true;identity=next;return;}
   if(identity!==next)invalidate();
  };
  auth.onAuthStateChange(observe);
  return Object.freeze({
-  async start(){const result=await auth.getSession();observe('INITIAL_SESSION',result.data?.session);return !invalid&&initialized;},
-  current(){return !invalid&&initialized;},
+  async start(){const result=await auth.getSession();observe('INITIAL_SESSION',result.data?.session);return !invalid&&initialized&&identity!==null;},
+  current(){return !invalid&&initialized&&identity!==null;},
+  anonymous(){return allowAnonymous&&!invalid&&initialized&&identity===null;},
   invalidate
  });
 }
