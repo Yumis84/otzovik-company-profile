@@ -1,5 +1,8 @@
 """Offline packaging regression: no staging company link may expose a private preview."""
 import hashlib
+from html.parser import HTMLParser
+import posixpath
+from urllib.parse import urlsplit, unquote
 import os
 import re
 from pathlib import Path
@@ -53,4 +56,32 @@ with tempfile.TemporaryDirectory() as tmp:
                 assert "rzhlcszqtuhkhfibygnk" not in body, name
                 assert "__PUBLIC_KEY__" not in body, name
                 assert "https://cdn.jsdelivr.net/npm/@supabase/supabase-js" not in body, name
+        class AssetLinks(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.links = []
+            def handle_starttag(self, tag, attrs):
+                values = dict(attrs)
+                attr = "src" if tag in {"script", "img", "iframe"} else "href" if tag in {"a", "link"} else None
+                if attr and values.get(attr):
+                    self.links.append((tag, values[attr]))
+        checked = 0
+        missing = []
+        for name in sorted(names):
+            if not name.endswith(".html"):
+                continue
+            parser = AssetLinks()
+            parser.feed(archive.read(name).decode("utf-8"))
+            for tag, raw in parser.links:
+                if "$" in raw or "{{" in raw:
+                    continue  # Runtime-generated links are covered by browser tests.
+                url = urlsplit(raw)
+                if url.scheme or url.netloc or not url.path or url.path.startswith("/"):
+                    continue
+                candidate = posixpath.normpath(posixpath.join(posixpath.dirname(name), unquote(url.path)))
+                checked += 1
+                if candidate not in names:
+                    missing.append((name, tag, candidate))
+        assert not missing, f"Broken staging local asset links: {missing}"
+        print(f"PASS static staging asset graph: {checked} local links, 0 missing")
         print(f"PASS offline staging ZIP: {len(names)} files, verified SHA256SUMS, no private company route, no production backend")
