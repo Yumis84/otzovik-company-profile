@@ -67,6 +67,8 @@
     "public.get_public_company_profile_v3_candidate(text)",
     "public.moderate_own_review(uuid, text, text)",
     "public.moderate_own_review_internal(uuid, text, text, text, text)",
+    "public.owner_remove_company_member(uuid, uuid)",
+    "public.owner_update_company_member_role(uuid, uuid, text)",
     "public.publish_my_company_knowledge(uuid, uuid, text)",
     "public.publish_own_review_internal(uuid, text, text, text)",
     "public.record_own_review_ai_assessment_internal(uuid, text, numeric, jsonb, text)",
@@ -100,9 +102,13 @@
     "phase9c_profile_publish_statement_revisions",
     "phase9c_profile_publish_question_revisions"
   ],
+  "new_schema_acl": {
+    "private": "new schema only: postgres owner, service_role USAGE, no anon/authenticated"
+  },
+  "existing_schema_acl_modified": false,
   "existing_objects_modified": [
     "public.company_locations: add canonical composite unique index",
     "public.company_services: add canonical composite unique index"
   ],
-  "sql_sha256": "00a2ff344913050ccfb4b7b7f9e80f9218854d4b1675a3428440c75034102be2"
+  "sql_sha256": "35834a08d6ba3d961f671fca22e76635d143fd6037930de970f550d7748e024d"
 }

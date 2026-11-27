@@ -6,7 +6,7 @@ q=lambda x:'"'+x.replace('"','""')+'"'
 tn=lambda t:q(t['schema'])+'.'+q(t['name'])
 existing={(t['schema'],t['name']) for t in s['tables']}
 existing_f={(f['schema'],f['name'],f['args']) for f in s['functions']}
-seed={'add_my_company_review_source','archive_my_company_review_source','get_my_company_review_sources','record_review_source_rating_snapshot','enqueue_review_source_sync','claim_next_review_source_sync','finish_review_source_sync','recover_stale_review_source_sync_jobs','get_my_company_client_content','get_my_company_knowledge','upsert_my_company_knowledge','publish_my_company_knowledge','verify_my_company_knowledge','upsert_my_company_question_answer','respond_to_my_company_review','get_public_company_content_v1','get_public_company_profile_v2','get_public_company_profile_v3_candidate','get_public_company_access_state','get_my_company_publication_status','get_company_profile_for_worker','submit_own_review_internal','moderate_own_review','moderate_own_review_internal','publish_own_review_internal','remove_own_review_internal','record_own_review_ai_assessment_internal','get_own_review_moderation_queue','check_own_review_rate_limit_internal'}
+seed={'owner_remove_company_member','owner_update_company_member_role','add_my_company_review_source','archive_my_company_review_source','get_my_company_review_sources','record_review_source_rating_snapshot','enqueue_review_source_sync','claim_next_review_source_sync','finish_review_source_sync','recover_stale_review_source_sync_jobs','get_my_company_client_content','get_my_company_knowledge','upsert_my_company_knowledge','publish_my_company_knowledge','verify_my_company_knowledge','upsert_my_company_question_answer','respond_to_my_company_review','get_public_company_content_v1','get_public_company_profile_v2','get_public_company_profile_v3_candidate','get_public_company_access_state','get_my_company_publication_status','get_company_profile_for_worker','submit_own_review_internal','moderate_own_review','moderate_own_review_internal','publish_own_review_internal','remove_own_review_internal','record_own_review_ai_assessment_internal','get_own_review_moderation_queue','check_own_review_rate_limit_internal'}
 trigger_names=set()
 for t in c['triggers'] or []:
  if 'profile_publish' not in t['name']:
@@ -23,9 +23,14 @@ functions=[f for f in functions if (f['schema'],f['name'],f['args']) not in exis
 assert not any('net.http_' in f['definition'] or 'rzhlcszqtuhkhfibygnk.supabase.co' in f['definition'] for f in functions),'production emitter must be excluded'
 tables=[t for t in c['tables'] if (t['schema'],t['name']) not in existing]
 assert all(not col['generated'] for t in tables for col in t['columns'])
-lines=['-- REVIEW ONLY: existing staging salmcnhexlftrgtiryyo; never auto-apply.','BEGIN;',"SET LOCAL lock_timeout='3s'; SET LOCAL statement_timeout='60s';",'SET LOCAL search_path=pg_catalog,public,private,extensions;',"DO $pre$ BEGIN IF current_setting('server_version_num')::int < 170000 THEN RAISE EXCEPTION 'PG17 required'; END IF;", "IF to_regclass('public.specialist_profiles') IS NULL OR to_regclass('public.company_access_invitations') IS NULL THEN RAISE EXCEPTION 'expected existing staging modules absent'; END IF;"]
+lines=['-- REVIEW ONLY: existing staging salmcnhexlftrgtiryyo; never auto-apply.','BEGIN;',"SET LOCAL lock_timeout='3s'; SET LOCAL statement_timeout='60s';",'SET LOCAL search_path=pg_catalog,public,private,extensions;',"DO $pre$ BEGIN IF current_setting('server_version_num')::int < 170000 THEN RAISE EXCEPTION 'PG17 required'; END IF;", "IF EXISTS(SELECT 1 FROM pg_namespace WHERE nspname='private') THEN RAISE EXCEPTION 'unexpected existing private schema: recatalog before any ACL change'; END IF;",
+ "IF to_regclass('public.specialist_profiles') IS NULL OR to_regclass('public.company_access_invitations') IS NULL THEN RAISE EXCEPTION 'expected existing staging modules absent'; END IF;"]
 for t in tables:lines.append("IF to_regclass('"+t['schema']+'.'+t['name']+"') IS NOT NULL THEN RAISE EXCEPTION 'new module object already exists: "+t['name']+"'; END IF;")
-lines+=['END $pre$;','CREATE SCHEMA IF NOT EXISTS private;','REVOKE ALL ON SCHEMA private FROM PUBLIC,anon,authenticated;']
+lines+=['END $pre$;']
+pre=(root/'00-preflight-readonly.sql').read_text()
+guard=pre[pre.index('DO $preflight$'):pre.index("SELECT 'PASS pinned")]
+lines.append(guard)
+lines+=['CREATE SCHEMA private;','REVOKE ALL ON SCHEMA private FROM PUBLIC,anon,authenticated;','GRANT USAGE ON SCHEMA private TO service_role;']
 for t in tables:
  cols=[]
  for col in t['columns']:
@@ -75,6 +80,6 @@ for t in c['triggers'] or []:
  else:skipped.append(t)
 lines+=['COMMIT;','']
 (root/'10-canonical-missing-modules.sql').write_text('\n'.join(lines))
-manifest={'canonical_project':'rzhlcszqtuhkhfibygnk','staging_project':'salmcnhexlftrgtiryyo','new_tables':[t['schema']+'.'+t['name'] for t in tables],'new_functions':[f['schema']+'.'+f['name']+'('+f['args']+')' for f in functions],'deferred_triggers':[t['name'] for t in skipped],'existing_objects_modified':['public.company_locations: add canonical composite unique index','public.company_services: add canonical composite unique index'],'sql_sha256':hashlib.sha256((root/'10-canonical-missing-modules.sql').read_bytes()).hexdigest()}
+manifest={'canonical_project':'rzhlcszqtuhkhfibygnk','staging_project':'salmcnhexlftrgtiryyo','new_tables':[t['schema']+'.'+t['name'] for t in tables],'new_functions':[f['schema']+'.'+f['name']+'('+f['args']+')' for f in functions],'deferred_triggers':[t['name'] for t in skipped],'new_schema_acl':{'private':'new schema only: postgres owner, service_role USAGE, no anon/authenticated'},'existing_schema_acl_modified':False,'existing_objects_modified':['public.company_locations: add canonical composite unique index','public.company_services: add canonical composite unique index'],'sql_sha256':hashlib.sha256((root/'10-canonical-missing-modules.sql').read_bytes()).hexdigest()}
 (root/'delta-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 print(json.dumps({k:v if not isinstance(v,list) else len(v) for k,v in manifest.items()}))

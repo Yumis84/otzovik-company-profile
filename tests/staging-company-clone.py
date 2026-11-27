@@ -11,13 +11,16 @@ def run(sql,database=None):
 roles={'anon','authenticated','service_role','specialist_operator','supabase_admin','supabase_auth_admin','supabase_storage_admin','dashboard_user'}
 roles|={acl['grantee'] for t in s['tables']+aux['tables'] for acl in t['acl'] or [] if acl['grantee']!='PUBLIC'}
 for role in roles:run("DO $role$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='"+role+"') THEN CREATE ROLE "+q(role)+" NOLOGIN; END IF; END $role$;",'postgres')
+run('ALTER ROLE service_role BYPASSRLS; ALTER ROLE specialist_operator NOINHERIT NOBYPASSRLS;','postgres')
 run('CREATE DATABASE '+q(a.database)+';','postgres')
 lines=['SET check_function_bodies=off;','CREATE SCHEMA auth;CREATE SCHEMA storage;CREATE SCHEMA media_internal;CREATE SCHEMA extensions;','CREATE EXTENSION pgcrypto WITH SCHEMA extensions;','SET search_path=pg_catalog,public,extensions;']
 for schema in ['auth','storage','media_internal','extensions']:lines.append('GRANT USAGE ON SCHEMA '+schema+' TO anon,authenticated,service_role,specialist_operator;')
 for t in aux['enums']:
  if t['schema']=='storage':lines.append('CREATE TYPE '+q(t['schema'])+'.'+q(t['name'])+' AS ENUM('+','.join("'"+x+"'" for x in t['labels'])+');')
 for f in aux['metadata']['helpers']:lines.append(f['definition'].rstrip()+';')
-for seq in aux['metadata']['sequences'] or []:lines.append('CREATE SEQUENCE '+q(seq['schemaname'])+'.'+q(seq['sequencename'])+' AS bigint;')
+identity_sequences={t['schema']+'.'+t['name']+'_'+col['name']+'_seq' for t in s['tables']+aux['tables'] for col in t['columns'] if col['identity']}
+for seq in aux['metadata']['sequences'] or []:
+ if seq['schemaname']+'.'+seq['sequencename'] not in identity_sequences:lines.append('CREATE SEQUENCE '+q(seq['schemaname'])+'.'+q(seq['sequencename'])+' AS bigint;')
 tables=aux['tables']+s['tables']
 for t in tables:
  cols=[]
@@ -41,9 +44,10 @@ for t in tables:
  encoded=json.dumps(rows,ensure_ascii=False).encode().hex()
  lines.append('INSERT INTO '+tn(t)+'('+','.join(map(q,cols))+') OVERRIDING SYSTEM VALUE SELECT '+','.join('x.'+q(c) for c in cols)+' FROM jsonb_populate_recordset(NULL::'+tn(t)+",convert_from(decode('"+encoded+"','hex'),'UTF8')::jsonb) x;")
 for t in tables:
+ for index in t['indexes'] or []:lines.append(index+';')
+for t in tables:
  for con in t['constraints'] or []:
   if con['type']=='f':lines.append('ALTER TABLE '+tn(t)+' ADD CONSTRAINT '+q(con['name'])+' '+con['definition']+';')
- for index in t['indexes'] or []:lines.append(index+';')
  lines+=['ALTER TABLE '+tn(t)+(' ENABLE' if t['rls'] else ' DISABLE')+' ROW LEVEL SECURITY;','ALTER TABLE '+tn(t)+(' FORCE' if t['force_rls'] else ' NO FORCE')+' ROW LEVEL SECURITY;','REVOKE ALL ON '+tn(t)+' FROM PUBLIC,anon,authenticated,service_role;']
  for acl in t['acl'] or []:
   if acl['grantee']=='postgres':continue
@@ -69,6 +73,7 @@ def baseline():
   name=t['schema']+'.'+t['name'];out[name]=run("SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text COLLATE \"C\"),'[]'::jsonb)::text,'UTF8')),'hex') FROM "+tn(t)+' x;')
  out['functions']=run("SELECT encode(sha256(convert_to(string_agg(pg_get_functiondef(p.oid),E'\\n' ORDER BY n.nspname,p.proname,oidvectortypes(p.proargtypes)),'UTF8')),'hex') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN('public','media_internal') AND p.oid IN ("+','.join("'"+f['schema']+'.'+f['name']+'('+f['args']+")'::regprocedure::oid" for f in s['functions'])+');')
  return out
+run((root/'00-preflight-readonly.sql').read_text(encoding='utf-8'))
 b=baseline();run((root/'10-canonical-missing-modules.sql').read_text(encoding='utf-8'));after=baseline();assert b==after,[k for k in b if b[k]!=after[k]]
 print('PASS canonical missing-module delta on actual staged clone: ALL existing rows and function bodies unchanged')
 pathlib.Path(a.data).with_name(a.database+'-baseline-hashes.json').write_text(json.dumps(b,indent=2))
