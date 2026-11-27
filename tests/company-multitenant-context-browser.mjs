@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 const A='4616c65b-5ebb-4c13-b2ef-24e2bc40d623',B='f1d3c93b-20e6-4a3c-9a54-36a947a55fb2',foreign='11111111-2222-4333-8444-555555555555';
-const browser=await chromium.launch({headless:true,channel:'msedge'});
+const browser=await chromium.launch({headless:true,...(process.env.CI?{}:{channel:'msedge'})});
 const cases=[
  {label:'explicit B overrides stored A',requested:B,stored:A,role:'owner',expected:B,access:true},
  {label:'invalid requested ID falls back to owned A',requested:'invalid-id',stored:B,role:'owner',expected:A,access:true},
