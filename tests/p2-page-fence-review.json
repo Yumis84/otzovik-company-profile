@@ -42,6 +42,18 @@
       "old": "load().catch(e=>{$('state')",
       "new": "load().catch(e=>{if(!pageFence.current())return;$('state')",
       "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "const r=await s.rpc('upsert_my_company_question_answer',",
+      "new": "try{const r=await s.rpc('upsert_my_company_question_answer',",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "await load()});",
+      "new": "await load()}catch(error){if(pageFence.current())$('state').textContent=error?.message||'Ошибка сохранения.'}finally{if(pageFence.current())$('save').disabled=!canWrite}});",
+      "count": 1
     }
   ]
 }
