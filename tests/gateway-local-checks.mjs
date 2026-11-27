@@ -62,10 +62,31 @@ export async function gatewayChecks({a,b,anonymous,admin,db,api,anon,service,pag
   assert.equal((await gw(a,body)).status,409); // tombstone prevents resurrection
  });
  await test('strict real Storage quota at19: one winner, including concurrent Edge requests',async()=>{
-  for(let attempt=0;attempt<3;attempt++){
+  for(let attempt=0;attempt<20;attempt++){
    const profile=ok(await a.rpc('create_my_specialist_draft',{p_display_name:'Gateway quota',p_slug:'gw-quota-'+attempt,p_profession:'Master'}));
    for(let i=0;i<19;i++)assert.equal((await gw(a,payload(profile.id))).status,200);
-   const results=await Promise.all([gw(a,payload(profile.id)),gw(a,payload(profile.id))]);assert.equal(results.filter(r=>r.status===200).length,1,JSON.stringify(results));assert(results.some(r=>r.status===429));
+   // Diagnostic-only evidence on disposable PG17; no credentials or image payloads logged.
+   const quotaEvidence=async phase=>{
+    const objects=(await db.query("SELECT count(*)::int AS n FROM storage.objects WHERE bucket_id='specialist-media' AND split_part(name,'/',1)=$1",[profile.id])).rows[0].n;
+    const states=(await db.query("SELECT state,count(*)::int AS n FROM public.specialist_upload_reservations WHERE profile_id=$1 GROUP BY state ORDER BY state",[profile.id])).rows;
+    console.log('QUOTA_DIAG',JSON.stringify({attempt,phase,objects,states}));
+   };
+   await quotaEvidence('before');
+   if(attempt===0){
+    const definition=(await db.query("SELECT pg_get_functiondef('public.specialist_gateway_reserve(uuid,uuid,uuid,text,text,text,integer,text)'::regprocedure) AS fn")).rows[0].fn;
+    const isolation=(await db.query('SHOW transaction_isolation')).rows[0].transaction_isolation;
+    console.log('QUOTA_DIAG_FUNCTION',JSON.stringify({isolation,definition}));
+   }
+   const first=payload(profile.id),second=payload(profile.id);
+   let results;
+   try{
+    results=await Promise.all([gw(a,first),gw(a,second)]);
+   }finally{
+    await quotaEvidence('after');
+    const reservations=(await db.query("SELECT id,state,object_name FROM public.specialist_upload_reservations WHERE id=ANY($1::uuid[]) ORDER BY id",[[first.request_id,second.request_id]])).rows;
+    console.log('QUOTA_DIAG_REQUESTS',JSON.stringify({attempt,requests:[first.request_id,second.request_id],reservations,results:results?.map(r=>({status:r.status,code:r.code,object_name:r.media?.object_name}))}));
+   }
+   assert.equal(results.filter(r=>r.status===200).length,1,JSON.stringify(results));assert(results.some(r=>r.status===429));
    const objects=ok(await a.storage.from('specialist-media').list(profile.id+'/portfolio',{limit:100}));assert.equal(objects.length,20);
    for(const object of objects)assert((await gw(a,{action:'delete',specialist_id:profile.id,object_name:profile.id+'/portfolio/'+object.name})).deleted);
    ok(await a.rpc('delete_my_specialist_draft',{p_specialist_id:profile.id}));
