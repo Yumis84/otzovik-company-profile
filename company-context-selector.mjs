@@ -8,7 +8,8 @@ export function selectVerifiedCompanyRow(rows, requestedId, {explicit=false}={})
  if(requestedId){
   const selected=valid.find(row=>row.company.id===requestedId && (!row.company_id||row.company_id===requestedId));
   if(selected)return selected;
-  if(explicit)throw new CompanySelectionDeniedError();
+  throw new CompanySelectionDeniedError();
  }
+ if(explicit)throw new CompanySelectionDeniedError();
  return valid[0]||null;
 }
