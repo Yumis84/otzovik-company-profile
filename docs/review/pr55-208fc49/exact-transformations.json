@@ -1,0 +1,64 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_APPLIED",
+  "baseline_commit": "d1585cde36dacfa0f5f043d0600d86d1a00de4a9",
+  "target_source_commit": "208fc49983af358f0a3975134fd7a6128bdb2084",
+  "file": "account-company-context.js",
+  "canonical_bytes": "UTF-8 LF committed git blobs",
+  "baseline_sha256": "6c8b82b7022d844e5a7789387d11eefdccd5e45d06455da847e5438804f171e6",
+  "target_sha256": "2abae45a35a9e8f234a2a7c6137f3b12d0289a88800bd196246553ebfe3c0f7c",
+  "target_bytes": 12464,
+  "replacements": [
+    {
+      "id": "R1 defer URL persistence",
+      "old": "if(urlCompanyId){localStorage.setItem('otzovik_active_company_id',urlCompanyId);sessionStorage.setItem('otzovik_active_company_id',urlCompanyId)}",
+      "new": "// Untrusted URL company_id is persisted only after RPC membership verification."
+    },
+    {
+      "id": "R2 explicit denial cleanup",
+      "old": "function applyRoleAccess(",
+      "new": "function clearUnverifiedCompany(){localStorage.removeItem('otzovik_active_company_id');sessionStorage.removeItem('otzovik_active_company_id');requestedCompanyId=null;const u=new URL(location.href);if(u.searchParams.has('company_id')){u.searchParams.delete('company_id');history.replaceState(null,'',u.pathname+u.search+u.hash)}document.querySelectorAll('a[href^=\"account-\"]').forEach(a=>{const u=new URL(a.href,location.href);if(u.searchParams.has('company_id')){u.searchParams.delete('company_id');a.href=u.pathname.split('/').pop()+u.search}});applyRoleAccess('analyst')}\nfunction applyRoleAccess("
+    },
+    {
+      "id": "R3 defer link propagation",
+      "old": "keepContext();\nmount();",
+      "new": "// Wait for verified membership before propagating company_id to links.\nmount();"
+    },
+    {
+      "id": "R4 no session cleanup",
+      "old": "if(!auth.data.session)throw Error('auth');",
+      "new": "if(!auth.data.session){clearUnverifiedCompany();throw Error('auth')};"
+    },
+    {
+      "id": "R5 RPC denial cleanup",
+      "old": "if(mine.error)throw mine.error;",
+      "new": "if(mine.error){clearUnverifiedCompany();throw mine.error}"
+    },
+    {
+      "id": "R6 malformed membership cleanup",
+      "old": "const rows=mine.data||[];",
+      "new": "const rows=mine.data;if(!Array.isArray(rows)){clearUnverifiedCompany();throw Error('invalid memberships')};"
+    },
+    {
+      "id": "R7 persist verified membership only",
+      "old": "applyRoleAccess(membership.role);keepContext();",
+      "new": "if(company?.id){localStorage.setItem('otzovik_active_company_id',company.id);sessionStorage.setItem('otzovik_active_company_id',company.id)}applyRoleAccess(membership.role);keepContext();"
+    },
+    {
+      "id": "R8 absent company cleanup",
+      "old": "if(!company){avatar.textContent=",
+      "new": "if(!company){clearUnverifiedCompany();avatar.textContent="
+    },
+    {
+      "id": "R9 optional logo isolation",
+      "old": "const media=await sb.from('company_media').select('storage_object_name').eq('company_id',company.id).eq('media_type','logo').eq('status','published').limit(1).maybeSingle();if(!media.error&&media.data?.storage_object_name){const signed=await sb.storage.from('company-media').createSignedUrl(media.data.storage_object_name,3600);if(!signed.error&&signed.data?.signedUrl)avatar.innerHTML='<img src=\"'+esc(signed.data.signedUrl)+'\" alt=\"Логотип '+esc(company.name||'компании')+'\">'}",
+      "new": "try{const media=await sb.from('company_media').select('storage_object_name').eq('company_id',company.id).eq('media_type','logo').eq('status','published').limit(1).maybeSingle();if(!media.error&&media.data?.storage_object_name){const signed=await sb.storage.from('company-media').createSignedUrl(media.data.storage_object_name,3600);if(!signed.error&&signed.data?.signedUrl)avatar.innerHTML='<img src=\"'+esc(signed.data.signedUrl)+'\" alt=\"Логотип '+esc(company.name||'компании')+'\">'}}catch{/* Optional logo failure does not invalidate verified context. */}"
+    }
+  ],
+  "preserved": [
+    "companySource 33 file list",
+    "basis 76b3fa7a99df04d320b022a5a777fdbdf897b826",
+    "all other protected company files",
+    "shared navigation pin",
+    "server SQL ACL Auth unchanged"
+  ]
+}
