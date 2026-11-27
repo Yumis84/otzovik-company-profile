@@ -29,6 +29,10 @@ with tempfile.TemporaryDirectory() as tmp:
         assert "company-public-unavailable.html?slug=" in analytics
         assert "sb_publishable_SYNTHETIC_BUILD_ONLY" in analytics
         assert "salmcnhexlftrgtiryyo.supabase.co" in analytics
+        assert "company-public-unavailable.html" in names
+        assert "account-home.html" in names
+        assert "staging-sdk.js" in names
+        assert "https://salmcnhexlftrgtiryyo.supabase.co" in analytics
         assert "account-preview.html?company_id=" not in analytics
         manifest = archive.read("SHA256SUMS").decode("ascii")
         expected = {line.split("  ", 1)[1]: line.split("  ", 1)[0]
