@@ -5,7 +5,7 @@ out=root.parent/'otzovik-protected-review'
 out.mkdir(exist_ok=True)
 original={}
 candidate={}
-for name in ('p2-company-race-review.json','p2-session-review.json','p2-owner-review.json','p2-builder-review.json','p2-page-fence-review.json'):
+for name in ('p2-company-race-review.json','p2-session-review.json','p2-owner-review.json','p2-builder-review.json','p2-page-fence-review.json','p2-final-review.json'):
     for e in json.loads((root/'tests'/name).read_text(encoding='utf8'))['edits']:
         p=e['path']
         if p not in original:
