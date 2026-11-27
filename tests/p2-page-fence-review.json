@@ -1,0 +1,47 @@
+{
+  "reviewOnly": true,
+  "edits": [
+    {
+      "path": "account-qna.html",
+      "old": "let company=null,items=[],canWrite=false;",
+      "new": "import {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nlet company=null,items=[],canWrite=false;\nconst pageFence=createPageSessionFence(s.auth,()=>{company=null;items=[];canWrite=false;document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage);});",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "async function load(){const session=await s.auth.getSession();",
+      "new": "async function load(){if(!await pageFence.start())return;const session=await s.auth.getSession();if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "const mine=await s.rpc('get_my_companies');",
+      "new": "const mine=await s.rpc('get_my_companies');if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "if(c.error)throw c.error;",
+      "new": "if(!pageFence.current())return;if(c.error)throw c.error;",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "if(!company||!canWrite)return;",
+      "new": "if(!pageFence.current()||!company||!canWrite)return;",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "$('save').disabled=false;if(r.error)",
+      "new": "if(!pageFence.current())return;$('save').disabled=false;if(r.error)",
+      "count": 1
+    },
+    {
+      "path": "account-qna.html",
+      "old": "load().catch(e=>{$('state')",
+      "new": "load().catch(e=>{if(!pageFence.current())return;$('state')",
+      "count": 1
+    }
+  ]
+}
