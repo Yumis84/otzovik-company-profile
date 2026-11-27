@@ -282,6 +282,144 @@
       "old": "const syncSubmitState=()=>{",
       "new": "const syncSubmitState=()=>{if(!pageFence.current())return;",
       "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "try{const session=await s.auth.getSession(),user=session.data.session?.user;",
+      "new": "if(await pageFence.start())try{const session=await s.auth.getSession(),user=session.data.session?.user;if(!pageFence.current())throw Error('Session changed');",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "if(mine.error)throw mine.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(mine.error)throw mine.error;",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "if(profile.error)throw profile.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(profile.error)throw profile.error;",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "if(clientContent.error)throw clientContent.error;",
+      "new": "if(!pageFence.current())throw Error('Session changed');if(clientContent.error)throw clientContent.error;",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "catch(e){['native-rating'",
+      "new": "catch(e){if(pageFence.current()){['native-rating'",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "text('data-note','Не удалось получить данные текущей компании.')}",
+      "new": "text('data-note','Не удалось получить данные текущей компании.')}}",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "if(!context?.canRespond)return;",
+      "new": "if(!pageFence.current()||!context?.canRespond)return;",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "const result=await s.rpc('respond_to_my_company_review'",
+      "new": "try{const result=await s.rpc('respond_to_my_company_review'",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "button.textContent='Отправить ответ';if(result.error)",
+      "new": "if(!pageFence.current())return;button.textContent='Отправить ответ';if(result.error)",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "syncResponseForm()});\n</script>",
+      "new": "syncResponseForm()}catch(error){if(pageFence.current()){button.textContent='Отправить ответ';text('response-state',error?.message||'Ошибка сохранения.');syncResponseForm()}}});\n</script>",
+      "count": 1
+    },
+    {
+      "path": "account-reviews.html",
+      "old": "function syncResponseForm(){",
+      "new": "function syncResponseForm(){if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');",
+      "new": "const s=createClient('https://rzhlcszqtuhkhfibygnk.supabase.co','sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-');\nimport {createPageSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst pageFence=createPageSessionFence(s.auth,()=>{document.body.inert=true;document.body.hidden=true;clearCompanyStorage(localStorage,sessionStorage)});",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "async function load(){const session=await s.auth.getSession();",
+      "new": "async function load(){if(!await pageFence.start())return;const session=await s.auth.getSession();if(!pageFence.current())return;",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "if(mine.error)throw mine.error;",
+      "new": "if(!pageFence.current())return;if(mine.error)throw mine.error;",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "if(res.error)throw res.error;",
+      "new": "if(!pageFence.current())return;if(res.error)throw res.error;",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "async function archiveSource(id){if(!company)return;",
+      "new": "async function archiveSource(id){if(!pageFence.current()||!company)return;",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "if(r.error){document.getElementById('form-state')",
+      "new": "if(!pageFence.current())return;if(r.error){document.getElementById('form-state')",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "e.preventDefault();const state",
+      "new": "e.preventDefault();if(!pageFence.current())return;const state",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "catch(error){state.textContent",
+      "new": "catch(error){if(!pageFence.current())return;state.textContent",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "finally{button.disabled=false}if(r.error)",
+      "new": "finally{if(pageFence.current())button.disabled=false}if(!pageFence.current())return;if(r.error)",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "catch(e){document.getElementById('company-context')",
+      "new": "catch(e){if(pageFence.current()){document.getElementById('company-context')",
+      "count": 1
+    },
+    {
+      "path": "account-sources.html",
+      "old": "esc(e.message||'Не удалось загрузить источники.')+'</div>'}",
+      "new": "esc(e.message||'Не удалось загрузить источники.')+'</div>'}}",
+      "count": 1
     }
   ]
 }
