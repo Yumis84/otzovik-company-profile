@@ -19,6 +19,9 @@ with tempfile.TemporaryDirectory() as tmp:
         [sys.executable, "scripts/build-specialist-staging.py", str(output)],
         input=KEY, text=True, cwd=ROOT, check=True,
     )
+    if os.environ.get('OTZOVIK_PREVIEW_ARCHIVE'):
+        import shutil
+        shutil.copyfile(output, os.environ['OTZOVIK_PREVIEW_ARCHIVE'])
     with zipfile.ZipFile(output) as archive:
         names = set(archive.namelist())
         assert "company-public-unavailable.html" in names
