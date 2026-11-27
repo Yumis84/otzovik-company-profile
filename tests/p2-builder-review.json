@@ -1,0 +1,11 @@
+{
+  "reviewOnly": true,
+  "edits": [
+    {
+      "path": "scripts/build-specialist-staging.py",
+      "old": "Path('publication-status-ui.mjs'), Path('staging/specialist/public.html')",
+      "new": "Path('publication-status-ui.mjs'), Path('company-session-fence.mjs'), Path('staging/specialist/public.html')",
+      "count": 1
+    }
+  ]
+}
