@@ -23,13 +23,13 @@
     {
       "path": "account-company-context.js",
       "old": "const SUPABASE_URL=",
-      "new": "import {createSessionFence,clearCompanyStorage} from './company-session-fence.mjs';\nconst sessionFence=createSessionFence();\nconst SUPABASE_URL=",
+      "new": "import {createSessionFence,clearCompanyStorage,createAuthSessionObserver} from './company-session-fence.mjs';\nconst sessionFence=createSessionFence();\nconst SUPABASE_URL=",
       "count": 1
     },
     {
       "path": "account-company-context.js",
       "old": "const auth=await sb.auth.getSession();",
-      "new": "let authChanged=false;sb.auth.onAuthStateChange((event,session)=>{if(event==='INITIAL_SESSION'||event==='TOKEN_REFRESHED')return;authChanged=true;sessionFence.transition(null);clearCompanyStorage(localStorage,sessionStorage);document.querySelector('main')?.setAttribute('hidden','');location.replace(session?'account-home.html':'account-login.html')});const auth=await sb.auth.getSession();if(authChanged)return;sessionFence.transition(auth.data.session?.user?.id);const ticket=sessionFence.capture();",
+      "new": "let authChanged=false;const observeAuth=createAuthSessionObserver(next=>{authChanged=true;sessionFence.transition(null);clearCompanyStorage(localStorage,sessionStorage);document.querySelector('main')?.setAttribute('hidden','');location.replace(next?'account-home.html':'account-login.html')});sb.auth.onAuthStateChange(observeAuth);const auth=await sb.auth.getSession();if(authChanged)return;sessionFence.transition(auth.data.session?.user?.id);const ticket=sessionFence.capture();",
       "count": 1
     },
     {
