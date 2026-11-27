@@ -8,7 +8,9 @@ const cssAddition='/* Keep the existing profile form within narrow mobile viewpo
 export function approvedCompanyVersion(file,original){
  if(file==='account-company-context.js'){
   assert.equal(original.split(anchor).length,2,'Company navigation insertion anchor must be unique');
-  return contextImport+original.replace(anchor,anchor+install);
+  const roleAnchor='applyRoleAccess(membership.role);';
+  assert.equal(original.split(roleAnchor).length,2,'Company role context anchor must be unique');
+  return contextImport+original.replace(anchor,anchor+install).replace(roleAnchor,roleAnchor+'keepContext();');
  }
  if(file==='account-profile.css')return original+cssAddition;
  if(file==='account-home.html'){

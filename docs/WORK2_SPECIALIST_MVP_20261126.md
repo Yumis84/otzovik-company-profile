@@ -80,3 +80,10 @@ Confirmed home defect: the specialist list hard-coded “Черновик · т�
 Guard pin provenance: scripts/company-integrity.mjs 33302024bad82795337450fb416f4a06ed0822399163747cbae38175fe56c85d → d8bfae9ab8c9be530ef8d1985ff4e61051d8b4ce79c0c634094fddab39d64f53 solely for the exact home specialist badge literal transformation and its path allowlist. Company file list/basis/shared-navigation SHA, server/SQL/ACL pins unchanged. Injected-change rejection covers all permitted paths including home.
 
 Corresponding tests/company-integrity.mjs pin 63114ecd4fba8bb106f73ce4ee2411bb6c16a4f8f0a6d093d1558601e13135ba → f8700a91d4bb5eb68c778a106ce93c644a28006cf20a5be9c9e3e1c0349ba02e adds injected-change rejection on account-home.html. Both new pins use canonical UTF-8 LF bytes.
+
+
+## Company real-JWT acceptance 2026-11-27
+
+Dedicated fixture4616c65b: owner browser login, description save/reload, one new service and branch, empty-slot photograph upload/reload/decoded PASS. Original data/photos preserved. No specialist regression reruns. Publication link routes to account-preview login landing (confirmed), publisher/status backend classification requested Work1 event3bc69874. B invitation awaits nonsecret account identifier and secure B login, not yet PASS.
+
+Confirmed Access link lost company_id because applyRoleAccess inserts it after keepContext startup. Reapply existing keepContext immediately after role navigation update; no role/ACL/auth change. Company guard admits exactly this unique literal insertion in addition to previous navigation import. All other company bytes/list/basis/shared pins remain protected. Guard pin provenance: ['d8bfae9ab8c9be530ef8d1985ff4e61051d8b4ce79c0c634094fddab39d64f53 -> 99d4badf66ef61daa26e596d5c8c72b421116293375e2b6a8d3552e5fc912ef7']

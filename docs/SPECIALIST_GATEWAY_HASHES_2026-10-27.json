@@ -223,7 +223,7 @@
     },
     {
       "file": "scripts/company-integrity.mjs",
-      "sha256": "d8bfae9ab8c9be530ef8d1985ff4e61051d8b4ce79c0c634094fddab39d64f53"
+      "sha256": "99d4badf66ef61daa26e596d5c8c72b421116293375e2b6a8d3552e5fc912ef7"
     },
     {
       "file": "tests/company-integrity.mjs",
