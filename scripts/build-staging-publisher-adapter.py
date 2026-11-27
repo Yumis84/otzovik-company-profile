@@ -44,5 +44,5 @@ CREATE OR REPLACE FUNCTION public.get_public_company_content_v1(p_slug text) RET
 $public$;
 COMMIT;
 ''')
-(dst/'20-publisher-integration.sql').write_text('\n\n'.join(parts))
+(dst/'20-publisher-integration.sql').write_text('\n\n'.join(parts),encoding='utf-8',newline='\n')
 print('composed canonical status integration, no replacement of baseline existing functions or grants')

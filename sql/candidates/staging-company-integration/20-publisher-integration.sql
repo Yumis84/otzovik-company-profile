@@ -146,7 +146,15 @@ ALTER TABLE private.company_publish_attempt_candidate ADD COLUMN lease_until tim
 CREATE FUNCTION private.expire_publish_candidates() RETURNS bigint LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
 DECLARE n bigint;
 BEGIN
- UPDATE private.company_publish_attempt_candidate SET state='failed' WHERE state='building' AND lease_until IS NOT NULL AND lease_until<=clock_timestamp();
+ -- Do not wait behind a heartbeat/finalizer or another expiry sweep.
+ -- Recheck under the row lock: a live lease must never be expired.
+ WITH expired AS (
+  SELECT id FROM private.company_publish_attempt_candidate
+  WHERE state='building' AND lease_until IS NOT NULL AND lease_until<=clock_timestamp()
+  ORDER BY id FOR UPDATE SKIP LOCKED
+ )
+ UPDATE private.company_publish_attempt_candidate a SET state='failed',lease_until=NULL
+ FROM expired e WHERE a.id=e.id AND a.state='building' AND a.lease_until<=clock_timestamp();
  GET DIAGNOSTICS n=ROW_COUNT;
  RETURN n;
 END $$;
@@ -157,6 +165,7 @@ CREATE OR REPLACE FUNCTION private.claim_publish_candidate(p_run uuid) RETURNS j
 DECLARE v_id uuid; v_result jsonb;
 BEGIN
  IF p_run IS NULL THEN RETURN NULL; END IF;
+ PERFORM private.expire_publish_candidates();
  SELECT id INTO v_id FROM private.company_publish_attempt_candidate WHERE state='queued' ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED;
  IF NOT FOUND THEN RETURN NULL; END IF;
  UPDATE private.company_publish_attempt_candidate SET state='building',run_id=p_run,lease_until=clock_timestamp()+interval '5 minutes' WHERE id=v_id RETURNING jsonb_build_object('id',id,'company_id',company_id,'slug',slug,'snapshot',snapshot,'run_id',run_id) INTO v_result;
