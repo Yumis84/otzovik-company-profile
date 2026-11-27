@@ -1,0 +1,23 @@
+{
+  "backend_sha": "4e9a41e3ff1f6f5cd94f716630577fca80bf0d89",
+  "generator_sha": "3af1bdbe396d168e8b09a19396c5ca3e1b32d095",
+  "database": "work2_republish_acceptance",
+  "port": 55489,
+  "checks": [
+    "real authenticated DB owner request and durable UUID replay -> queued",
+    "queue -> actual image sanitize/renderer/proof -> published; replay does not rebuild",
+    "actual loopback HTTP public HTML and sanitized photo readable",
+    "renderer failure marks failed and preserves readable prior version/photo bytes",
+    "new UUID retry after failure republishes; prior artifact and source photo unchanged",
+    "changed draft invalidates old public snapshot without deleting old version files",
+    "edited profile republished via queue; new version served and previous files/photos retained",
+    "media transport failure preserves last valid public version and photos",
+    "original two synthetic companies and source image bytes preserved"
+  ],
+  "first_revision": "d7c92395d77ae7018de997e859e0285e2585f3a70adbf213cbcb69d1eda38f01",
+  "second_revision": "8b518a499850b8ca56935a7145c273bca22fd10faa4bb7848adcd0d319fe0dd1",
+  "source_photo_sha256": "14f2f38acc59bb07785c4b4af4daf5ff1b015ab1517960a6b99c4f7fed3142c2",
+  "media_transport": "mocked read; actual image decode/reencode",
+  "auth": "actual PG authenticated role and fixture auth.uid, not hosted JWT",
+  "http": "actual loopback only"
+}
