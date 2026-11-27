@@ -104,5 +104,5 @@
     "public.company_locations: add canonical composite unique index",
     "public.company_services: add canonical composite unique index"
   ],
-  "sql_sha256": "70c6db9e248a1d5039c24944a1786b4694c4a1f40e46b9c54aa3ac441ee7e0e1"
+  "sql_sha256": "00a2ff344913050ccfb4b7b7f9e80f9218854d4b1675a3428440c75034102be2"
 }
