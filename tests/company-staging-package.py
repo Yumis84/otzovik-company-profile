@@ -39,5 +39,6 @@ with tempfile.TemporaryDirectory() as tmp:
                 body = archive.read(name).decode("utf-8")
                 assert "account-preview.html?company_id=" not in body, name
                 assert "xn--b1ajuq0c.com" not in body, name
+                assert "https://\u043e\u0442\u0437\u044b\u0432.com/" not in body, name
                 assert "rzhlcszqtuhkhfibygnk" not in body, name
         print(f"PASS offline staging ZIP: {len(names)} files, verified SHA256SUMS, no private company route, no production backend")
