@@ -1,0 +1,47 @@
+{
+  "reviewOnly": true,
+  "edits": [
+    {
+      "path": "account-access.html",
+      "old": "const companyId=()=>qs.get('company_id')||localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id');",
+      "new": "import {selectVerifiedCompanyRow} from './company-context-selector.mjs';\nconst requestedCompanyId=qs.has('company_id')?qs.get('company_id'):(localStorage.getItem('otzovik_active_company_id')||sessionStorage.getItem('otzovik_active_company_id'));\nlet verifiedCompanyId=null;const companyId=()=>verifiedCompanyId;",
+      "count": 1
+    },
+    {
+      "path": "account-access.html",
+      "old": "async function loadOwner(){const s=await session();if(!s){if(!token)location.href='account-login.html';return}const id=companyId();if(!id)return;const mine=await sb.rpc('get_my_companies');const row=(mine.data||[]).find(x=>x?.company?.id===id);if(mine.error||row?.membership?.role!=='owner'){$('access-denied').hidden=false;return}$('owner-ui').hidden=false;await refresh(id,s)}",
+      "new": "async function loadOwner(){verifiedCompanyId=null;$('owner-ui').hidden=true;const s=await session();if(!s){if(!token)location.href='account-login.html';return}try{const mine=await sb.rpc('get_my_companies');if(mine.error)throw mine.error;const row=selectVerifiedCompanyRow(mine.data,requestedCompanyId,{explicit:qs.has('company_id')});if(row?.membership?.role!=='owner')throw Error('denied');verifiedCompanyId=row.company.id;$('access-denied').hidden=true;$('owner-ui').hidden=false;await refresh(verifiedCompanyId,s)}catch{verifiedCompanyId=null;$('owner-ui').hidden=true;$('access-denied').hidden=false}}",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "let canEdit=false;",
+      "new": "let canEdit=false;let canPublish=false;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "button.disabled=!canEdit||publicationController?.busy",
+      "new": "button.disabled=!canPublish||publicationController?.busy",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "if(!canEdit||!publicationController||publicationController.busy)return;",
+      "new": "if(!canPublish||!publicationController||publicationController.busy)return;",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "finally{button.disabled=!canEdit}",
+      "new": "finally{button.disabled=!canPublish}",
+      "count": 1
+    },
+    {
+      "path": "account-profile.html",
+      "old": "el('publication-request').hidden=!canEdit;el('publication-request').disabled=!canEdit;",
+      "new": "canPublish=role==='owner';el('publication-request').hidden=!canPublish;el('publication-request').disabled=!canPublish;",
+      "count": 1
+    }
+  ]
+}
