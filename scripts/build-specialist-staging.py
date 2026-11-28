@@ -27,7 +27,10 @@ for path in sorted([*Path('.').glob('account-*'), Path('staging/specialist/publi
         data = data.replace("'https://'+%s.slug+'.xn--b1ajuq0c.com/'"%obj,"'./account-preview.html?company_id='+encodeURIComponent(%s.id)"%obj)
     data = data.replace("display+'.отзыв.com'", "display+'.invalid'")
     if path.name=='account-create-specialist.html':
-        data = data.replace("urlPreview.textContent='https://'+(slug||'ваше-имя')+'.отзыв.com/';","const url=new URL('public.html',location.href);url.searchParams.set('slug',slug);urlPreview.textContent=url.href;urlPreview.href=url.href;")
+        public_link = "new URL('specialist-public.html',location.href)"
+        if data.count(public_link) != 1:
+            raise ValueError('Expected one specialist public link in the editor')
+        data = data.replace(public_link, "new URL('public.html',location.href)")
         data = data.replace('<strong id="specialist-url">https://master-ivan.отзыв.com/</strong>','<a id="specialist-url">Профиль</a>').replace('<span class="slug-part">https://</span>','').replace('<span class="slug-part">.отзыв.com</span>','')
     if path.suffix=='.html':
         data, count = re.subn(r'<head>',lambda _: '<head><meta http-equiv="Content-Security-Policy" content="'+escape(csp,quote=True)+'">',data,count=1,flags=re.I)
