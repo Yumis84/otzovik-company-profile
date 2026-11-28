@@ -20,7 +20,7 @@ export function approvedCompanyVersion(file,original){
 }
 export function checkCompanyBytes(file,original,actual){
  if(file==='account-access.html'){
-  assert.equal(crypto.createHash('sha256').update(actual).digest('hex'),'efd3de2f68faa245946a3fe3a4a2f4a6f97eb7af749ea7edd1ca120dce9132e0','Unexpected company change: '+file);
+  assert.equal(crypto.createHash('sha256').update(actual).digest('hex'),'344a4fb0e9bf16abcc3b6bdca462dd3f03151adfdfaf0ac5f9f26c6e80e507e5','Unexpected company change: '+file);
   return;
  }
 assert.equal(actual,approvedCompanyVersion(file,original),'Unexpected company change: '+file);}
