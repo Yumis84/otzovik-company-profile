@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.115.0";
 
 const cabinetOrigin = "https://otzovik-pr51-preview-1lcsimwdp-yumis84-7003s-projects.vercel.app";
-const acceptedOrigins = new Set([cabinetOrigin, "https://otzovik-pr51-preview-829o75tft-yumis84-7003s-projects.vercel.app", "https://otzovik-pr51-preview-kzo4hxmal-yumis84-7003s-projects.vercel.app", "https://otzovik-pr51-preview-5q7klqpoj-yumis84-7003s-projects.vercel.app"]);
+const acceptedOrigins = new Set([cabinetOrigin, "https://otzovik-pr51-preview-829o75tft-yumis84-7003s-projects.vercel.app", "https://otzovik-pr51-preview-kzo4hxmal-yumis84-7003s-projects.vercel.app", "https://otzovik-pr51-preview-5q7klqpoj-yumis84-7003s-projects.vercel.app", "https://otzovik-pr51-preview-1ryercaud-yumis84-7003s-projects.vercel.app"]);
 const roles = new Set(["admin", "manager", "analyst"]);
 
 Deno.serve(async (request) => {
