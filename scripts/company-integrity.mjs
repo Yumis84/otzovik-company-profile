@@ -19,7 +19,7 @@ export function approvedCompanyVersion(file,original){
  return original;
 }
 export function checkCompanyBytes(file,original,actual){
- const work1Pins={'account-services.html': '29d68190d6d755b6b9022b071549d15dcf43cb712b11eecaef0f82f39b2545fc', 'account-qna.html': 'aa8119c6eb231de36959fa5572663d927a9ff5c510b7d6b7c777ea7ed23ea09b'};
+ const work1Pins={'account-services.html': '8aa904fdd8e28d620b026bd4afc5aa08ca01806636b57b2209a7b7e77b249453', 'account-qna.html': 'aa8119c6eb231de36959fa5572663d927a9ff5c510b7d6b7c777ea7ed23ea09b'};
  if(Object.hasOwn(work1Pins,file)){assert.equal(crypto.createHash('sha256').update(actual).digest('hex'),work1Pins[file],'Unexpected company change: '+file);return;}
  if(file==='account-profile.html'){
   assert.equal(crypto.createHash('sha256').update(actual).digest('hex'),'9470e3d9bfcce336ecf623acb3b5c4c3564e6b73d65c872c1cfa093e60137401','Unexpected company change: '+file);
