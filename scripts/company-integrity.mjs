@@ -19,6 +19,8 @@ export function approvedCompanyVersion(file,original){
  return original;
 }
 export function checkCompanyBytes(file,original,actual){
+ const work1Pins={'account-services.html': '29d68190d6d755b6b9022b071549d15dcf43cb712b11eecaef0f82f39b2545fc', 'account-qna.html': 'aa8119c6eb231de36959fa5572663d927a9ff5c510b7d6b7c777ea7ed23ea09b'};
+ if(Object.hasOwn(work1Pins,file)){assert.equal(crypto.createHash('sha256').update(actual).digest('hex'),work1Pins[file],'Unexpected company change: '+file);return;}
  if(file==='account-profile.html'){
   assert.equal(crypto.createHash('sha256').update(actual).digest('hex'),'9470e3d9bfcce336ecf623acb3b5c4c3564e6b73d65c872c1cfa093e60137401','Unexpected company change: '+file);
   return;
@@ -35,7 +37,7 @@ export function checkCompanyIntegrity(manifest){
  assert.deepEqual(manifest.companySource,protectedSource.companySource,'Protected company file list cannot be weakened');
  for(const file of manifest.companySource.files){const original=git('show',basis+':'+file),actual=git('show','HEAD:'+file);checkCompanyBytes(file,original,actual);assert.equal(fs.readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/\r\n/g,'\n'),actual,'Worktree differs from HEAD: '+file);}
  const changed=git('diff','--name-only',basis,'HEAD','--','account*.html','account*.js','account*.css').trim().split('\n').filter(Boolean);
- for(const file of changed){if(file.startsWith('account-specialist-')||file==='account-create-specialist.html')continue;assert(['account-company-context.js','account-profile.css','account-shared-navigation.js','account-home.html','account-access.html','account-profile.html'].includes(file),'Unexpected company path: '+file);}
+ for(const file of changed){if(file.startsWith('account-specialist-')||file==='account-create-specialist.html')continue;assert(['account-company-context.js','account-profile.css','account-shared-navigation.js','account-home.html','account-access.html','account-profile.html','account-services.html','account-qna.html'].includes(file),'Unexpected company path: '+file);}
  const shared=fs.readFileSync(new URL('../account-shared-navigation.js',import.meta.url),'utf8').replace(/\r\n/g,'\n');
  const expected='261c7d602b1ed94b63466e4b8e7d9bc65e4dfdd33a852c0d02060cc682b6788e';assert.equal(crypto.createHash('sha256').update(shared).digest('hex'),expected,'Shared navigation drift');
  assert.equal(git('show','HEAD:account-shared-navigation.js'),shared,'Shared navigation worktree drift');

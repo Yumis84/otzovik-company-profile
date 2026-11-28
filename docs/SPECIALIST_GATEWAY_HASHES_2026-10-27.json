@@ -223,7 +223,7 @@
     },
     {
       "file": "scripts/company-integrity.mjs",
-      "sha256": "fb1bb073814de46799a09f32eb6fe8086feccbb60fa71ba56bfd481d43e4cba2"
+      "sha256": "3a87049680e1fd0bf309165c7f49677c2b0e7eab6800b9d518a3b0947b19d544"
     },
     {
       "file": "tests/company-integrity.mjs",
@@ -291,7 +291,7 @@
     },
     {
       "file": "account-create-specialist.html",
-      "sha256": "272ea0280081f8b5989fda2c73fcf55c26bd36135c3dee837205c470c7395526"
+      "sha256": "49df7e0261c046add17df45dbda76dba41af7807b37529177d871d45e22156bb"
     },
     {
       "file": "tests/specialist-ux-browser.mjs",

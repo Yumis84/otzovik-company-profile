@@ -58,13 +58,22 @@ async function loadPublicationOptions(id,load){
  });
 }
 
+const activityButton=document.createElement('button');
+activityButton.type='button';
+activityButton.hidden=true;
+unpublishButton.after(activityButton);
 let publicationState=null,publicationDirty=false,publicationBusy=false,publicationLoad=0;
-function publicationButtons(){publishButton.textContent=publicationState?.state==='published'?'Обновить публикацию':'Опубликовать';selection.disabled=publicationBusy||!publicationState;publicationConfirm.disabled=publicationBusy||!publicationState;publishButton.disabled=publicationBusy||publicationDirty||!publicationConfirm.checked||!publicationState?.public_enabled||publicationState?.state==='suspended';unpublishButton.disabled=publicationBusy||!publicationState||publicationState.state!=='published';}
+function publicationButtons(){
+ const canSetActivity=publicationState?.state==='published'&&typeof publicationState.is_active==='boolean';
+ activityButton.hidden=!canSetActivity;
+ activityButton.disabled=!canSetActivity||publicationBusy;
+ activityButton.textContent=publicationState?.is_active===false?'Активировать профиль':'Деактивировать профиль';
+ publishButton.textContent=publicationState?.state==='published'?'Обновить публикацию':'Опубликовать';selection.disabled=publicationBusy||!publicationState;publicationConfirm.disabled=publicationBusy||!publicationState;publishButton.disabled=publicationBusy||publicationDirty||!publicationConfirm.checked||!publicationState?.public_enabled||publicationState?.state==='suspended';unpublishButton.disabled=publicationBusy||!publicationState||publicationState.state!=='published';}
 publicationConfirm.addEventListener('change',publicationButtons);
 form.addEventListener('input',()=>{publicationDirty=true;publicationConfirm.checked=false;publicationButtons();});
 async function loadPublication(id,item){
  const load=++publicationLoad;publication.hidden=false;publicationState=null;publicationButtons();publicationStatus.textContent='Проверяем статус публикации…';publicationPreview.replaceChildren();
- try{const {data,error}=await withReadTimeout(s.rpc('get_my_specialist_publication_v1',{p_specialist_id:id}));if(load!==publicationLoad)return;if(error||!data||!Number.isInteger(data.version)||data.version<1||typeof data.public_enabled!=='boolean'||!['unpublished','published','suspended'].includes(data.state)||!data.preview||typeof data.preview!=='object')throw error||Error('Unavailable');for(const [label,key] of [['Имя','display_name'],['Профессия','profession'],['Специализация','specialization'],['Город','city'],['Описание','description']]){const row=document.createElement('p');row.textContent=label+': '+(data.preview[key]||'—');publicationPreview.append(row);}await loadPublicationOptions(id,load);if(load!==publicationLoad)return;publicationConfirm.checked=false;publicationState=data;publishButton.textContent=data.state==='published'?'Обновить публикацию':'Опубликовать';publicationStatus.textContent=data.state==='suspended'?'Публикация приостановлена. Обратитесь в поддержку.':data.state==='published'?(data.public_enabled?'Профиль опубликован.':'Публикация сохранена, публичный показ сейчас отключён.'):'Профиль не опубликован.';if(!data.public_enabled&&data.state!=='published')publicationStatus.textContent+=' Публичный показ пока недоступен.';}catch{if(load===publicationLoad)publicationStatus.textContent='Управление публикацией пока недоступно.';}finally{if(load===publicationLoad)publicationButtons();}
+ try{const {data,error}=await withReadTimeout(s.rpc('get_my_specialist_publication_v1',{p_specialist_id:id}));if(load!==publicationLoad)return;if(error||!data||!Number.isInteger(data.version)||data.version<1||typeof data.public_enabled!=='boolean'||!['unpublished','published','suspended'].includes(data.state)||!data.preview||typeof data.preview!=='object')throw error||Error('Unavailable');for(const [label,key] of [['Имя','display_name'],['Профессия','profession'],['Специализация','specialization'],['Город','city'],['Описание','description']]){const row=document.createElement('p');row.textContent=label+': '+(data.preview[key]||'—');publicationPreview.append(row);}await loadPublicationOptions(id,load);if(load!==publicationLoad)return;publicationConfirm.checked=false;publicationState=data;publishButton.textContent=data.state==='published'?'Обновить публикацию':'Опубликовать';publicationStatus.textContent=data.state==='suspended'?'Публикация приостановлена. Обратитесь в поддержку.':data.state==='published'?(data.public_enabled?'Профиль опубликован.':'Публикация сохранена, публичный показ сейчас отключён.'):'Профиль не опубликован.';if(data.state==='published'&&data.is_active===false)publicationStatus.textContent='Профиль неактивен. Прямая ссылка сохраняется.';if(!data.public_enabled&&data.state!=='published')publicationStatus.textContent+=' Публичный показ пока недоступен.';}catch{if(load===publicationLoad)publicationStatus.textContent='Управление публикацией пока недоступно.';}finally{if(load===publicationLoad)publicationButtons();}
 }
 publishButton.addEventListener('click',async()=>{
  if(!publicationState||publicationDirty||publicationBusy||!publicationConfirm.checked||!publicationState.public_enabled)return;
@@ -79,6 +88,24 @@ publishButton.addEventListener('click',async()=>{
  }catch(error){publicationStatus.textContent=['40001','PT409'].includes(error?.code)?'Данные изменились. Обновите страницу и проверьте сведения.':error?.code==='54000'?'Достигнут предел запросов на публикацию. Обратитесь в поддержку.':error?.code==='55000'?'Публичный показ временно отключён.':'Не удалось подтвердить публикацию. Повторите запрос или обновите страницу.';}finally{publicationBusy=false;publicationButtons();}
 });
 unpublishButton.addEventListener('click',async()=>{if(!publicationState||publicationBusy||publicationState.state!=='published')return;publicationBusy=true;publicationButtons();try{const {data,error}=await s.rpc('unpublish_my_specialist_v1',{p_specialist_id:editId});if(error||data?.published!==false)throw error||Error('Unexpected response');let storageError=false;try{const prefix='specialist-publication:'+editId+':';for(let i=sessionStorage.length-1;i>=0;i--){const key=sessionStorage.key(i);if(key?.startsWith(prefix))sessionStorage.removeItem(key);}}catch{storageError=true;}publicationState.state='unpublished';publicationConfirm.checked=false;publicationStatus.textContent='Профиль снят с публикации.'+(storageError?' Не удалось очистить идентификаторы запросов в браузере.':'');}catch{publicationStatus.textContent='Не удалось подтвердить снятие. Обновите страницу.';}finally{publicationBusy=false;publicationButtons();}});
+activityButton.addEventListener('click',async()=>{
+ if(activityButton.disabled||activityButton.hidden)return;
+ const id=editId;
+ const nextActive=!publicationState.is_active;
+ publicationBusy=true;
+ publicationButtons();
+ try{
+  const {data,error}=await s.rpc('set_my_specialist_activity_v1',{p_specialist_id:id,p_is_active:nextActive});
+  if(error||data?.is_active!==nextActive)throw error||Error('Unexpected activity response');
+  await loadPublication(id,{});
+ }catch{
+  await loadPublication(id,{});
+  publicationStatus.textContent+=' Не удалось подтвердить переключение. Проверьте текущий статус.';
+ }finally{
+  publicationBusy=false;
+  publicationButtons();
+ }
+});
 installValidation(form);
 const slugInput=form.elements.namedItem('slug'),urlPreview=document.getElementById('specialist-url');
 function updateUrlPreview(){const slug=slugInput.value.trim().toLowerCase();const url=new URL('specialist-public.html',location.href);url.searchParams.set('slug',slug);if(/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug)&&!slug.includes('--')){const link=document.createElement('a');link.href=url.href;link.textContent=url.href;link.target='_blank';link.rel='noopener noreferrer';urlPreview.replaceChildren(link);}else urlPreview.textContent=''+url.origin+'/specialist-public.html';}
